@@ -83,8 +83,21 @@ TdspVertice parseTdspRow(std::list< std::map<std::string, const void*> >::const_
   return tdspVertice;
 }
 
-std::list< std::map<std::string, const void*> *> executeSQL(sqlite3 *handle, std::string query) {
-  std::list< std::map <std::string, const void*> *> results;
+std::map< std::string, const void*> parseRow(sqlite3_stmt *stmt) {
+  int cols = sqlite3_column_count(stmt);
+  std::map<std::string, const void*> row;
+  for(int col=0 ; col<cols; col++) {
+    std::string name(sqlite3_column_name(stmt, col));
+    const void *value = sqlite3_column_text(stmt, col);
+    row[name] = value;
+  }
+  printf("\nRow name: %s", (char*) row["name"]);
+  printf("\nRow size:  %lu", row.size());
+  return row;
+}
+
+std::list< std::map<std::string, const void*> > executeSQL(sqlite3 *handle, std::string query) {
+  std::list< std::map <std::string, const void*> > results;;
   sqlite3_stmt *stmt;
   sqlite3_prepare_v2(handle, "SELECT * FROM TDSP;",-1, &stmt, 0);
   int retval;
@@ -92,26 +105,14 @@ std::list< std::map<std::string, const void*> *> executeSQL(sqlite3 *handle, std
   while(1) {
     retval = sqlite3_step(stmt);
     if(retval == SQLITE_ROW) {
-      int cols = sqlite3_column_count(stmt);
-      std::map<std::string, const void*> *row = new std::map<std::string, const void*>();
-      std::map<std::string, const void*> x = *row;
-      for(int col=0 ; col<cols; col++) {
-        std::string name(sqlite3_column_name(stmt, col));
-        const void *value = sqlite3_column_text(stmt, col);
-        x[name] = value;
+      results.push_back(parseRow(stmt));
+      printf("\n\n########");
+      for (std::list< std::map<std::string, const void*> >::const_iterator it = results.begin(), end = results.end(); it != end; ++it) {
+        std::map<std::string, const void*> x = *it;
+        printf("\nName: %s", x["name"]);
       }
-      printf("\nRow name: %s", (char*) x["name"]);
-      printf("\nRow size:  %lu", x.size());
-      printf("\n%X", row);
-      results.push_back(row);
+      printf("\n########\n");
       if(c > 1) {
-        for (std::list< std::map<std::string, const void*> *>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-          std::map<std::string, const void*> x = **iterator;
-          printf("\n iterator %x", *iterator);
-          printf("\n%s", x["name"]);
-          printf("%s", x["name"]);
-          printf("%s", x["name"]);
-        }
         return results;
       }
     } else if(retval == SQLITE_DONE) {
@@ -132,7 +133,7 @@ sqlite3* openConnection() {
 
 std::list<TdspVertice> buildTdspGraph(sqlite3 *handle) {
   std::list<TdspVertice> graph;
-   std::list< std::map<std::string, const void*> *> results = executeSQL(handle, "SELECT * FROM TDSP;");
+  std::list< std::map<std::string, const void*> > results = executeSQL(handle, "SELECT * FROM TDSP;");
   // std::vector< std::map<std::string, const void*> > x(std::begin(results), std::end(results));
 
   // for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
