@@ -9,7 +9,6 @@
 struct Stop {
   std::string id;
   std::string name;
-  std::string desc;
   double lat;
   double lng;
 };
@@ -35,6 +34,13 @@ struct tm parseTime(std::string datetime) {
   return tm;
 }
 
+Json::Value toJson(std::string value) {
+  Json::Value json;
+  Json::Reader reader;
+  reader.parse(value, json);
+  return json;
+}
+
 StopTime parseStopTime(Json::Value value) {
   struct StopTime stopTime;
   stopTime.tripId = value["tripId"].asString();
@@ -47,7 +53,8 @@ StopTime parseStopTime(Json::Value value) {
 
 std::list<StopTime> parseStopTimes(Json::Value array) {
   std::list<StopTime> stopTimes;
-  for(int index=0; index < array.size(); index++) {
+  long size = array.size();
+  for(int index=0; index < size; ++index) {
     StopTime stopTime = parseStopTime(array[index]);
     stopTimes.push_back(stopTime);
   }
@@ -62,20 +69,13 @@ std::list<std::string> parseEdges(Json::Value array) {
   return stopIds;
 }
 
-Json::Value toJson(std::string value) {
-  Json::Value json;
-  Json::Reader reader;
-  reader.parse(value, json);
-  return json;
-}
-
-TdspVertice parseTdspRow(sqlite3_stmt *stmt) {
-  const char *id = (const char*)sqlite3_column_text(stmt, 0);
-  const char *name = (const char*)sqlite3_column_text(stmt, 1);
-  const char *edges = (const char*)sqlite3_column_text(stmt, 2);
-  const char *stopTimes = (const char*)sqlite3_column_text(stmt, 3);
+TdspVertice parseTdspRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
+  std::map<std::string, const void*> row = *it;
+  const char*id = (const char*)row["id"];
+  const char*name = (const char*)row["name"];
+  const char*edges = (const char*)row["edges"];
+  const char*stopTimes = (const char*)row["stopTimes"];
   struct TdspVertice tdspVertice;
-
   tdspVertice.id = id;
   tdspVertice.name = name;
   tdspVertice.edges = parseEdges(toJson(edges));
@@ -83,24 +83,75 @@ TdspVertice parseTdspRow(sqlite3_stmt *stmt) {
   return tdspVertice;
 }
 
+std::list< std::map<std::string, const void*> *> executeSQL(sqlite3 *handle, std::string query) {
+  std::list< std::map <std::string, const void*> *> results;
+  sqlite3_stmt *stmt;
+  sqlite3_prepare_v2(handle, "SELECT * FROM TDSP;",-1, &stmt, 0);
+  int retval;
+  int c = 0;
+  while(1) {
+    retval = sqlite3_step(stmt);
+    if(retval == SQLITE_ROW) {
+      int cols = sqlite3_column_count(stmt);
+      std::map<std::string, const void*> *row = new std::map<std::string, const void*>();
+      std::map<std::string, const void*> x = *row;
+      for(int col=0 ; col<cols; col++) {
+        std::string name(sqlite3_column_name(stmt, col));
+        const void *value = sqlite3_column_text(stmt, col);
+        x[name] = value;
+      }
+      printf("\nRow name: %s", (char*) x["name"]);
+      printf("\nRow size:  %lu", x.size());
+      printf("\n%X", row);
+      results.push_back(row);
+      if(c > 1) {
+        for (std::list< std::map<std::string, const void*> *>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+          std::map<std::string, const void*> x = **iterator;
+          printf("\n iterator %x", *iterator);
+          printf("\n%s", x["name"]);
+          printf("%s", x["name"]);
+          printf("%s", x["name"]);
+        }
+        return results;
+      }
+    } else if(retval == SQLITE_DONE) {
+      return results;
+    } else {
+      // TODO
+      return results;
+    }
+    c++;
+  }
+}
+
+sqlite3* openConnection() {
+  sqlite3 *handle;
+  sqlite3_open_v2("cheminot.db", &handle, SQLITE_OPEN_READONLY, NULL);
+  return handle;
+}
+
+std::list<TdspVertice> buildTdspGraph(sqlite3 *handle) {
+  std::list<TdspVertice> graph;
+   std::list< std::map<std::string, const void*> *> results = executeSQL(handle, "SELECT * FROM TDSP;");
+  // std::vector< std::map<std::string, const void*> > x(std::begin(results), std::end(results));
+
+  // for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+  //   //try {
+  //     TdspVertice tdspVertice = parseTdspRow(iterator);
+  //     graph.push_back(tdspVertice);
+  //   // } catch(std::runtime_error &e) {
+  //   //   printf("Caught a runtime_error exception: %s", e.what());
+  //   // }
+  // }
+  return graph;
+}
+
 int main(void) {
   printf("cheminot !");
-  int retval;
-  sqlite3 *handle;
-  retval = sqlite3_open_v2("cheminot.db", &handle, SQLITE_OPEN_READONLY, NULL);
-  sqlite3_stmt *stmt;
-  retval = sqlite3_prepare_v2(handle, "SELECT * FROM TDSP;",-1, &stmt, 0);
-  retval = sqlite3_step(stmt);
-  if(retval == SQLITE_ROW) {
-    TdspVertice tdspVertice = parseTdspRow(stmt);
-    std::vector<std::string> edges(std::begin(tdspVertice.edges), std::end(tdspVertice.edges));
-    std::vector<StopTime> stopTimes(std::begin(tdspVertice.stopTimes), std::end(tdspVertice.stopTimes));
-    printf("====> %s", stopTimes[0].tripId.c_str());
-  } else if(retval == SQLITE_DONE) {
-    printf("DONE\n");
-  } else {
-    printf("An error occured\n");
-  }
+  sqlite3 *handle = openConnection();
+  std::list<TdspVertice> graph = buildTdspGraph(handle);
+  std::vector<TdspVertice> vertices(std::begin(graph), std::end(graph));
+  printf("\n%lu", vertices.size());
   sqlite3_close(handle);
   return 0;
 }
