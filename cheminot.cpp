@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
+#include <time.h>
 #include <string>
 #include <list>
+#include <queue>
 #include <json/json.h>
 
 struct Stop {
@@ -34,6 +36,43 @@ struct tm parseTime(std::string datetime) {
   return tm;
 }
 
+struct tm* asDateTime(time_t t) {
+  struct tm dateTime;
+  return localtime (&t);
+}
+
+time_t asTimestamp(struct tm a) {
+  return mktime(&a);
+}
+
+bool hasSameTime(struct tm *a, struct tm *b) {
+  return (a->tm_hour == b->tm_hour) && (a->tm_min == b->tm_min);
+}
+
+struct tm INFINI() {
+  struct tm *infini = asDateTime(time(0));
+  infini->tm_year = 9999;
+  return *infini;
+}
+
+bool isInfini(struct tm *t) {
+  return t->tm_year == 9999;
+}
+
+bool compareTime(struct tm a, struct tm b) {
+  if(a.tm_hour > b.tm_hour) {
+    return false;
+  } else if(a.tm_hour < b.tm_hour) {
+    return true;
+  } else {
+    if(a.tm_min > b.tm_min) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+}
+
 Json::Value toJson(std::string value) {
   Json::Value json;
   Json::Reader reader;
@@ -44,8 +83,8 @@ Json::Value toJson(std::string value) {
 StopTime parseStopTime(Json::Value value) {
   struct StopTime stopTime;
   stopTime.tripId = value["tripId"].asString();
-  stopTime.arrival = parseTime(value["arrival"].asString());
-  stopTime.departure = parseTime(value["departure"].asString());
+  stopTime.arrival = parseTime(value["arrivalTime"].asString());
+  stopTime.departure = parseTime(value["departureTime"].asString());
   stopTime.stopId = value["stopId"].asString();
   stopTime.index = value["index"].asInt();
   return stopTime;
@@ -96,7 +135,7 @@ std::map< std::string, const void*> parseRow(sqlite3_stmt *stmt) {
 std::list< std::map<std::string, const void*> > executeSQL(sqlite3 *handle, std::string query) {
   std::list< std::map <std::string, const void*> > results;
   sqlite3_stmt *stmt;
-  sqlite3_prepare_v2(handle, "SELECT * FROM TDSP;",-1, &stmt, 0);
+  sqlite3_prepare_v2(handle, query.c_str(),-1, &stmt, 0);
   int retval;
   while(1) {
     retval = sqlite3_step(stmt);
@@ -105,8 +144,7 @@ std::list< std::map<std::string, const void*> > executeSQL(sqlite3 *handle, std:
     } else if(retval == SQLITE_DONE) {
       return results;
     } else {
-      // TODO
-      return results;
+      throw std::runtime_error("Unexpected error while executing this SQL query: " + query);
     }
   }
 }
@@ -126,10 +164,96 @@ std::list<TdspVertice> buildTdspGraph(sqlite3 *handle) {
   return graph;
 }
 
+TdspVertice getTdspVerticeById(sqlite3 *handle, std:: string id) {
+  std::string query = "SELECT * FROM TDSP WHERE id = '" + id +"'";
+  std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
+  return parseTdspRow(results.begin());
+}
+
+struct PQueueItem {
+  std::string stopId;
+  struct tm arrival;
+  struct tm departure;
+  std::string tripId;
+  TdspVertice *vertice;
+
+  bool operator < (const PQueueItem& x) const {
+    return compareTime(arrival, x.arrival);
+  }
+};
+
+std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>> initialize(sqlite3 *handle, std::list<TdspVertice> *vertices, std::string vsId, struct tm ts) {
+  std::priority_queue<PQueueItem> queue;
+  std::map<std::string, TdspVertice*> indexed;
+
+  TdspVertice vs = getTdspVerticeById(handle, vsId);
+  auto isStartTime = [&] (StopTime stopTime) {
+    return hasSameTime(&stopTime.departure, &ts);
+  };
+  StopTime vsStopTime = (*std::find_if (vs.stopTimes.begin(), vs.stopTimes.end(), isStartTime));
+  printf("\nTripId %s", vsStopTime.tripId.c_str());
+
+  struct PQueueItem vsQueueItem;
+  vsQueueItem.stopId = vsId;
+  vsQueueItem.arrival = vsStopTime.arrival;
+  vsQueueItem.departure = vsStopTime.departure;
+  vsQueueItem.tripId = vsStopTime.tripId;
+  queue.push(vsQueueItem);
+
+  for (std::list<TdspVertice>::const_iterator iterator = (*vertices).begin(), end = (*vertices).end(); iterator != end; ++iterator) {
+    TdspVertice vertice = *iterator;
+    indexed[vsId] = &vertice;
+    if(vertice.id != vsId) {
+      struct PQueueItem item;
+      item.stopId = vertice.id;
+      item.arrival = INFINI();
+      item.departure = INFINI();
+      item.vertice = &vertice;
+      queue.push(item);
+    }
+  }
+  return std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>> (queue, indexed);
+}
+
+std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::string veId) {
+  std::map<std::string, PQueueItem> results;
+  while(!queue->empty()) {
+    PQueueItem head = queue->top();
+    queue->pop();
+    results[head.stopId] = head;
+    if(isInfini(&head.arrival)) {
+      throw std::runtime_error("break");
+    } else if(head.stopId == veId) {
+      return results;
+    } else {
+      TdspVertice vi = (*(*indexed)[head.stopId]);
+      vi.stopTimes.remove_if([&] (const StopTime& stopTime) {
+        return compareTime(stopTime.departure, head.departure);
+      });
+      vi.stopTimes.sort([](const StopTime& first, const StopTime& second) {
+        return compareTime(first.departure, second.departure);
+      });
+    }
+  };
+  return results;
+}
+
 int main(void) {
   printf("cheminot !");
   sqlite3 *handle = openConnection();
+
   std::list<TdspVertice> graph = buildTdspGraph(handle);
+
+  const time_t t = time(0);
+  struct tm *ts = localtime(&t);
+  ts->tm_hour = 7;
+  ts->tm_min = 57;
+
+  auto initialized = initialize(handle, &graph, "StopPoint:OCETrain TER-87394007", *ts);
+  std::priority_queue<PQueueItem> queue = std::get<0>(initialized);
+  std::map<std::string, TdspVertice*> indexed = std::get<1>(initialized);
+  refineArrivalTimes(handle, &graph, &queue, &indexed, "StopPoint:OCETrain TER-87391003");
+
   sqlite3_close(handle);
   return 0;
 }
