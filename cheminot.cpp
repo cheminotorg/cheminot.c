@@ -6,6 +6,7 @@
 #include <string>
 #include <list>
 #include <queue>
+#include <numeric>
 #include <json/json.h>
 
 struct StopTime {
@@ -33,7 +34,6 @@ struct Trip {
   std::string id;
   Calendar calendar;
   std::string direction;
-  std::list<StopTime> stopTimes;
 };
 
 struct Stop {
@@ -128,6 +128,21 @@ std::list<std::string> parseEdges(Json::Value array) {
   return stopIds;
 }
 
+Calendar parseCalendar(Json::Value value) {
+  struct Calendar calendar;
+  calendar.serviceId = value["serviceId"].asString();
+  calendar.monday = value["monday"].asString() == "1";
+  calendar.tuesday = value["tuesday"].asString() == "1";
+  calendar.wednesday = value["wednesday"].asString() == "1";
+  calendar.thursday = value["thursday"].asString() == "1";
+  calendar.friday = value["friday"].asString() == "1";
+  calendar.saturday = value["saturday"].asString() == "1";
+  calendar.sunday = value["sunday"].asString() == "1";
+  calendar.startDate = parseTime(value["startDate"].asString());
+  calendar.endDate = parseTime(value["endDate"].asString());
+  return calendar;
+}
+
 TdspVertice parseTdspRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
   std::map<std::string, const void*> row = *it;
   const char*id = (const char*)row["id"];
@@ -140,6 +155,20 @@ TdspVertice parseTdspRow(std::list< std::map<std::string, const void*> >::const_
   tdspVertice.edges = parseEdges(toJson(edges));
   tdspVertice.stopTimes = parseStopTimes(toJson(stopTimes));
   return tdspVertice;
+}
+
+Trip parseTripRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
+  std::map<std::string, const void*> row = *it;
+  const char*id = (const char*)row["id"];
+  const char*calendar = (const char*)row["service"];
+  const char*direction = (const char*)row["direction"];
+  struct Trip trip;
+  trip.id = id;
+  if(calendar) {
+    trip.calendar = parseCalendar(toJson(calendar));
+  }
+  trip.direction = direction;
+  return trip;
 }
 
 std::map< std::string, const void*> parseRow(sqlite3_stmt *stmt) {
@@ -195,6 +224,22 @@ std::string getStopsTree(sqlite3 *handle) {
   std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
   char *stopsTree = (char *)results.front()["value"];
   return stopsTree;
+}
+
+std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids) {
+  std::list<Trip> trips;
+  std::string params = std::accumulate(ids.begin(), ids.end(), (std::string)"", [](std::string acc, std::string id) {
+    std::string p = "id = '" + id + "'";
+    return (acc == "") ? p : (acc + " OR " + p);
+  });
+  if(params != "") {
+    std::string query = "SELECT * FROM TRIPS WHERE " + params;
+    std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
+    for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+      trips.push_back(parseTripRow(iterator));
+    }
+  }
+  return trips;
 }
 
 struct PQueueItem {
