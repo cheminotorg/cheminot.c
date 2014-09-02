@@ -30,6 +30,12 @@ struct Calendar {
   struct tm endDate;
 };
 
+struct CalendarException {
+  std::string serviceId;
+  struct tm date;
+  int exceptionType;
+};
+
 struct Trip {
   std::string id;
   Calendar calendar;
@@ -98,6 +104,20 @@ Json::Value toJson(std::string value) {
   Json::Reader reader;
   reader.parse(value, json);
   return json;
+}
+
+std::list<CalendarException> parseCalendarExceptions(Json::Value array) {
+  std::list<CalendarException> calendarExceptions;
+  long size = array.size();
+  for(int index=0; index < size; ++index) {
+    CalendarException calendarException;
+    Json::Value value = array[index];
+    calendarException.serviceId = value["serviceId"].asString();
+    calendarException.date = parseTime(value["date"].asString());
+    calendarException.exceptionType = value["exceptionType"].asInt();
+    calendarExceptions.push_back(calendarException);
+  }
+  return calendarExceptions;
 }
 
 StopTime parseStopTime(Json::Value value) {
@@ -226,6 +246,13 @@ std::string getStopsTree(sqlite3 *handle) {
   return stopsTree;
 }
 
+std::list<CalendarException> getCalendarExceptions(sqlite3 *handle) {
+  std::string query = "SELECT value FROM CACHE WHERE key = 'exceptions'";
+  std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
+  char *exceptions = (char *)results.front()["value"];
+  return parseCalendarExceptions(toJson(exceptions));
+}
+
 std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids) {
   std::list<Trip> trips;
   std::string params = std::accumulate(ids.begin(), ids.end(), (std::string)"", [](std::string acc, std::string id) {
@@ -287,7 +314,7 @@ std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>>
   return std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>> (queue, indexed);
 }
 
-std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::string veId) {
+ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::list<CalendarException> *calendarExceptions, std::string veId) {
   std::map<std::string, PQueueItem> results;
   while(!queue->empty()) {
     PQueueItem head = queue->top();
@@ -299,10 +326,11 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<
       return results;
     } else {
       TdspVertice vi = (*(*indexed)[head.stopId]);
-      vi.stopTimes.remove_if([&] (const StopTime& stopTime) {
+      std::list<StopTime> stopTimes(vi.stopTimes);
+      stopTimes.remove_if([&] (const StopTime& stopTime) {
         return compareTime(stopTime.departure, head.departure);
       });
-      vi.stopTimes.sort([](const StopTime& first, const StopTime& second) {
+      stopTimes.sort([](const StopTime& first, const StopTime& second) {
         return compareTime(first.departure, second.departure);
       });
     }
@@ -314,17 +342,17 @@ int main(void) {
   printf("cheminot !");
   sqlite3 *handle = openConnection();
 
-  std::list<TdspVertice> graph = buildTdspGraph(handle);
-
   const time_t t = time(0);
   struct tm *ts = localtime(&t);
   ts->tm_hour = 7;
   ts->tm_min = 57;
 
+  std::list<TdspVertice> graph = buildTdspGraph(handle);
+  std::list<CalendarException> calendarExceptions = getCalendarExceptions(handle);
   auto initialized = initialize(handle, &graph, "StopPoint:OCETrain TER-87394007", *ts);
   std::priority_queue<PQueueItem> queue = std::get<0>(initialized);
   std::map<std::string, TdspVertice*> indexed = std::get<1>(initialized);
-  refineArrivalTimes(handle, &graph, &queue, &indexed, "StopPoint:OCETrain TER-87391003");
+  refineArrivalTimes(handle, &graph, &queue, &indexed, &calendarExceptions, "StopPoint:OCETrain TER-87391003");
 
   sqlite3_close(handle);
   return 0;
