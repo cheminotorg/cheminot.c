@@ -8,19 +8,39 @@
 #include <queue>
 #include <json/json.h>
 
-struct Stop {
-  std::string id;
-  std::string name;
-  double lat;
-  double lng;
-};
-
 struct StopTime {
   std::string tripId;
   struct tm arrival;
   struct tm departure;
   std::string stopId;
   int index;
+};
+
+struct Calendar {
+  std::string serviceId;
+  bool monday;
+  bool tuesday;
+  bool wednesday;
+  bool thursday;
+  bool friday;
+  bool saturday;
+  bool sunday;
+  struct tm startDate;
+  struct tm endDate;
+};
+
+struct Trip {
+  std::string id;
+  Calendar calendar;
+  std::string direction;
+  std::list<StopTime> stopTimes;
+};
+
+struct Stop {
+  std::string id;
+  std::string name;
+  double lat;
+  double lng;
 };
 
 struct TdspVertice {
@@ -168,6 +188,13 @@ TdspVertice getTdspVerticeById(sqlite3 *handle, std:: string id) {
   std::string query = "SELECT * FROM TDSP WHERE id = '" + id +"'";
   std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
   return parseTdspRow(results.begin());
+}
+
+std::string getStopsTree(sqlite3 *handle) {
+  std::string query = "SELECT value FROM CACHE WHERE key = 'stopsTree'";
+  std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
+  char *stopsTree = (char *)results.front()["value"];
+  return stopsTree;
 }
 
 struct PQueueItem {
