@@ -100,16 +100,21 @@ Json::Value toJson(std::string value) {
   return json;
 }
 
-std::list<CalendarException> parseCalendarExceptions(Json::Value array) {
-  std::list<CalendarException> calendarExceptions;
-  long size = array.size();
-  for(int index=0; index < size; ++index) {
-    CalendarException calendarException;
-    Json::Value value = array[index];
-    calendarException.serviceId = value["serviceId"].asString();
-    calendarException.date = parseTime(value["date"].asString());
-    calendarException.exceptionType = value["exceptionType"].asInt();
-    calendarExceptions.push_back(calendarException);
+std::map<std::string, std::list<CalendarException>> parseCalendarExceptions(Json::Value json) {
+  std::map<std::string, std::list<CalendarException>> calendarExceptions;
+  for(auto const &serviceId : json.getMemberNames()) {
+    std::list<CalendarException> exceptions;
+    Json::Value array = json[serviceId];
+    long size = array.size();
+    for(int index=0; index < size; ++index) {
+      CalendarException calendarException;
+      Json::Value value = array[index];
+      calendarException.serviceId = value["serviceId"].asString();
+      calendarException.date = parseTime(value["date"].asString());
+      calendarException.exceptionType = value["exceptionType"].asInt();
+      exceptions.push_back(calendarException);
+    }
+    calendarExceptions[serviceId] = exceptions;
   }
   return calendarExceptions;
 }
@@ -243,7 +248,7 @@ std::string getStopsTree(sqlite3 *handle) {
   return stopsTree;
 }
 
-std::list<CalendarException> getCalendarExceptions(sqlite3 *handle) {
+std::map<std::string, std::list<CalendarException>> getCalendarExceptions(sqlite3 *handle) {
   std::string query = "SELECT value FROM CACHE WHERE key = 'exceptions'";
   std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
   char *exceptions = (char *)results.front()["value"];
@@ -296,7 +301,7 @@ std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>>
   vsQueueItem.tripId = vsStopTime.tripId;
   queue.push(vsQueueItem);
 
-  for (std::list<TdspVertice>::const_iterator iterator = (*vertices).begin(), end = (*vertices).end(); iterator != end; ++iterator) {
+  for (std::list<TdspVertice>::const_iterator iterator = vertices->begin(), end = vertices->end(); iterator != end; ++iterator) {
     TdspVertice vertice = *iterator;
     indexed[vsId] = &vertice;
     if(vertice.id != vsId) {
@@ -350,13 +355,26 @@ bool isTripInPeriod(Trip *trip, struct tm when) {
 
 bool isTripValidOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
   if(&trip->calendar != NULL) { //TODO
-    return true;
-  } else {
-    return false;
+    bool removed = isTripRemovedOn(trip, calendarExceptions, when);
+    bool inPeriod = isTripInPeriod(trip, when);
+    bool availableToday = isTripValidToday(trip, when);
+    bool added = isTripAddedOn(trip, calendarExceptions, when);
+    return (!removed && inPeriod && availableToday) || added;
   }
+  return false;
 }
 
- std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::list<CalendarException> *calendarExceptions, std::string veId) {
+std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+  std::map<std::string, bool> availablities;
+  auto trips = getTripsByIds(handle, ids);
+  for (std::list<Trip>::const_iterator iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator) {
+    Trip trip = *iterator;
+    availablities[trip.id] = isTripValidOn(&trip, calendarExceptions, when);
+  }
+  return availablities;
+}
+
+std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string veId, struct tm when) {
   std::map<std::string, PQueueItem> results;
   while(!queue->empty()) {
     PQueueItem head = queue->top();
@@ -369,9 +387,22 @@ bool isTripValidOn(Trip *trip, std::map<std::string, std::list<CalendarException
     } else {
       TdspVertice vi = (*(*indexed)[head.stopId]);
       std::list<StopTime> stopTimes(vi.stopTimes);
+
       stopTimes.remove_if([&] (const StopTime& stopTime) {
         return compareTime(stopTime.departure, head.departure);
       });
+
+      std::list<std::string> tripIds;
+      for (std::list<StopTime>::const_iterator iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
+        tripIds.push_back(iterator->tripId);
+      }
+
+      auto availablities = tripsAvailability(handle, tripIds, calendarExceptions, when);
+
+      stopTimes.remove_if([&] (const StopTime& stopTime) {
+          return availablities[stopTime.tripId];
+      });
+
       stopTimes.sort([](const StopTime& first, const StopTime& second) {
         return compareTime(first.departure, second.departure);
       });
@@ -384,17 +415,17 @@ int main(void) {
   printf("cheminot !");
   sqlite3 *handle = openConnection();
 
-  const time_t t = time(0);
-  struct tm *ts = localtime(&t);
+  const time_t startTime = time(0);
+  struct tm *ts = localtime(&startTime);
   ts->tm_hour = 7;
   ts->tm_min = 57;
 
   std::list<TdspVertice> graph = buildTdspGraph(handle);
-  std::list<CalendarException> calendarExceptions = getCalendarExceptions(handle);
+  auto calendarExceptions = getCalendarExceptions(handle);
   auto initialized = initialize(handle, &graph, "StopPoint:OCETrain TER-87394007", *ts);
   std::priority_queue<PQueueItem> queue = std::get<0>(initialized);
   std::map<std::string, TdspVertice*> indexed = std::get<1>(initialized);
-  refineArrivalTimes(handle, &graph, &queue, &indexed, &calendarExceptions, "StopPoint:OCETrain TER-87391003");
+  refineArrivalTimes(handle, &graph, &queue, &indexed, &calendarExceptions, "StopPoint:OCETrain TER-87391003", *ts);
 
   sqlite3_close(handle);
   return 0;
