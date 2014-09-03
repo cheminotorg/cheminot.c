@@ -374,6 +374,31 @@ std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::st
   return availablities;
 }
 
+std::list<StopTime> nextDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, PQueueItem *vi, struct tm when) {
+
+  std::list<StopTime> departures(vi->vertice->stopTimes);
+  departures.remove_if([&] (const StopTime& stopTime) {
+    return compareTime(stopTime.departure, vi->departure);
+  });
+
+  std::list<std::string> tripIds;
+  for (std::list<StopTime>::const_iterator iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
+    tripIds.push_back(iterator->tripId);
+  }
+
+  auto availablities = tripsAvailability(handle, tripIds, calendarExceptions, when);
+
+  departures.remove_if([&] (const StopTime& stopTime) {
+    return availablities[stopTime.tripId];
+  });
+
+  departures.sort([](const StopTime& first, const StopTime& second) {
+    return compareTime(first.departure, second.departure);
+  });
+
+  return departures;
+}
+
 std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string veId, struct tm when) {
   std::map<std::string, PQueueItem> results;
   while(!queue->empty()) {
@@ -385,27 +410,9 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<
     } else if(head.stopId == veId) {
       return results;
     } else {
-      TdspVertice vi = (*(*indexed)[head.stopId]);
-      std::list<StopTime> stopTimes(vi.stopTimes);
-
-      stopTimes.remove_if([&] (const StopTime& stopTime) {
-        return compareTime(stopTime.departure, head.departure);
-      });
-
-      std::list<std::string> tripIds;
-      for (std::list<StopTime>::const_iterator iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
-        tripIds.push_back(iterator->tripId);
-      }
-
-      auto availablities = tripsAvailability(handle, tripIds, calendarExceptions, when);
-
-      stopTimes.remove_if([&] (const StopTime& stopTime) {
-          return availablities[stopTime.tripId];
-      });
-
-      stopTimes.sort([](const StopTime& first, const StopTime& second) {
-        return compareTime(first.departure, second.departure);
-      });
+      TdspVertice vi = *(head.vertice);
+      auto departures = nextDepartures(handle, calendarExceptions, &head, when);
+      
     }
   };
   return results;
