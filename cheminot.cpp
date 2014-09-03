@@ -19,13 +19,7 @@ struct StopTime {
 
 struct Calendar {
   std::string serviceId;
-  bool monday;
-  bool tuesday;
-  bool wednesday;
-  bool thursday;
-  bool friday;
-  bool saturday;
-  bool sunday;
+  std::map<std::string, bool> week;
   struct tm startDate;
   struct tm endDate;
 };
@@ -62,9 +56,9 @@ struct tm parseTime(std::string datetime) {
   return tm;
 }
 
-struct tm* asDateTime(time_t t) {
+struct tm asDateTime(time_t t) {
   struct tm dateTime;
-  return localtime (&t);
+  return *(localtime (&t));
 }
 
 time_t asTimestamp(struct tm a) {
@@ -76,9 +70,9 @@ bool hasSameTime(struct tm *a, struct tm *b) {
 }
 
 struct tm INFINI() {
-  struct tm *infini = asDateTime(time(0));
-  infini->tm_year = 9999;
-  return *infini;
+  struct tm infini = asDateTime(time(0));
+  infini.tm_year = 9999;
+  return infini;
 }
 
 bool isInfini(struct tm *t) {
@@ -150,14 +144,17 @@ std::list<std::string> parseEdges(Json::Value array) {
 
 Calendar parseCalendar(Json::Value value) {
   struct Calendar calendar;
+  std::map<std::string, bool> week;
+  week["monday"] = value["monday"].asString() == "1";
+  week["tuesday"] = value["tuesday"].asString() == "1";
+  week["wednesday"] = value["wednesday"].asString() == "1";
+  week["thursday"] = value["thursday"].asString() == "1";
+  week["friday"] = value["friday"].asString() == "1";
+  week["saturday"] = value["saturday"].asString() == "1";
+  week["sunday"] = value["sunday"].asString() == "1";
+
   calendar.serviceId = value["serviceId"].asString();
-  calendar.monday = value["monday"].asString() == "1";
-  calendar.tuesday = value["tuesday"].asString() == "1";
-  calendar.wednesday = value["wednesday"].asString() == "1";
-  calendar.thursday = value["thursday"].asString() == "1";
-  calendar.friday = value["friday"].asString() == "1";
-  calendar.saturday = value["saturday"].asString() == "1";
-  calendar.sunday = value["sunday"].asString() == "1";
+  calendar.week = week;
   calendar.startDate = parseTime(value["startDate"].asString());
   calendar.endDate = parseTime(value["endDate"].asString());
   return calendar;
@@ -312,6 +309,51 @@ std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>>
     }
   }
   return std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>> (queue, indexed);
+}
+
+bool isTripRemovedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar.serviceId];
+  if(!exceptions.empty()) {
+    std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
+        return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 2;
+      });
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool isTripAddedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar.serviceId];
+  if(!exceptions.empty()) {
+    std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
+        return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 1;
+      });
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool isTripValidToday(Trip *trip, struct tm when) {
+  std::map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
+  return trip->calendar.week[week[when.tm_wday]];
+}
+
+bool isTripInPeriod(Trip *trip, struct tm when) {
+  struct tm startDate = trip->calendar.startDate;
+  struct tm endDate = trip->calendar.endDate;
+  bool before = (asTimestamp(startDate) < asTimestamp(when) || startDate.tm_wday == when.tm_wday);
+  bool after = (asTimestamp(startDate) > asTimestamp(when) || endDate.tm_wday == when.tm_wday);
+  return before && after;
+}
+
+bool isTripValidOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+  if(&trip->calendar != NULL) { //TODO
+    return true;
+  } else {
+    return false;
+  }
 }
 
  std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::list<CalendarException> *calendarExceptions, std::string veId) {
