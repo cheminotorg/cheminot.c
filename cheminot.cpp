@@ -415,7 +415,7 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<s
             return head.tripId != stopTime.tripId;
           } else {
             auto it = std::find_if(departures.begin(), departures.end(), [&](StopTime dt) {
-              return (stopTime.tripId == dt.tripId) && compareTime(dt.departure, stopTime.arrival);
+            return (stopTime.tripId == dt.tripId) && compareTime(dt.departure, stopTime.arrival);
             });
             return it == departures.end();
           }
@@ -444,6 +444,31 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<s
   return results;
 }
 
+std::list<PQueueItem> pathSelection(std::map<std::string, TdspVertice> *graph, std::map<std::string, PQueueItem> *arrivalTimes, struct tm ts, std::string vsId, std::string veId) {
+  TdspVertice vs = (*graph)[vsId];
+  TdspVertice vj = (*graph)[veId];
+  PQueueItem ge = (*arrivalTimes)[vj.id];
+  std::list<PQueueItem> path;
+
+  while(vj.id != vs.id) {
+    PQueueItem gj = (*arrivalTimes)[vj.id];
+    for (std::list<std::string>::const_iterator iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
+      std::string viId = *iterator;
+      TdspVertice vi = (*graph)[viId];
+      PQueueItem gi = (*arrivalTimes)[vi.id];
+      auto maybeDeparture = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&](StopTime stopTime) {
+        return (stopTime.tripId == gi.tripId) && compareTime(stopTime.departure, gi.arrival);
+      });
+      if(maybeDeparture != vi.stopTimes.end()) {
+        vj = vi;
+        path.push_front(gj);
+      }
+    }
+  }
+
+  return path;
+}
+
 int main(void) {
   printf("cheminot !");
   sqlite3 *handle = openConnection();
@@ -453,12 +478,13 @@ int main(void) {
   ts->tm_hour = 7;
   ts->tm_min = 57;
 
+  std::string vsId = "StopPoint:OCETrain TER-87394007";
+  std::string veId = "StopPoint:OCETrain TER-87391003";
+
   std::map<std::string, TdspVertice> graph = buildTdspGraph(handle);
   auto calendarExceptions = getCalendarExceptions(handle);
-  //auto initialized = initialize(handle, &graph, "StopPoint:OCETrain TER-87394007", *ts);
-  //std::priority_queue<PQueueItem> queue = std::get<0>(initialized);
-  //std::map<std::string, PQueueItem*> indexed = std::get<1>(initialized);
-  refineArrivalTimes(handle, &graph, &calendarExceptions, "StopPoint:OCETrain TER-87394007", "StopPoint:OCETrain TER-87391003", *ts);
+  auto arrivalTimes = refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, *ts);
+  pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
 
   sqlite3_close(handle);
   return 0;
