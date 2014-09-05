@@ -32,7 +32,7 @@ struct CalendarException {
 
 struct Trip {
   std::string id;
-  Calendar calendar;
+  Calendar *calendar;
   std::string direction;
 };
 
@@ -181,13 +181,14 @@ TdspVertice parseTdspRow(std::list< std::map<std::string, const void*> >::const_
 
 Trip parseTripRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
   std::map<std::string, const void*> row = *it;
-  const char*id = (const char*)row["id"];
-  const char*calendar = (const char*)row["service"];
-  const char*direction = (const char*)row["direction"];
+  const char *id = (const char*)row["id"];
+  const char *calendar = (const char*)row["service"];
+  const char *direction = (const char*)row["direction"];
   struct Trip trip;
   trip.id = id;
   if(calendar) {
-    trip.calendar = parseCalendar(toJson(calendar));
+    Calendar c = parseCalendar(toJson(calendar));
+    trip.calendar = &c;
   }
   trip.direction = direction;
   return trip;
@@ -226,11 +227,12 @@ sqlite3* openConnection() {
   return handle;
 }
 
-std::list<TdspVertice> buildTdspGraph(sqlite3 *handle) {
-  std::list<TdspVertice> graph;
+std::map<std::string, TdspVertice> buildTdspGraph(sqlite3 *handle) {
+  std::map<std::string, TdspVertice> graph;
   std::list< std::map<std::string, const void*> > results = executeSQL(handle, "SELECT * FROM TDSP;");
   for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-    graph.push_back(parseTdspRow(iterator));
+    TdspVertice vertice = parseTdspRow(iterator);
+    graph[vertice.id] = vertice;
   }
   return graph;
 }
@@ -283,58 +285,25 @@ struct PQueueItem {
   }
 };
 
-std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>> initialize(sqlite3 *handle, std::list<TdspVertice> *vertices, std::string vsId, struct tm ts) {
-  std::priority_queue<PQueueItem> queue;
-  std::map<std::string, TdspVertice*> indexed;
-
-  TdspVertice vs = getTdspVerticeById(handle, vsId);
-  auto isStartTime = [&] (StopTime stopTime) {
-    return hasSameTime(&stopTime.departure, &ts);
-  };
-  StopTime vsStopTime = (*std::find_if (vs.stopTimes.begin(), vs.stopTimes.end(), isStartTime));
-  printf("\nTripId %s", vsStopTime.tripId.c_str());
-
-  struct PQueueItem vsQueueItem;
-  vsQueueItem.stopId = vsId;
-  vsQueueItem.arrival = vsStopTime.arrival;
-  vsQueueItem.departure = vsStopTime.departure;
-  vsQueueItem.tripId = vsStopTime.tripId;
-  queue.push(vsQueueItem);
-
-  for (std::list<TdspVertice>::const_iterator iterator = vertices->begin(), end = vertices->end(); iterator != end; ++iterator) {
-    TdspVertice vertice = *iterator;
-    indexed[vsId] = &vertice;
-    if(vertice.id != vsId) {
-      struct PQueueItem item;
-      item.stopId = vertice.id;
-      item.arrival = INFINI();
-      item.departure = INFINI();
-      item.vertice = &vertice;
-      queue.push(item);
-    }
-  }
-  return std::tuple<std::priority_queue<PQueueItem>, std::map<std::string, TdspVertice*>> (queue, indexed);
-}
-
 bool isTripRemovedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
-  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar.serviceId];
+  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar->serviceId];
   if(!exceptions.empty()) {
-    std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
-        return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 2;
-      });
-    return true;
+    auto it = std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
+      return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 2;
+    });
+    return it != exceptions.end();
   } else {
     return false;
   }
 }
 
 bool isTripAddedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
-  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar.serviceId];
+  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar->serviceId];
   if(!exceptions.empty()) {
-    std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
-        return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 1;
-      });
-    return true;
+    auto it = std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
+      return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 1;
+    });
+    return it != exceptions.end();
   } else {
     return false;
   }
@@ -342,19 +311,19 @@ bool isTripAddedOn(Trip *trip, std::map<std::string, std::list<CalendarException
 
 bool isTripValidToday(Trip *trip, struct tm when) {
   std::map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
-  return trip->calendar.week[week[when.tm_wday]];
+  return trip->calendar->week[week[when.tm_wday]];
 }
 
 bool isTripInPeriod(Trip *trip, struct tm when) {
-  struct tm startDate = trip->calendar.startDate;
-  struct tm endDate = trip->calendar.endDate;
+  struct tm startDate = trip->calendar->startDate;
+  struct tm endDate = trip->calendar->endDate;
   bool before = (asTimestamp(startDate) < asTimestamp(when) || startDate.tm_wday == when.tm_wday);
   bool after = (asTimestamp(startDate) > asTimestamp(when) || endDate.tm_wday == when.tm_wday);
   return before && after;
 }
 
 bool isTripValidOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
-  if(&trip->calendar != NULL) { //TODO
+  if(trip->calendar != NULL) {
     bool removed = isTripRemovedOn(trip, calendarExceptions, when);
     bool inPeriod = isTripInPeriod(trip, when);
     bool availableToday = isTripValidToday(trip, when);
@@ -374,7 +343,7 @@ std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::st
   return availablities;
 }
 
-std::list<StopTime> nextDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, PQueueItem *vi, struct tm when) {
+std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, PQueueItem *vi, struct tm ts) {
 
   std::list<StopTime> departures(vi->vertice->stopTimes);
   departures.remove_if([&] (const StopTime& stopTime) {
@@ -386,7 +355,7 @@ std::list<StopTime> nextDepartures(sqlite3 *handle, std::map<std::string, std::l
     tripIds.push_back(iterator->tripId);
   }
 
-  auto availablities = tripsAvailability(handle, tripIds, calendarExceptions, when);
+  auto availablities = tripsAvailability(handle, tripIds, calendarExceptions, ts);
 
   departures.remove_if([&] (const StopTime& stopTime) {
     return availablities[stopTime.tripId];
@@ -399,20 +368,77 @@ std::list<StopTime> nextDepartures(sqlite3 *handle, std::map<std::string, std::l
   return departures;
 }
 
-std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::list<TdspVertice> *vertices, std::priority_queue<PQueueItem> *queue, std::map<std::string, TdspVertice*> *indexed, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string veId, struct tm when) {
+PQueueItem getQueueItem(sqlite3 *handle, std::string id, struct tm t) {
+  TdspVertice vertice = getTdspVerticeById(handle, id);
+  auto isStartTime = [&] (StopTime stopTime) {
+    return hasSameTime(&stopTime.departure, &t);
+  };
+  StopTime vsStopTime = (*std::find_if (vertice.stopTimes.begin(), vertice.stopTimes.end(), isStartTime));
+
+  struct PQueueItem queueItem;
+  queueItem.stopId = id;
+  queueItem.arrival = vsStopTime.arrival;
+  queueItem.departure = vsStopTime.departure;
+  queueItem.tripId = vsStopTime.tripId;
+
+  return queueItem;
+}
+
+std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<std::string, TdspVertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
+
   std::map<std::string, PQueueItem> results;
-  while(!queue->empty()) {
-    PQueueItem head = queue->top();
-    queue->pop();
+  std::priority_queue<PQueueItem> queue;
+  std::map<std::string, PQueueItem*> visited;
+
+  queue.push(getQueueItem(handle, vsId, ts));
+
+  while(!queue.empty()) {
+    PQueueItem head = queue.top();
+    queue.pop();
     results[head.stopId] = head;
+
     if(isInfini(&head.arrival)) {
       throw std::runtime_error("break");
     } else if(head.stopId == veId) {
       return results;
     } else {
       TdspVertice vi = *(head.vertice);
-      auto departures = nextDepartures(handle, calendarExceptions, &head, when);
-      
+      auto departures = getAvailableDepartures(handle, calendarExceptions, &head, ts);
+
+      for (std::list<std::string>::const_iterator iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
+        std::string vjId = *iterator;
+        TdspVertice vj = (*graph)[vjId];
+        std::list<StopTime> stopTimes(vj.stopTimes);
+
+        stopTimes.remove_if([&] (const StopTime& stopTime) {
+          if(vsId == head.stopId) {
+            return head.tripId != stopTime.tripId;
+          } else {
+            auto it = std::find_if(departures.begin(), departures.end(), [&](StopTime dt) {
+              return (stopTime.tripId == dt.tripId) && compareTime(dt.departure, stopTime.arrival);
+            });
+            return it == departures.end();
+          }
+        });
+
+        stopTimes.sort([](const StopTime& first, const StopTime& second) {
+          return compareTime(first.departure, second.departure);
+        });
+
+        if(!stopTimes.empty()) {
+          StopTime next = stopTimes.front();
+          if(visited[next.stopId] == NULL) {
+            struct PQueueItem item;
+            item.stopId = next.stopId;
+            item.arrival = next.arrival;
+            item.departure = next.departure;
+            item.tripId = next.tripId;
+            item.vertice = &vj;
+            queue.push(item);
+            visited[next.stopId] = &item;
+          }
+        }
+      }
     }
   };
   return results;
@@ -427,12 +453,12 @@ int main(void) {
   ts->tm_hour = 7;
   ts->tm_min = 57;
 
-  std::list<TdspVertice> graph = buildTdspGraph(handle);
+  std::map<std::string, TdspVertice> graph = buildTdspGraph(handle);
   auto calendarExceptions = getCalendarExceptions(handle);
-  auto initialized = initialize(handle, &graph, "StopPoint:OCETrain TER-87394007", *ts);
-  std::priority_queue<PQueueItem> queue = std::get<0>(initialized);
-  std::map<std::string, TdspVertice*> indexed = std::get<1>(initialized);
-  refineArrivalTimes(handle, &graph, &queue, &indexed, &calendarExceptions, "StopPoint:OCETrain TER-87391003", *ts);
+  //auto initialized = initialize(handle, &graph, "StopPoint:OCETrain TER-87394007", *ts);
+  //std::priority_queue<PQueueItem> queue = std::get<0>(initialized);
+  //std::map<std::string, PQueueItem*> indexed = std::get<1>(initialized);
+  refineArrivalTimes(handle, &graph, &calendarExceptions, "StopPoint:OCETrain TER-87394007", "StopPoint:OCETrain TER-87391003", *ts);
 
   sqlite3_close(handle);
   return 0;
