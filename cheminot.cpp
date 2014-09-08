@@ -13,8 +13,6 @@ struct StopTime {
   std::string tripId;
   struct tm arrival;
   struct tm departure;
-  std::string stopId;
-  int index;
 };
 
 struct Calendar {
@@ -69,17 +67,7 @@ bool hasSameTime(struct tm *a, struct tm *b) {
   return (a->tm_hour == b->tm_hour) && (a->tm_min == b->tm_min);
 }
 
-struct tm INFINI() {
-  struct tm infini = asDateTime(time(0));
-  infini.tm_year = 9999;
-  return infini;
-}
-
-bool isInfini(struct tm *t) {
-  return t->tm_year == 9999;
-}
-
-bool compareTime(struct tm a, struct tm b) {
+bool timeIsBefore(struct tm a, struct tm b) {
   if(a.tm_hour > b.tm_hour) {
     return false;
   } else if(a.tm_hour < b.tm_hour) {
@@ -122,10 +110,8 @@ std::map<std::string, std::list<CalendarException>> parseCalendarExceptions(Json
 StopTime parseStopTime(Json::Value value) {
   struct StopTime stopTime;
   stopTime.tripId = value["tripId"].asString();
-  stopTime.arrival = parseTime(value["arrivalTime"].asString());
-  stopTime.departure = parseTime(value["departureTime"].asString());
-  stopTime.stopId = value["stopId"].asString();
-  stopTime.index = value["index"].asInt();
+  stopTime.arrival = parseTime(value["arrivalTime"].asString()); //TODO
+  stopTime.departure = parseTime(value["departureTime"].asString()); //TODO
   return stopTime;
 }
 
@@ -279,9 +265,12 @@ struct PQueueItem {
   struct tm departure;
   std::string tripId;
   TdspVertice *vertice;
+};
 
-  bool operator < (const PQueueItem& x) const {
-    return compareTime(arrival, x.arrival);
+class CompareArrivalTime {
+public:
+  bool operator()(const PQueueItem& gi, const PQueueItem& gj) {
+    return timeIsBefore(gj.departure, gi.departure);
   }
 };
 
@@ -323,14 +312,15 @@ bool isTripInPeriod(Trip *trip, struct tm when) {
 }
 
 bool isTripValidOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
-  if(trip->calendar != NULL) {
-    bool removed = isTripRemovedOn(trip, calendarExceptions, when);
-    bool inPeriod = isTripInPeriod(trip, when);
-    bool availableToday = isTripValidToday(trip, when);
-    bool added = isTripAddedOn(trip, calendarExceptions, when);
-    return (!removed && inPeriod && availableToday) || added;
-  }
-  return false;
+  return true;
+  // if(trip->calendar != NULL) {
+  //   bool removed = isTripRemovedOn(trip, calendarExceptions, when);
+  //   bool inPeriod = isTripInPeriod(trip, when);
+  //   bool availableToday = isTripValidToday(trip, when);
+  //   bool added = isTripAddedOn(trip, calendarExceptions, when);
+  //   return (!removed && inPeriod && availableToday) || added;
+  // }
+  //return false;
 }
 
 std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
@@ -346,8 +336,9 @@ std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::st
 std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, PQueueItem *vi, struct tm ts) {
 
   std::list<StopTime> departures(vi->vertice->stopTimes);
+
   departures.remove_if([&] (const StopTime& stopTime) {
-    return compareTime(stopTime.departure, vi->departure);
+    return timeIsBefore(stopTime.departure, vi->departure);
   });
 
   std::list<std::string> tripIds;
@@ -358,84 +349,81 @@ std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string
   auto availablities = tripsAvailability(handle, tripIds, calendarExceptions, ts);
 
   departures.remove_if([&] (const StopTime& stopTime) {
-    return availablities[stopTime.tripId];
+    return !availablities[stopTime.tripId];
   });
 
   departures.sort([](const StopTime& first, const StopTime& second) {
-    return compareTime(first.departure, second.departure);
+    return timeIsBefore(first.departure, second.departure);
   });
 
   return departures;
 }
 
-PQueueItem getQueueItem(sqlite3 *handle, std::string id, struct tm t) {
-  TdspVertice vertice = getTdspVerticeById(handle, id);
-  auto isStartTime = [&] (StopTime stopTime) {
-    return hasSameTime(&stopTime.departure, &t);
-  };
-  StopTime vsStopTime = (*std::find_if (vertice.stopTimes.begin(), vertice.stopTimes.end(), isStartTime));
-
-  struct PQueueItem queueItem;
-  queueItem.stopId = id;
-  queueItem.arrival = vsStopTime.arrival;
-  queueItem.departure = vsStopTime.departure;
-  queueItem.tripId = vsStopTime.tripId;
-
-  return queueItem;
-}
-
 std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<std::string, TdspVertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
-
   std::map<std::string, PQueueItem> results;
-  std::priority_queue<PQueueItem> queue;
+  std::priority_queue<PQueueItem, std::vector<PQueueItem>, CompareArrivalTime> queue;
   std::map<std::string, PQueueItem*> visited;
 
-  queue.push(getQueueItem(handle, vsId, ts));
+  // Starting
+  TdspVertice vs = (*graph)[vsId];
+
+  StopTime stopTimeVs = (*std::find_if (vs.stopTimes.begin(), vs.stopTimes.end(), [&] (StopTime stopTime) {
+    return hasSameTime(&stopTime.departure, &ts);
+  }));
+
+  struct PQueueItem vsItem;
+  vsItem.stopId = vsId;
+  vsItem.arrival = stopTimeVs.arrival;
+  vsItem.departure = stopTimeVs.departure;
+  vsItem.tripId = stopTimeVs.tripId;
+  vsItem.vertice = &vs;
+
+  queue.push(vsItem);
+
+  // OK, Let's go !
 
   while(!queue.empty()) {
+    printf("\nWHILE");
     PQueueItem head = queue.top();
     queue.pop();
+    visited[head.stopId] = &head;
     results[head.stopId] = head;
-
-    if(isInfini(&head.arrival)) {
-      throw std::runtime_error("break");
-    } else if(head.stopId == veId) {
+    printf("\n%lu -> %s -> %s -> %i : %i", queue.size(), head.stopId.c_str(), head.tripId.c_str(), head.departure.tm_hour, head.departure.tm_min);
+    if(head.stopId == veId) {
+      printf("DONE!");
       return results;
     } else {
       TdspVertice vi = *(head.vertice);
       auto departures = getAvailableDepartures(handle, calendarExceptions, &head, ts);
-
       for (std::list<std::string>::const_iterator iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
         std::string vjId = *iterator;
-        TdspVertice vj = (*graph)[vjId];
-        std::list<StopTime> stopTimes(vj.stopTimes);
-
+        TdspVertice *vj = &(*graph)[vjId];
+        std::list<StopTime> stopTimes(vj->stopTimes);
         stopTimes.remove_if([&] (const StopTime& stopTime) {
           if(vsId == head.stopId) {
-            return head.tripId != stopTime.tripId;
+            return !((vsItem.tripId == stopTime.tripId) && timeIsBefore(ts, stopTime.arrival));
           } else {
             auto it = std::find_if(departures.begin(), departures.end(), [&](StopTime dt) {
-            return (stopTime.tripId == dt.tripId) && compareTime(dt.departure, stopTime.arrival);
+            return (stopTime.tripId == dt.tripId) && timeIsBefore(dt.departure, stopTime.arrival);
             });
             return it == departures.end();
           }
         });
 
         stopTimes.sort([](const StopTime& first, const StopTime& second) {
-          return compareTime(first.departure, second.departure);
+          return timeIsBefore(first.departure, second.departure);
         });
 
         if(!stopTimes.empty()) {
           StopTime next = stopTimes.front();
-          if(visited[next.stopId] == NULL) {
+          if(visited[vjId] == NULL) {
             struct PQueueItem item;
-            item.stopId = next.stopId;
+            item.stopId = vjId;
             item.arrival = next.arrival;
             item.departure = next.departure;
             item.tripId = next.tripId;
-            item.vertice = &vj;
+            item.vertice = vj;
             queue.push(item);
-            visited[next.stopId] = &item;
           }
         }
       }
@@ -449,19 +437,20 @@ std::list<PQueueItem> pathSelection(std::map<std::string, TdspVertice> *graph, s
   TdspVertice vj = (*graph)[veId];
   PQueueItem ge = (*arrivalTimes)[vj.id];
   std::list<PQueueItem> path;
-
+  printf("\n**PATH SELECTION**");
   while(vj.id != vs.id) {
     PQueueItem gj = (*arrivalTimes)[vj.id];
+    printf("\nWHILE %s - %s - %i:%i", vj.id.c_str(), gj.tripId.c_str(), gj.departure.tm_hour, gj.departure.tm_min);
     for (std::list<std::string>::const_iterator iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
       std::string viId = *iterator;
       TdspVertice vi = (*graph)[viId];
-      PQueueItem gi = (*arrivalTimes)[vi.id];
-      auto maybeDeparture = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&](StopTime stopTime) {
-        return (stopTime.tripId == gi.tripId) && compareTime(stopTime.departure, gi.arrival);
-      });
-      if(maybeDeparture != vi.stopTimes.end()) {
-        vj = vi;
-        path.push_front(gj);
+      auto gi = arrivalTimes->find(vi.id);
+      if(gi != arrivalTimes->end()) {
+        if(timeIsBefore(gi->second.departure, gj.arrival)) {
+          vj = vi;
+          path.push_front(gj);
+          break;
+        }
       }
     }
   }
