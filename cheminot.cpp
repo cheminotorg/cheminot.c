@@ -41,7 +41,7 @@ struct Stop {
   double lng;
 };
 
-struct TdspVertice {
+struct Vertice {
   std::string id;
   std::string name;
   std::list<std::string> edges;
@@ -150,18 +150,18 @@ std::unique_ptr<Calendar> parseCalendar(Json::Value value) {
   return calendar;
 }
 
-TdspVertice parseTdspRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
+Vertice parseVerticeRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
   std::map<std::string, const void*> row = *it;
   const char*id = (const char*)row["id"];
   const char*name = (const char*)row["name"];
   const char*edges = (const char*)row["edges"];
   const char*stopTimes = (const char*)row["stopTimes"];
-  struct TdspVertice tdspVertice;
-  tdspVertice.id = id;
-  tdspVertice.name = name;
-  tdspVertice.edges = parseEdges(toJson(edges));
-  tdspVertice.stopTimes = parseStopTimes(toJson(stopTimes));
-  return tdspVertice;
+  struct Vertice vertice;
+  vertice.id = id;
+  vertice.name = name;
+  vertice.edges = parseEdges(toJson(edges));
+  vertice.stopTimes = parseStopTimes(toJson(stopTimes));
+  return vertice;
 }
 
 Trip parseTripRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
@@ -212,20 +212,20 @@ sqlite3* openConnection() {
   return handle;
 }
 
-std::map<std::string, TdspVertice> buildTdspGraph(sqlite3 *handle) {
-  std::map<std::string, TdspVertice> graph;
+std::map<std::string, Vertice> buildGraph(sqlite3 *handle) {
+  std::map<std::string, Vertice> graph;
   std::list< std::map<std::string, const void*> > results = executeSQL(handle, "SELECT * FROM TDSP;");
   for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-    TdspVertice vertice = parseTdspRow(iterator);
+    Vertice vertice = parseVerticeRow(iterator);
     graph[vertice.id] = vertice;
   }
   return graph;
 }
 
-TdspVertice getTdspVerticeById(sqlite3 *handle, std:: string id) {
+Vertice getVerticeById(sqlite3 *handle, std:: string id) {
   std::string query = "SELECT * FROM TDSP WHERE id = '" + id +"'";
   std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
-  return parseTdspRow(results.begin());
+  return parseVerticeRow(results.begin());
 }
 
 std::string getStopsTree(sqlite3 *handle) {
@@ -263,7 +263,7 @@ struct PQueueItem {
   struct tm arrival;
   struct tm departure;
   std::string tripId;
-  TdspVertice *vertice;
+  Vertice *vertice;
 };
 
 class CompareArrivalTime {
@@ -356,13 +356,13 @@ std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string
   return departures;
 }
 
-std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<std::string, TdspVertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
+std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
   std::map<std::string, PQueueItem> results;
   std::priority_queue<PQueueItem, std::vector<PQueueItem>, CompareArrivalTime> queue;
   std::map<std::string, PQueueItem*> visited;
 
   // Starting
-  TdspVertice vs = (*graph)[vsId];
+  Vertice vs = (*graph)[vsId];
 
   StopTime stopTimeVs = (*std::find_if (vs.stopTimes.begin(), vs.stopTimes.end(), [&] (StopTime stopTime) {
     return hasSameTime(&stopTime.departure, &ts);
@@ -390,11 +390,11 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<s
       printf("\nDONE!");
       return results;
     } else {
-      TdspVertice vi = *(head.vertice);
+      Vertice vi = *(head.vertice);
       auto departures = getAvailableDepartures(handle, calendarExceptions, &head, ts);
       for (std::list<std::string>::const_iterator iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
         std::string vjId = *iterator;
-        TdspVertice *vj = &(*graph)[vjId];
+        Vertice *vj = &(*graph)[vjId];
         std::list<StopTime> stopTimes(vj->stopTimes);
         stopTimes.remove_if([&] (const StopTime& stopTime) {
           if(vsId == head.stopId) {
@@ -431,9 +431,9 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<s
   return results;
 }
 
-std::list<PQueueItem> pathSelection(std::map<std::string, TdspVertice> *graph, std::map<std::string, PQueueItem> *arrivalTimes, struct tm ts, std::string vsId, std::string veId) {
-  TdspVertice vs = (*graph)[vsId];
-  TdspVertice vj = (*graph)[veId];
+std::list<PQueueItem> pathSelection(std::map<std::string, Vertice> *graph, std::map<std::string, PQueueItem> *arrivalTimes, struct tm ts, std::string vsId, std::string veId) {
+  Vertice vs = (*graph)[vsId];
+  Vertice vj = (*graph)[veId];
   PQueueItem ge = (*arrivalTimes)[vj.id];
   std::list<PQueueItem> path;
   printf("\n**PATH SELECTION**");
@@ -442,7 +442,7 @@ std::list<PQueueItem> pathSelection(std::map<std::string, TdspVertice> *graph, s
     printf("\nWHILE %s - %s - %i:%i", vj.id.c_str(), gj.tripId.c_str(), gj.departure.tm_hour, gj.departure.tm_min);
     for (std::list<std::string>::const_iterator iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
       std::string viId = *iterator;
-      TdspVertice vi = (*graph)[viId];
+      Vertice vi = (*graph)[viId];
       auto gi = arrivalTimes->find(vi.id);
       if(gi != arrivalTimes->end()) {
         if(timeIsBefore(gi->second.departure, gj.arrival)) {
@@ -469,7 +469,7 @@ int main(void) {
   std::string vsId = "StopPoint:OCETrain TER-87394007";
   std::string veId = "StopPoint:OCETrain TER-87391003";
 
-  std::map<std::string, TdspVertice> graph = buildTdspGraph(handle);
+  std::map<std::string, Vertice> graph = buildGraph(handle);
   auto calendarExceptions = getCalendarExceptions(handle);
   auto arrivalTimes = refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, *ts);
   pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
