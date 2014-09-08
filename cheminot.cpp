@@ -30,7 +30,7 @@ struct CalendarException {
 
 struct Trip {
   std::string id;
-  Calendar *calendar;
+  std::unique_ptr<Calendar> calendar;
   std::string direction;
 };
 
@@ -132,8 +132,8 @@ std::list<std::string> parseEdges(Json::Value array) {
   return stopIds;
 }
 
-Calendar* parseCalendar(Json::Value value) {
-  struct Calendar *calendar = new Calendar();
+std::unique_ptr<Calendar> parseCalendar(Json::Value value) {
+  std::unique_ptr<Calendar> calendar(new Calendar());
   std::map<std::string, bool> week;
   week["monday"] = value["monday"].asString() == "1";
   week["tuesday"] = value["tuesday"].asString() == "1";
@@ -273,7 +273,7 @@ public:
   }
 };
 
-bool isTripRemovedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+bool isTripRemovedOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
   auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
   if(exceptions != calendarExceptions->end()) {
     auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
@@ -285,7 +285,7 @@ bool isTripRemovedOn(Trip *trip, std::map<std::string, std::list<CalendarExcepti
   }
 }
 
-bool isTripAddedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+bool isTripAddedOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
   auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
   if(exceptions != calendarExceptions->end()) {
     auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
@@ -297,7 +297,7 @@ bool isTripAddedOn(Trip *trip, std::map<std::string, std::list<CalendarException
   }
 }
 
-bool isTripValidToday(Trip *trip, struct tm when) {
+bool isTripValidToday(std::list<Trip>::const_iterator trip, struct tm when) {
   std::map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
   return trip->calendar->week[week[when.tm_wday]];
 }
@@ -310,7 +310,7 @@ bool isTripInPeriod(Trip *trip, struct tm when) {
   return before && after;
 }
 
-bool isTripValidOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+bool isTripValidOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
   if(trip->calendar != NULL) {
     bool removed = isTripRemovedOn(trip, calendarExceptions, when);
     bool added = isTripAddedOn(trip, calendarExceptions, when);
@@ -326,8 +326,7 @@ std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::st
   std::map<std::string, bool> availablities;
   auto trips = getTripsByIds(handle, ids);
   for (std::list<Trip>::const_iterator iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator) {
-    Trip trip = *iterator;
-    availablities[trip.id] = isTripValidOn(&trip, calendarExceptions, when);
+    availablities[iterator->id] = isTripValidOn(iterator, calendarExceptions, when);
   }
   return availablities;
 }
