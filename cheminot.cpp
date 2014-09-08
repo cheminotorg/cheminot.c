@@ -93,8 +93,7 @@ std::map<std::string, std::list<CalendarException>> parseCalendarExceptions(Json
   for(auto const &serviceId : json.getMemberNames()) {
     std::list<CalendarException> exceptions;
     Json::Value array = json[serviceId];
-    long size = array.size();
-    for(int index=0; index < size; ++index) {
+    for(int index=0; index < array.size(); ++index) {
       CalendarException calendarException;
       Json::Value value = array[index];
       calendarException.serviceId = value["serviceId"].asString();
@@ -133,8 +132,8 @@ std::list<std::string> parseEdges(Json::Value array) {
   return stopIds;
 }
 
-Calendar parseCalendar(Json::Value value) {
-  struct Calendar calendar;
+Calendar* parseCalendar(Json::Value value) {
+  struct Calendar *calendar = new Calendar();
   std::map<std::string, bool> week;
   week["monday"] = value["monday"].asString() == "1";
   week["tuesday"] = value["tuesday"].asString() == "1";
@@ -144,10 +143,10 @@ Calendar parseCalendar(Json::Value value) {
   week["saturday"] = value["saturday"].asString() == "1";
   week["sunday"] = value["sunday"].asString() == "1";
 
-  calendar.serviceId = value["serviceId"].asString();
-  calendar.week = week;
-  calendar.startDate = parseTime(value["startDate"].asString());
-  calendar.endDate = parseTime(value["endDate"].asString());
+  calendar->serviceId = value["serviceId"].asString();
+  calendar->week = week;
+  calendar->startDate = parseTime(value["startDate"].asString());
+  calendar->endDate = parseTime(value["endDate"].asString());
   return calendar;
 }
 
@@ -172,10 +171,10 @@ Trip parseTripRow(std::list< std::map<std::string, const void*> >::const_iterato
   const char *direction = (const char*)row["direction"];
   struct Trip trip;
   trip.id = id;
-  if(calendar) {
-    Calendar c = parseCalendar(toJson(calendar));
-    trip.calendar = &c;
+  if(calendar != NULL) {
+    trip.calendar = parseCalendar(toJson(calendar));
   }
+
   trip.direction = direction;
   return trip;
 }
@@ -275,24 +274,24 @@ public:
 };
 
 bool isTripRemovedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
-  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar->serviceId];
-  if(!exceptions.empty()) {
-    auto it = std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
+  auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
+  if(exceptions != calendarExceptions->end()) {
+    auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
       return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 2;
     });
-    return it != exceptions.end();
+    return it != exceptions->second.end();
   } else {
     return false;
   }
 }
 
 bool isTripAddedOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
-  std::list<CalendarException> exceptions = (*calendarExceptions)[trip->calendar->serviceId];
-  if(!exceptions.empty()) {
-    auto it = std::find_if(exceptions.begin(), exceptions.end(), [&](CalendarException exception) {
+  auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
+  if(exceptions != calendarExceptions->end()) {
+    auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
       return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 1;
     });
-    return it != exceptions.end();
+    return it != exceptions->second.end();
   } else {
     return false;
   }
@@ -312,15 +311,15 @@ bool isTripInPeriod(Trip *trip, struct tm when) {
 }
 
 bool isTripValidOn(Trip *trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
-  return true;
-  // if(trip->calendar != NULL) {
-  //   bool removed = isTripRemovedOn(trip, calendarExceptions, when);
-  //   bool inPeriod = isTripInPeriod(trip, when);
-  //   bool availableToday = isTripValidToday(trip, when);
-  //   bool added = isTripAddedOn(trip, calendarExceptions, when);
-  //   return (!removed && inPeriod && availableToday) || added;
-  // }
-  //return false;
+  if(trip->calendar != NULL) {
+    bool removed = isTripRemovedOn(trip, calendarExceptions, when);
+    bool added = isTripAddedOn(trip, calendarExceptions, when);
+    bool availableToday = isTripValidToday(trip, when);
+    // bool inPeriod = isTripInPeriod(trip, when);
+    //return (!removed && availableToday) || added;
+    return true;
+  }
+  return false;
 }
 
 std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
@@ -336,9 +335,8 @@ std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::st
 std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, PQueueItem *vi, struct tm ts) {
 
   std::list<StopTime> departures(vi->vertice->stopTimes);
-
   departures.remove_if([&] (const StopTime& stopTime) {
-    return timeIsBefore(stopTime.departure, vi->departure);
+    return timeIsBefore(stopTime.departure, vi->arrival);
   });
 
   std::list<std::string> tripIds;
@@ -390,7 +388,7 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<s
     results[head.stopId] = head;
     printf("\n%lu -> %s -> %s -> %i : %i", queue.size(), head.stopId.c_str(), head.tripId.c_str(), head.departure.tm_hour, head.departure.tm_min);
     if(head.stopId == veId) {
-      printf("DONE!");
+      printf("\nDONE!");
       return results;
     } else {
       TdspVertice vi = *(head.vertice);
@@ -404,11 +402,13 @@ std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<s
             return !((vsItem.tripId == stopTime.tripId) && timeIsBefore(ts, stopTime.arrival));
           } else {
             auto it = std::find_if(departures.begin(), departures.end(), [&](StopTime dt) {
-            return (stopTime.tripId == dt.tripId) && timeIsBefore(dt.departure, stopTime.arrival);
+              return (stopTime.tripId == dt.tripId) && timeIsBefore(dt.departure, stopTime.arrival);
             });
             return it == departures.end();
           }
         });
+
+        printf("\n%s => %lu", vjId.c_str(), stopTimes.size());
 
         stopTimes.sort([](const StopTime& first, const StopTime& second) {
           return timeIsBefore(first.departure, second.departure);
