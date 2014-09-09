@@ -260,7 +260,7 @@ namespace cheminot {
     return trips;
   }
 
-  struct PQueueItem {
+  struct ArrivalTime {
     std::string stopId;
     struct tm arrival;
     struct tm departure;
@@ -270,7 +270,7 @@ namespace cheminot {
 
   class CompareArrivalTime {
   public:
-    bool operator()(const PQueueItem& gi, const PQueueItem& gj) {
+    bool operator()(const ArrivalTime& gi, const ArrivalTime& gj) {
       return timeIsBefore(gj.departure, gi.departure);
     }
   };
@@ -333,7 +333,7 @@ namespace cheminot {
     return availablities;
   }
 
-  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, PQueueItem *vi, struct tm ts) {
+  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, ArrivalTime *vi, struct tm ts) {
 
     std::list<StopTime> departures(vi->vertice->stopTimes);
     departures.remove_if([&] (const StopTime& stopTime) {
@@ -358,10 +358,10 @@ namespace cheminot {
     return departures;
   }
 
-  std::map<std::string, PQueueItem> refineArrivalTimes(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
-    std::map<std::string, PQueueItem> results;
-    std::priority_queue<PQueueItem, std::vector<PQueueItem>, CompareArrivalTime> queue;
-    std::map<std::string, PQueueItem*> visited;
+  std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
+    std::map<std::string, ArrivalTime> results;
+    std::priority_queue<ArrivalTime, std::vector<ArrivalTime>, CompareArrivalTime> queue;
+    std::map<std::string, ArrivalTime*> visited;
 
     // Starting
     Vertice vs = (*graph)[vsId];
@@ -370,20 +370,20 @@ namespace cheminot {
           return hasSameTime(&stopTime.departure, &ts);
         }));
 
-    struct PQueueItem vsItem;
-    vsItem.stopId = vsId;
-    vsItem.arrival = stopTimeVs.arrival;
-    vsItem.departure = stopTimeVs.departure;
-    vsItem.tripId = stopTimeVs.tripId;
-    vsItem.vertice = &vs;
+    struct ArrivalTime gs;
+    gs.stopId = vsId;
+    gs.arrival = stopTimeVs.arrival;
+    gs.departure = stopTimeVs.departure;
+    gs.tripId = stopTimeVs.tripId;
+    gs.vertice = &vs;
 
-    queue.push(vsItem);
+    queue.push(gs);
 
     // OK, Let's go !
 
     while(!queue.empty()) {
       printf("\nWHILE");
-      PQueueItem head = queue.top();
+      ArrivalTime head = queue.top();
       queue.pop();
       visited[head.stopId] = &head;
       results[head.stopId] = head;
@@ -400,16 +400,14 @@ namespace cheminot {
           std::list<StopTime> stopTimes(vj->stopTimes);
           stopTimes.remove_if([&] (const StopTime& stopTime) {
               if(vsId == head.stopId) {
-                return !((vsItem.tripId == stopTime.tripId) && timeIsBefore(ts, stopTime.arrival));
+                return !((gs.tripId == stopTime.tripId) && timeIsBefore(ts, stopTime.arrival));
               } else {
                 auto it = std::find_if(departures.begin(), departures.end(), [&](StopTime dt) {
                     return (stopTime.tripId == dt.tripId) && timeIsBefore(dt.departure, stopTime.arrival);
                   });
                 return it == departures.end();
               }
-            });
-
-          printf("\n%s => %lu", vjId.c_str(), stopTimes.size());
+          });
 
           stopTimes.sort([](const StopTime& first, const StopTime& second) {
               return timeIsBefore(first.departure, second.departure);
@@ -418,13 +416,13 @@ namespace cheminot {
           if(!stopTimes.empty()) {
             StopTime next = stopTimes.front();
             if(visited[vjId] == NULL) {
-              struct PQueueItem item;
-              item.stopId = vjId;
-              item.arrival = next.arrival;
-              item.departure = next.departure;
-              item.tripId = next.tripId;
-              item.vertice = vj;
-              queue.push(item);
+              struct ArrivalTime arrivalTime;
+              arrivalTime.stopId = vjId;
+              arrivalTime.arrival = next.arrival;
+              arrivalTime.departure = next.departure;
+              arrivalTime.tripId = next.tripId;
+              arrivalTime.vertice = vj;
+              queue.push(arrivalTime);
             }
           }
         }
@@ -433,20 +431,20 @@ namespace cheminot {
     return results;
   }
 
-  std::list<PQueueItem> pathSelection(std::map<std::string, Vertice> *graph, std::map<std::string, PQueueItem> *arrivalTimes, struct tm ts, std::string vsId, std::string veId) {
+  std::list<ArrivalTime> pathSelection(std::map<std::string, Vertice> *graph, std::map<std::string, ArrivalTime> *arrivalTimes, struct tm ts, std::string vsId, std::string veId) {
     Vertice vs = (*graph)[vsId];
     Vertice vj = (*graph)[veId];
-    PQueueItem ge = (*arrivalTimes)[vj.id];
-    std::list<PQueueItem> path;
+    ArrivalTime ge = (*arrivalTimes)[vj.id];
+    std::list<ArrivalTime> path;
     printf("\n**PATH SELECTION**");
     while(vj.id != vs.id) {
-      PQueueItem gj = (*arrivalTimes)[vj.id];
+      ArrivalTime gj = (*arrivalTimes)[vj.id];
       printf("\nWHILE %s - %s - %i:%i", vj.id.c_str(), gj.tripId.c_str(), gj.departure.tm_hour, gj.departure.tm_min);
       for (std::list<std::string>::const_iterator iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
         std::string viId = *iterator;
         Vertice vi = (*graph)[viId];
         auto gi = arrivalTimes->find(vi.id);
-        if(gi != arrivalTimes->end()) {
+        if(gi != arrivalTimes->end()) { //TODO
           if(timeIsBefore(gi->second.departure, gj.arrival)) {
             vj = vi;
             path.push_front(gj);
@@ -460,10 +458,7 @@ namespace cheminot {
   }
 }
 
-int main(void) {
-  printf("cheminot !");
-  sqlite3 *handle = cheminot::openConnection();
-
+void chartresParis(sqlite3 *handle) {
   const time_t startTime = time(0);
   struct tm *ts = localtime(&startTime);
   ts->tm_hour = 7;
@@ -477,6 +472,42 @@ int main(void) {
   auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, *ts);
   pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
 
+}
+
+void chartresTrouville(sqlite3 *handle) {
+  const time_t startTime = time(0);
+  struct tm *ts = localtime(&startTime);
+  ts->tm_hour = 7;
+  ts->tm_min = 57;
+
+  std::string vsId = "StopPoint:OCETrain TER-87394007";
+  std::string veId = "StopPoint:OCETrain TER-87444372";
+
+  auto graph = cheminot::buildGraph(handle);
+  auto calendarExceptions = cheminot::getCalendarExceptions(handle);
+  auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, *ts);
+  //pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
+}
+
+void leMansParis(sqlite3 *handle) {
+  const time_t startTime = time(0);
+  struct tm *ts = localtime(&startTime);
+  ts->tm_hour = 7;
+  ts->tm_min = 57;
+
+  std::string vsId = "StopPoint:OCETrain TER-87396002";
+  std::string veId = "StopPoint:OCETrain TER-87391003";
+
+  auto graph = cheminot::buildGraph(handle);
+  auto calendarExceptions = cheminot::getCalendarExceptions(handle);
+  auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, *ts);
+  //pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
+}
+
+int main(void) {
+  printf("cheminot !");
+  sqlite3 *handle = cheminot::openConnection();
+  chartresTrouville(handle);
   sqlite3_close(handle);
   return 0;
 }
