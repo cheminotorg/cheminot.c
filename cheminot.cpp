@@ -89,6 +89,10 @@ namespace cheminot {
     return (a->tm_hour == b->tm_hour) && (a->tm_min == b->tm_min);
   }
 
+  bool hasSameDate(struct tm *a, struct tm *b) {
+    return (a->tm_year == b->tm_year) && (a->tm_mon == b->tm_mon) && (a->tm_mday == b->tm_mday);
+  }
+
   bool timeIsBeforeEq(struct tm a, struct tm b) {
     if(a.tm_hour > b.tm_hour) {
       return false;
@@ -139,7 +143,7 @@ namespace cheminot {
         CalendarException calendarException;
         Json::Value value = array[index];
         calendarException.serviceId = value["serviceId"].asString();
-        calendarException.date = parseTime(value["date"].asString());
+        calendarException.date = parseDate(value["date"].asString());
         calendarException.exceptionType = value["exceptionType"].asInt();
         exceptions.push_back(calendarException);
       }
@@ -318,7 +322,7 @@ namespace cheminot {
     auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
     if(exceptions != calendarExceptions->end()) {
       auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
-          return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 2;
+        return hasSameDate(&exception.date, &when) && (exception.exceptionType == 2);
       });
       return it != exceptions->second.end();
     } else {
@@ -330,7 +334,7 @@ namespace cheminot {
     auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
     if(exceptions != calendarExceptions->end()) {
       auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
-        return exception.date.tm_wday == when.tm_wday && exception.exceptionType == 1;
+        return hasSameDate(&exception.date, &when) && (exception.exceptionType == 1);
       });
       return it != exceptions->second.end();
     } else {
@@ -340,16 +344,14 @@ namespace cheminot {
 
   bool isTripValidToday(std::list<Trip>::const_iterator trip, struct tm when) {
     std::map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
-    //printf("\n --> %s => %i", week[when.tm_wday].c_str(), trip->calendar->week[week[when.tm_wday]]);
     return trip->calendar->week[week[when.tm_wday]];
   }
 
   bool isTripInPeriod(std::list<Trip>::const_iterator trip, struct tm when) {
     struct tm startDate = trip->calendar->startDate;
     struct tm endDate = trip->calendar->endDate;
-    //printf("\n%d/%d/%d => %d/%d/%d %i %i", startDate.tm_mday, startDate.tm_mon, startDate.tm_year, when.tm_mday, when.tm_mon, when.tm_year, dateIsBeforeEq(startDate, when), dateIsBeforeEq(when, startDate));
     bool before = dateIsBeforeEq(startDate, when);
-    bool after = dateIsBeforeEq(when, startDate);
+    bool after = dateIsBeforeEq(when, endDate);
     return before && after;
   }
 
@@ -359,7 +361,7 @@ namespace cheminot {
       bool added = isTripAddedOn(trip, calendarExceptions, when);
       bool availableToday = isTripValidToday(trip, when);
       bool inPeriod = isTripInPeriod(trip, when);
-      return (!removed && inPeriod) || added;
+      return (!removed && inPeriod && availableToday) || added;
     }
     return false;
   }
@@ -374,11 +376,11 @@ namespace cheminot {
   }
 
   std::list<StopTime> getAvailableDepartures(sqlite3 *handle, std::map<std::string, std::list<CalendarException>> *calendarExceptions, ArrivalTime *vi, struct tm ts) {
-
     std::list<StopTime> departures(vi->vertice->stopTimes);
+
     departures.remove_if([&] (const StopTime& stopTime) {
-        return timeIsBeforeEq(stopTime.departure, vi->arrival);
-      });
+       return timeIsBeforeEq(stopTime.departure, vi->arrival);
+    });
 
     std::list<std::string> tripIds;
     for (std::list<StopTime>::const_iterator iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
@@ -388,21 +390,20 @@ namespace cheminot {
     auto availablities = tripsAvailability(handle, tripIds, calendarExceptions, ts);
 
     departures.remove_if([&] (const StopTime& stopTime) {
-        return !availablities[stopTime.tripId];
-      });
+      return !availablities[stopTime.tripId];
+    });
 
     departures.sort([](const StopTime& first, const StopTime& second) {
-        return timeIsBeforeEq(first.departure, second.departure);
-      });
+      return timeIsBeforeEq(first.departure, second.departure);
+    });
 
     return departures;
   }
 
   std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
-    printf("\nrefineArrivalTimes");
     std::map<std::string, ArrivalTime> results;
     std::priority_queue<ArrivalTime, std::vector<ArrivalTime>, CompareArrivalTime> queue;
-    std::map<std::string, ArrivalTime*> visited;
+    std::map<std::string, bool> visited;
     // Starting
     Vertice vs = (*graph)[vsId];
     StopTime stopTimeVs = (*std::find_if (vs.stopTimes.begin(), vs.stopTimes.end(), [&] (StopTime stopTime) {
@@ -423,9 +424,9 @@ namespace cheminot {
     while(!queue.empty()) {
       ArrivalTime head = queue.top();
       queue.pop();
-      visited[head.stopId] = &head;
+      visited[head.stopId] = true;
       results[head.stopId] = head;
-      printf("\n%s -> %s -> %i : %i", head.stopId.c_str(), head.tripId.c_str(), head.departure.tm_hour, head.departure.tm_min);
+      printf("\n%s -> %s -> %i : %i", head.stopId.c_str(), head.tripId.c_str(), head.arrival.tm_hour, head.arrival.tm_min);
       if(head.stopId == veId) {
         printf("\nDONE!");
         return results;
@@ -441,19 +442,19 @@ namespace cheminot {
                 return !((gs.tripId == stopTime.tripId) && timeIsBeforeEq(ts, stopTime.arrival));
               } else {
                 auto it = std::find_if(departures.begin(), departures.end(), [&](StopTime dt) {
-                    return (stopTime.tripId == dt.tripId) && timeIsBeforeEq(dt.departure, stopTime.arrival);
-                  });
+                  return (stopTime.tripId == dt.tripId) && timeIsBeforeEq(dt.departure, stopTime.arrival);
+                });
                 return it == departures.end();
               }
           });
 
           stopTimes.sort([](const StopTime& first, const StopTime& second) {
-              return timeIsBeforeEq(first.departure, second.departure);
-            });
+            return timeIsBeforeEq(first.departure, second.departure);
+          });
 
           if(!stopTimes.empty()) {
             StopTime next = stopTimes.front();
-            if(visited[vjId] == NULL) {
+            if(visited.find(vjId) == visited.end()) {
               struct ArrivalTime arrivalTime;
               arrivalTime.stopId = vjId;
               arrivalTime.arrival = next.arrival;
@@ -512,7 +513,6 @@ void chartresParis(sqlite3 *handle) {
   auto calendarExceptions = cheminot::getCalendarExceptions(handle);
   auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, *ts);
   pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
-
 }
 
 void chartresTrouville(sqlite3 *handle) {
@@ -542,13 +542,14 @@ void leMansParis(sqlite3 *handle) {
   auto graph = cheminot::buildGraph(handle);
   auto calendarExceptions = cheminot::getCalendarExceptions(handle);
   auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, *ts);
-  pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
+  //pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
 }
 
 int main(void) {
   printf("cheminot !");
   sqlite3 *handle = cheminot::openConnection();
   leMansParis(handle);
+  //chartresParis(handle);
   sqlite3_close(handle);
   return 0;
 }
