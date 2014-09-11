@@ -3,3 +3,4 @@ CMakeFiles/*
 cheminot
 cmake_install.cmake
 lib/*
+Makefile

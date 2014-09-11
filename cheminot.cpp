@@ -50,10 +50,30 @@ namespace cheminot {
     std::list<StopTime> stopTimes;
   };
 
+  struct tm getNow() {
+    time_t rawtime;
+    time(&rawtime);
+    struct tm *info = gmtime(&rawtime);
+    return *info;
+  }
+
   struct tm parseTime(std::string datetime) {
-    struct tm tm;
-    strptime(datetime.c_str(), "%H:%M", &tm);
-    return tm;
+    struct tm now = getNow();
+    struct tm time;
+    strptime(datetime.c_str(), "%H:%M", &time);
+    now.tm_hour = time.tm_hour;
+    now.tm_min = time.tm_min;
+    return now;
+  }
+
+  struct tm parseDate(std::string datetime) {
+    struct tm now = getNow();
+    struct tm date;
+    strptime(datetime.c_str(), "%d/%m/%Y", &date);
+    date.tm_hour = now.tm_hour;
+    date.tm_min = now.tm_min;
+    date.tm_sec = now.tm_sec;
+    return date;
   }
 
   struct tm asDateTime(time_t t) {
@@ -69,7 +89,7 @@ namespace cheminot {
     return (a->tm_hour == b->tm_hour) && (a->tm_min == b->tm_min);
   }
 
-  bool timeIsBefore(struct tm a, struct tm b) {
+  bool timeIsBeforeEq(struct tm a, struct tm b) {
     if(a.tm_hour > b.tm_hour) {
       return false;
     } else if(a.tm_hour < b.tm_hour) {
@@ -79,6 +99,26 @@ namespace cheminot {
         return false;
       } else {
         return true;
+      }
+    }
+  }
+
+  bool dateIsBeforeEq(struct tm a, struct tm b) {
+    if(a.tm_year > b.tm_year) {
+      return false;
+    } else if(a.tm_year < b.tm_year) {
+      return true;
+    } else {
+      if(a.tm_mon > b.tm_mon) {
+        return false;
+      } else if(a.tm_mon < b.tm_mon) {
+        return true;
+      } else {
+        if(a.tm_mday > b.tm_mday) {
+          return false;
+        } else {
+          return true;
+        }
       }
     }
   }
@@ -147,8 +187,8 @@ namespace cheminot {
 
     calendar->serviceId = value["serviceId"].asString();
     calendar->week = week;
-    calendar->startDate = parseTime(value["startDate"].asString());
-    calendar->endDate = parseTime(value["endDate"].asString());
+    calendar->startDate = parseDate(value["startDate"].asString());
+    calendar->endDate = parseDate(value["endDate"].asString());
     return calendar;
   }
 
@@ -270,7 +310,7 @@ namespace cheminot {
   class CompareArrivalTime {
   public:
     bool operator()(const ArrivalTime& gi, const ArrivalTime& gj) {
-      return timeIsBefore(gj.departure, gi.departure);
+      return timeIsBeforeEq(gj.departure, gi.departure);
     }
   };
 
@@ -300,27 +340,26 @@ namespace cheminot {
 
   bool isTripValidToday(std::list<Trip>::const_iterator trip, struct tm when) {
     std::map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
+    //printf("\n --> %s => %i", week[when.tm_wday].c_str(), trip->calendar->week[week[when.tm_wday]]);
     return trip->calendar->week[week[when.tm_wday]];
   }
 
   bool isTripInPeriod(std::list<Trip>::const_iterator trip, struct tm when) {
     struct tm startDate = trip->calendar->startDate;
     struct tm endDate = trip->calendar->endDate;
-    bool before = timeIsBefore(startDate, when) || (startDate.tm_wday == when.tm_wday);
-    bool after = timeIsBefore(when, startDate) || (endDate.tm_wday == when.tm_wday);
+    //printf("\n%d/%d/%d => %d/%d/%d %i %i", startDate.tm_mday, startDate.tm_mon, startDate.tm_year, when.tm_mday, when.tm_mon, when.tm_year, dateIsBeforeEq(startDate, when), dateIsBeforeEq(when, startDate));
+    bool before = dateIsBeforeEq(startDate, when);
+    bool after = dateIsBeforeEq(when, startDate);
     return before && after;
   }
 
   bool isTripValidOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
     if(trip->calendar != NULL) {
-      printf("\n isTripValidOn: %i => %s", trip->calendar == NULL, trip->calendar->serviceId.c_str());
       bool removed = isTripRemovedOn(trip, calendarExceptions, when);
       bool added = isTripAddedOn(trip, calendarExceptions, when);
       bool availableToday = isTripValidToday(trip, when);
       bool inPeriod = isTripInPeriod(trip, when);
-      //return (!removed && availableToday) || added;
-      printf("\n removed %i", removed);
-      return true;
+      return (!removed && inPeriod) || added;
     }
     return false;
   }
@@ -338,7 +377,7 @@ namespace cheminot {
 
     std::list<StopTime> departures(vi->vertice->stopTimes);
     departures.remove_if([&] (const StopTime& stopTime) {
-        return timeIsBefore(stopTime.departure, vi->arrival);
+        return timeIsBeforeEq(stopTime.departure, vi->arrival);
       });
 
     std::list<std::string> tripIds;
@@ -353,22 +392,21 @@ namespace cheminot {
       });
 
     departures.sort([](const StopTime& first, const StopTime& second) {
-        return timeIsBefore(first.departure, second.departure);
+        return timeIsBeforeEq(first.departure, second.departure);
       });
 
     return departures;
   }
 
   std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
+    printf("\nrefineArrivalTimes");
     std::map<std::string, ArrivalTime> results;
     std::priority_queue<ArrivalTime, std::vector<ArrivalTime>, CompareArrivalTime> queue;
     std::map<std::string, ArrivalTime*> visited;
-
     // Starting
     Vertice vs = (*graph)[vsId];
-
     StopTime stopTimeVs = (*std::find_if (vs.stopTimes.begin(), vs.stopTimes.end(), [&] (StopTime stopTime) {
-      return hasSameTime(&stopTime.departure, &ts);
+          return hasSameTime(&stopTime.departure, &ts);
     }));
 
     struct ArrivalTime gs;
@@ -383,12 +421,11 @@ namespace cheminot {
     // OK, Let's go !
 
     while(!queue.empty()) {
-      printf("\nWHILE");
       ArrivalTime head = queue.top();
       queue.pop();
       visited[head.stopId] = &head;
       results[head.stopId] = head;
-      printf("\n%lu -> %s -> %s -> %i : %i", queue.size(), head.stopId.c_str(), head.tripId.c_str(), head.departure.tm_hour, head.departure.tm_min);
+      printf("\n%s -> %s -> %i : %i", head.stopId.c_str(), head.tripId.c_str(), head.departure.tm_hour, head.departure.tm_min);
       if(head.stopId == veId) {
         printf("\nDONE!");
         return results;
@@ -401,17 +438,17 @@ namespace cheminot {
           std::list<StopTime> stopTimes(vj->stopTimes);
           stopTimes.remove_if([&] (const StopTime& stopTime) {
               if(vsId == head.stopId) {
-                return !((gs.tripId == stopTime.tripId) && timeIsBefore(ts, stopTime.arrival));
+                return !((gs.tripId == stopTime.tripId) && timeIsBeforeEq(ts, stopTime.arrival));
               } else {
                 auto it = std::find_if(departures.begin(), departures.end(), [&](StopTime dt) {
-                    return (stopTime.tripId == dt.tripId) && timeIsBefore(dt.departure, stopTime.arrival);
+                    return (stopTime.tripId == dt.tripId) && timeIsBeforeEq(dt.departure, stopTime.arrival);
                   });
                 return it == departures.end();
               }
           });
 
           stopTimes.sort([](const StopTime& first, const StopTime& second) {
-              return timeIsBefore(first.departure, second.departure);
+              return timeIsBeforeEq(first.departure, second.departure);
             });
 
           if(!stopTimes.empty()) {
@@ -440,14 +477,14 @@ namespace cheminot {
     printf("\n**PATH SELECTION**");
     while(vj.id != vs.id) {
       ArrivalTime gj = (*arrivalTimes)[vj.id];
-      printf("\nWHILE %s - %s - %i:%i - %s ++ %s", vj.id.c_str(), gj.tripId.c_str(), gj.departure.tm_hour, gj.departure.tm_min, vj.id.c_str(), vs.id.c_str());
+      printf("\n%s - %s - %i:%i", vj.id.c_str(), gj.tripId.c_str(), gj.departure.tm_hour, gj.departure.tm_min);
       for (std::list<std::string>::const_iterator iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
         std::string viId = *iterator;
         Vertice vi = (*graph)[viId];
         auto gi = arrivalTimes->find(viId);
         if(gi != arrivalTimes->end()) {
           auto found = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&](StopTime viStopTime) {
-            return viStopTime.tripId == gj.tripId && timeIsBefore(viStopTime.departure, gj.arrival);
+            return viStopTime.tripId == gj.tripId && timeIsBeforeEq(viStopTime.departure, gj.arrival);
           });
           if(found != vi.stopTimes.end()) {
             vj = vi;
