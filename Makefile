@@ -42,10 +42,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/local/Cellar/cmake/2.8.12.2/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Volumes/HOME/Projects/me/cheminot.c
+CMAKE_SOURCE_DIR = /Users/sre/data/Projects/me/cheminot.c
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Volumes/HOME/Projects/me/cheminot.c
+CMAKE_BINARY_DIR = /Users/sre/data/Projects/me/cheminot.c
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Volumes/HOME/Projects/me/cheminot.c/CMakeFiles /Volumes/HOME/Projects/me/cheminot.c/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/sre/data/Projects/me/cheminot.c/CMakeFiles /Users/sre/data/Projects/me/cheminot.c/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Volumes/HOME/Projects/me/cheminot.c/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/sre/data/Projects/me/cheminot.c/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -114,29 +114,29 @@ cheminot/fast:
 	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/build
 .PHONY : cheminot/fast
 
-cheminot.o: cheminot.c.o
+cheminot.o: cheminot.cpp.o
 .PHONY : cheminot.o
 
 # target to build an object file
-cheminot.c.o:
-	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.c.o
-.PHONY : cheminot.c.o
+cheminot.cpp.o:
+	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.cpp.o
+.PHONY : cheminot.cpp.o
 
-cheminot.i: cheminot.c.i
+cheminot.i: cheminot.cpp.i
 .PHONY : cheminot.i
 
 # target to preprocess a source file
-cheminot.c.i:
-	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.c.i
-.PHONY : cheminot.c.i
+cheminot.cpp.i:
+	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.cpp.i
+.PHONY : cheminot.cpp.i
 
-cheminot.s: cheminot.c.s
+cheminot.s: cheminot.cpp.s
 .PHONY : cheminot.s
 
 # target to generate assembly for a file
-cheminot.c.s:
-	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.c.s
-.PHONY : cheminot.c.s
+cheminot.cpp.s:
+	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.cpp.s
+.PHONY : cheminot.cpp.s
 
 # Help Target
 help:
