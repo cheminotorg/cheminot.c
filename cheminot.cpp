@@ -458,19 +458,13 @@ namespace cheminot {
       return !availablities[stopTime.tripId];
     });
 
-    printf("\n--------------------------\n");
-    for (std::list<StopTime>::const_iterator iterator =departures.begin(), end = departures.end(); iterator != end; ++iterator) {
-      printf("\n £££> %s # %s",  formatTime(iterator->departure).c_str(), iterator->tripId.c_str());
-    }
-    printf("\n--------------------------\n");
-
     return departures;
   }
 
   std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm ts) {
 
     std::map<std::string, ArrivalTime> results;
-    std::map<std::string, bool> visited;
+    std::map< std::string, ArrivalTime > pushed;
 
     // Initialize the queue
 
@@ -483,15 +477,15 @@ namespace cheminot {
     gs.arrival = ts;
     gs.vertice = &vs;
     queue.push(gs);
+    pushed[vsId] = gs;
 
     // OK, Let's go !
 
     while(!queue.empty()) {
 
-      ArrivalTime head = queue.top();
-      printf("\n %s | %s | %s \n", head.stopId.c_str(), head.tripId.c_str(), formatTime(head.arrival).c_str());
+      ArrivalTime head = pushed[queue.top().stopId];
       queue.pop();
-      visited[head.stopId] = true;
+
       results[head.stopId] = head;
 
       if(head.stopId == veId) {
@@ -521,16 +515,17 @@ namespace cheminot {
 
             if(!arrivalTimes.empty()) {
               StopTime next = arrivalTimes.front();
-              if(visited.find(vjId) == visited.end()) {
-                struct ArrivalTime arrivalTime;
-                arrivalTime.stopId = vjId;
-                arrivalTime.arrival = next.arrival;
-                arrivalTime.departure = next.departure;
-                arrivalTime.tripId = next.tripId;
-                arrivalTime.vertice = vj;
-                arrivalTime.pos = next.pos;
+              struct ArrivalTime arrivalTime;
+              arrivalTime.stopId = vjId;
+              arrivalTime.arrival = next.arrival;
+              arrivalTime.departure = next.departure;
+              arrivalTime.tripId = next.tripId;
+              arrivalTime.vertice = vj;
+              arrivalTime.pos = next.pos;
+              if(pushed.find(vjId) == pushed.end()) {
                 queue.push(arrivalTime);
               }
+              pushed[vjId] = arrivalTime;
             }
           }
 
@@ -547,24 +542,45 @@ namespace cheminot {
     Vertice vj = (*graph)[veId];
     ArrivalTime ge = (*arrivalTimes)[vj.id];
     std::list<ArrivalTime> path;
-
     while(vj.id != vs.id) {
       ArrivalTime gj = (*arrivalTimes)[vj.id];
+      std::list< std::pair<ArrivalTime, Vertice> > matched;
       for (std::list<std::string>::const_iterator iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
         std::string viId = *iterator;
         Vertice vi = (*graph)[viId];
         auto gi = arrivalTimes->find(viId);
         if(gi != arrivalTimes->end()) {
           auto found = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&](StopTime viStopTime) {
-            return viStopTime.tripId == gj.tripId && timeIsBeforeEq(viStopTime.departure, gj.arrival);
+            return viStopTime.tripId == gj.tripId && timeIsBeforeNotEq(viStopTime.departure, gj.arrival);
           });
           if(found != vi.stopTimes.end()) {
-            vj = vi;
-            path.push_front(gj);
+            matched.push_back(std::make_pair(gi->second, vi));
           }
         }
       }
+
+      if(!matched.empty()) {
+        matched.sort([&](std::pair<ArrivalTime, Vertice> a, std::pair<ArrivalTime, Vertice> b) {
+            return a.first.pos >= b.first.pos;
+        });
+        vj = matched.front().second;
+        path.push_front(gj);
+      } else {
+        printf("\n ERROR");
+        //ERROR
+        break;
+      }
     }
+
+    ArrivalTime last = path.front();
+    ArrivalTime gs = (*arrivalTimes)[vsId];
+    auto stopTimeGs = *(std::find_if(vs.stopTimes.begin(), vs.stopTimes.end(), [&](StopTime stopTime) {
+      return stopTime.tripId == last.tripId;
+    }));
+    gs.departure = stopTimeGs.departure;
+    gs.arrival = stopTimeGs.arrival;
+
+    path.push_front(gs);
     return path;
   }
 }
@@ -572,16 +588,19 @@ namespace cheminot {
 void chartresParis(sqlite3 *handle) {
   struct tm ts = cheminot::getNow();
   ts.tm_hour = 7;
-  ts.tm_min = 57;
+  ts.tm_min = 50;
 
   std::string vsId = "StopPoint:OCETrain TER-87394007";
   std::string veId = "StopPoint:OCETrain TER-87391003";
 
   auto graph = cheminot::buildGraph(handle);
   auto calendarExceptions = cheminot::getCalendarExceptions(handle);
-  //auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
-  //pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
-
+  auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
+  auto results = pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
+  printf("\n---------------------------------------------------------------");
+  for (std::list<cheminot::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+    printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
+  }
 }
 
 void chartresTrouville(sqlite3 *handle) {
@@ -610,12 +629,25 @@ void leMansParis(sqlite3 *handle) {
   auto calendarExceptions = cheminot::getCalendarExceptions(handle);
   cheminot::Vertice vs = graph[vsId];
   auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
-  // auto results = pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
 
-  // printf("\n---------------------------------------------------------------");
-  // for (std::list<cheminot::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-  //     printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
-  // }
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396002"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396309"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396325"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394296"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394254"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394221"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394007"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394130"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394114"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393314"].arrival).c_str());
+  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393009"].arrival).c_str());
+
+  auto results = pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
+
+  printf("\n---------------------------------------------------------------");
+  for (std::list<cheminot::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+    printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
+  }
 }
 
 int main(void) {
