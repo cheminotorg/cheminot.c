@@ -9,7 +9,7 @@
 #include <numeric>
 #include <json/json.h>
 
-namespace cheminot {
+namespace cheminotc {
 
   struct StopTime {
     std::string tripId;
@@ -592,73 +592,73 @@ namespace cheminot {
 }
 
 void chartresParis(sqlite3 *handle) {
-  struct tm ts = cheminot::getNow();
+  struct tm ts = cheminotc::getNow();
   ts.tm_hour = 7;
   ts.tm_min = 50;
 
   std::string vsId = "StopPoint:OCETrain TER-87394007";
   std::string veId = "StopPoint:OCETrain TER-87391003";
 
-  auto graph = cheminot::buildGraph(handle);
-  auto calendarExceptions = cheminot::getCalendarExceptions(handle);
-  auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
+  auto graph = cheminotc::buildGraph(handle);
+  auto calendarExceptions = cheminotc::getCalendarExceptions(handle);
+  auto arrivalTimes = cheminotc::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
   auto results = pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
   printf("\n---------------------------------------------------------------");
-  for (std::list<cheminot::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+  for (std::list<cheminotc::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
     printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
   }
 }
 
 void chartresTrouville(sqlite3 *handle) {
-  struct tm ts = cheminot::getNow();
+  struct tm ts = cheminotc::getNow();
   ts.tm_hour = 7;
   ts.tm_min = 57;
 
   std::string vsId = "StopPoint:OCETrain TER-87394007";
   std::string veId = "StopPoint:OCETrain TER-87444372";
 
-  auto graph = cheminot::buildGraph(handle);
-  auto calendarExceptions = cheminot::getCalendarExceptions(handle);
+  auto graph = cheminotc::buildGraph(handle);
+  auto calendarExceptions = cheminotc::getCalendarExceptions(handle);
   //auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
   //pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
 }
 
 void leMansParis(sqlite3 *handle) {
-  struct tm ts = cheminot::getNow();
+  struct tm ts = cheminotc::getNow();
   ts.tm_hour = 6;
   ts.tm_min = 30;
 
   std::string vsId = "StopPoint:OCETrain TER-87396002";
   std::string veId = "StopPoint:OCETrain TER-87391003";
 
-  auto graph = cheminot::buildGraph(handle);
-  auto calendarExceptions = cheminot::getCalendarExceptions(handle);
-  cheminot::Vertice vs = graph[vsId];
-  auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
+  auto graph = cheminotc::buildGraph(handle);
+  auto calendarExceptions = cheminotc::getCalendarExceptions(handle);
+  cheminotc::Vertice vs = graph[vsId];
+  auto arrivalTimes = cheminotc::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
 
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396002"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396309"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396325"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394296"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394254"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394221"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394007"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394130"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394114"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393314"].arrival).c_str());
-  printf("\n --> %s", cheminot::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393009"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396002"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396309"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396325"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394296"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394254"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394221"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394007"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394130"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394114"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393314"].arrival).c_str());
+  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393009"].arrival).c_str());
 
   auto results = pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
 
   printf("\n---------------------------------------------------------------");
-  for (std::list<cheminot::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+  for (std::list<cheminotc::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
     printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
   }
 }
 
 int main(void) {
-  printf("cheminot !");
-  sqlite3 *handle = cheminot::openConnection();
+  printf("cheminotc !");
+  sqlite3 *handle = cheminotc::openConnection();
   leMansParis(handle);
   //chartresParis(handle);
   sqlite3_close(handle);
