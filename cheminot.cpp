@@ -309,6 +309,12 @@ namespace cheminot {
     return graph;
   }
 
+  std::string getVersion(sqlite3 *handle) {
+    std::string query = "SELECT value FROM CACHE WHERE key = 'version'";
+    std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
+    return (char *)results.front()["value"];
+  }
+
   Vertice getVerticeById(sqlite3 *handle, std:: string id) {
     std::string query = "SELECT * FROM GRAPH WHERE id = '" + id + "'";
     std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
