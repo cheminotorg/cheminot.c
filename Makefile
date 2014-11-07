@@ -103,41 +103,41 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named cheminot
+# Target rules for targets named cheminotc
 
 # Build rule for target.
-cheminot: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cheminot
-.PHONY : cheminot
+cheminotc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cheminotc
+.PHONY : cheminotc
 
 # fast build rule for target.
-cheminot/fast:
-	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/build
-.PHONY : cheminot/fast
+cheminotc/fast:
+	$(MAKE) -f CMakeFiles/cheminotc.dir/build.make CMakeFiles/cheminotc.dir/build
+.PHONY : cheminotc/fast
 
-cheminot.o: cheminot.cpp.o
-.PHONY : cheminot.o
+cheminotc.o: cheminotc.cpp.o
+.PHONY : cheminotc.o
 
 # target to build an object file
-cheminot.cpp.o:
-	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.cpp.o
-.PHONY : cheminot.cpp.o
+cheminotc.cpp.o:
+	$(MAKE) -f CMakeFiles/cheminotc.dir/build.make CMakeFiles/cheminotc.dir/cheminotc.cpp.o
+.PHONY : cheminotc.cpp.o
 
-cheminot.i: cheminot.cpp.i
-.PHONY : cheminot.i
+cheminotc.i: cheminotc.cpp.i
+.PHONY : cheminotc.i
 
 # target to preprocess a source file
-cheminot.cpp.i:
-	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.cpp.i
-.PHONY : cheminot.cpp.i
+cheminotc.cpp.i:
+	$(MAKE) -f CMakeFiles/cheminotc.dir/build.make CMakeFiles/cheminotc.dir/cheminotc.cpp.i
+.PHONY : cheminotc.cpp.i
 
-cheminot.s: cheminot.cpp.s
-.PHONY : cheminot.s
+cheminotc.s: cheminotc.cpp.s
+.PHONY : cheminotc.s
 
 # target to generate assembly for a file
-cheminot.cpp.s:
-	$(MAKE) -f CMakeFiles/cheminot.dir/build.make CMakeFiles/cheminot.dir/cheminot.cpp.s
-.PHONY : cheminot.cpp.s
+cheminotc.cpp.s:
+	$(MAKE) -f CMakeFiles/cheminotc.dir/build.make CMakeFiles/cheminotc.dir/cheminotc.cpp.s
+.PHONY : cheminotc.cpp.s
 
 # Help Target
 help:
@@ -145,12 +145,12 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... cheminot"
+	@echo "... cheminotc"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... cheminot.o"
-	@echo "... cheminot.i"
-	@echo "... cheminot.s"
+	@echo "... cheminotc.o"
+	@echo "... cheminotc.i"
+	@echo "... cheminotc.s"
 .PHONY : help
 
 
