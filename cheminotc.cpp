@@ -1,34 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sqlite3.h>
-#include <time.h>
 #include <string>
+#include <time.h>
 #include <list>
 #include <queue>
 #include <numeric>
+#include <algorithm>
+#include <sstream>
+#include <memory>
+#include <sqlite3.h>
 #include <json/json.h>
+#include "cheminotc.h"
 
 namespace cheminotc {
 
-  struct StopTime {
-    std::string tripId;
-    struct tm arrival;
-    struct tm departure;
-    int pos;
-  };
+  template <typename T>
+  std::string to_string(T value) {
+    std::ostringstream os ;
+    os << value ;
+    return os.str() ;
+  }
 
   struct Calendar {
     std::string serviceId;
     std::map<std::string, bool> week;
     struct tm startDate;
     struct tm endDate;
-  };
-
-  struct CalendarException {
-    std::string serviceId;
-    struct tm date;
-    int exceptionType;
   };
 
   struct Trip {
@@ -44,13 +41,6 @@ namespace cheminotc {
     double lng;
   };
 
-  struct Vertice {
-    std::string id;
-    std::string name;
-    std::list<std::string> edges;
-    std::list<StopTime> stopTimes;
-  };
-
   struct tm getNow() {
     time_t rawtime;
     time(&rawtime);
@@ -59,7 +49,7 @@ namespace cheminotc {
   }
 
   std::string formatTime(struct tm time) {
-    return std::to_string(time.tm_hour) + ":" + std::to_string(time.tm_min);
+    return to_string(time.tm_hour) + ":" + to_string(time.tm_min);
   }
 
   struct tm parseTime(std::string datetime) {
@@ -293,9 +283,9 @@ namespace cheminotc {
     }
   }
 
-  sqlite3* openConnection() {
+  sqlite3* openConnection(std::string path) {
     sqlite3 *handle;
-    sqlite3_open_v2("cheminot.db", &handle, SQLITE_OPEN_READONLY, NULL);
+    sqlite3_open_v2(path.c_str(), &handle, SQLITE_OPEN_READONLY, NULL);
     return handle;
   }
 
@@ -321,7 +311,7 @@ namespace cheminotc {
     return parseVerticeRow(results.begin());
   }
 
-  std::map<std::string, std::list<CalendarException>> getCalendarExceptions(sqlite3 *handle) {
+  std::map<std::string, std::list<CalendarException> > getCalendarExceptions(sqlite3 *handle) {
     std::string query = "SELECT value FROM CACHE WHERE key = 'exceptions'";
     std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
     char *exceptions = (char *)results.front()["value"];
@@ -344,17 +334,29 @@ namespace cheminotc {
     return trips;
   }
 
-  struct ArrivalTime {
-    std::string stopId;
-    struct tm arrival;
-    struct tm departure;
-    std::string tripId;
-    Vertice *vertice;
-    int pos;
-  };
-
   bool isTerminus(StopTime *a) {
     return hasSameTime(&a->arrival, &a->departure) && a->pos > 0;
+  }
+
+  Json::Value serializeArrivalTime(ArrivalTime *arrivalTime) {
+    Json::Value json;
+    int arrival = asTimestamp(arrivalTime->arrival);
+    int departure = asTimestamp(arrivalTime->departure);
+    json["stopId"] = arrivalTime->stopId;
+    json["arrivalTime"] = arrival;
+    json["departureTime"] = departure;
+    json["tripId"] = arrivalTime->tripId;
+    json["pos"] = arrivalTime->pos;
+    return json;
+  }
+
+  Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes) {
+    Json::Value array;
+    for(std::list<ArrivalTime>::const_iterator iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
+      ArrivalTime arrivalTime = *iterator;
+      array.append(serializeArrivalTime(&arrivalTime));
+    }
+    return array;
   }
 
   class CompareArrivalTime {
@@ -583,84 +585,25 @@ namespace cheminotc {
     auto stopTimeGs = *(std::find_if(vs.stopTimes.begin(), vs.stopTimes.end(), [&](StopTime stopTime) {
       return stopTime.tripId == last.tripId;
     }));
+
+    gs.tripId = stopTimeGs.tripId;
     gs.departure = stopTimeGs.departure;
     gs.arrival = stopTimeGs.arrival;
 
     path.push_front(gs);
     return path;
   }
-}
 
-void chartresParis(sqlite3 *handle) {
-  struct tm ts = cheminotc::getNow();
-  ts.tm_hour = 7;
-  ts.tm_min = 50;
-
-  std::string vsId = "StopPoint:OCETrain TER-87394007";
-  std::string veId = "StopPoint:OCETrain TER-87391003";
-
-  auto graph = cheminotc::buildGraph(handle);
-  auto calendarExceptions = cheminotc::getCalendarExceptions(handle);
-  auto arrivalTimes = cheminotc::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
-  auto results = pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
-  printf("\n---------------------------------------------------------------");
-  for (std::list<cheminotc::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-    printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
-  }
-}
-
-void chartresTrouville(sqlite3 *handle) {
-  struct tm ts = cheminotc::getNow();
-  ts.tm_hour = 7;
-  ts.tm_min = 57;
-
-  std::string vsId = "StopPoint:OCETrain TER-87394007";
-  std::string veId = "StopPoint:OCETrain TER-87444372";
-
-  auto graph = cheminotc::buildGraph(handle);
-  auto calendarExceptions = cheminotc::getCalendarExceptions(handle);
-  //auto arrivalTimes = cheminot::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
-  //pathSelection(&graph, &arrivalTimes, *ts, vsId, veId);
-}
-
-void leMansParis(sqlite3 *handle) {
-  struct tm ts = cheminotc::getNow();
-  ts.tm_hour = 6;
-  ts.tm_min = 30;
-
-  std::string vsId = "StopPoint:OCETrain TER-87396002";
-  std::string veId = "StopPoint:OCETrain TER-87391003";
-
-  auto graph = cheminotc::buildGraph(handle);
-  auto calendarExceptions = cheminotc::getCalendarExceptions(handle);
-  cheminotc::Vertice vs = graph[vsId];
-  auto arrivalTimes = cheminotc::refineArrivalTimes(handle, &graph, &calendarExceptions, vsId, veId, ts);
-
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396002"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396309"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87396325"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394296"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394254"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394221"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394007"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394130"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87394114"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393314"].arrival).c_str());
-  printf("\n --> %s", cheminotc::formatTime(arrivalTimes["StopPoint:OCETrain TER-87393009"].arrival).c_str());
-
-  auto results = pathSelection(&graph, &arrivalTimes, ts, vsId, veId);
-
-  printf("\n---------------------------------------------------------------");
-  for (std::list<cheminotc::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-    printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm at) {
+    auto arrivalTimes = refineArrivalTimes(handle, graph, calendarExceptions, vsId, veId, at);
+    return pathSelection(graph, &arrivalTimes, at, vsId, veId);
   }
 }
 
 int main(void) {
   printf("cheminotc !");
-  sqlite3 *handle = cheminotc::openConnection();
-  leMansParis(handle);
-  //chartresParis(handle);
+  sqlite3 *handle = cheminotc::openConnection("cheminot.db");
+  //leMansParis(handle);
   sqlite3_close(handle);
   return 0;
 }
