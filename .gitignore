@@ -8,7 +8,7 @@ Testing
 *.db
 runUnitTests
 *.a
-
+*.json
 Makefile
 CTestTestfile.cmake
 cheminotc_units
