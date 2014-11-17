@@ -41,9 +41,9 @@ namespace cheminotc {
 
   std::map<std::string, Vertice> buildGraph(sqlite3 *handle);
 
-  std::map<std::string, std::list<CalendarException>> getCalendarExceptions(sqlite3 *handle);
+  std::map<std::string, std::list<CalendarException> > getCalendarExceptions(sqlite3 *handle);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException>> *calendarExceptions, std::string vsId, std::string veId, struct tm at);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException> > *calendarExceptions, std::string vsId, std::string veId, struct tm at);
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
 

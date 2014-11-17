@@ -4,7 +4,11 @@ cheminotc
 cmake_install.cmake
 lib/*
 Makefile
-
+Testing
 *.db
+runUnitTests
+*.a
 
 Makefile
+CTestTestfile.cmake
+cheminotc_units

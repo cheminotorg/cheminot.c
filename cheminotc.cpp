@@ -165,8 +165,8 @@ namespace cheminotc {
     return json;
   }
 
-  std::map<std::string, std::list<CalendarException>> parseCalendarExceptions(Json::Value json) {
-    std::map<std::string, std::list<CalendarException>> calendarExceptions;
+  std::map<std::string, std::list<CalendarException> > parseCalendarExceptions(Json::Value json) {
+    std::map<std::string, std::list<CalendarException> > calendarExceptions;
     for(auto const &serviceId : json.getMemberNames()) {
       std::list<CalendarException> exceptions;
       Json::Value array = json[serviceId];
@@ -299,23 +299,17 @@ namespace cheminotc {
     return graph;
   }
 
-  std::string getVersion(sqlite3 *handle) {
-    std::string query = "SELECT value FROM CACHE WHERE key = 'version'";
-    std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
-    return (char *)results.front()["value"];
-  }
-
-  Vertice getVerticeById(sqlite3 *handle, std:: string id) {
-    std::string query = "SELECT * FROM GRAPH WHERE id = '" + id + "'";
-    std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
-    return parseVerticeRow(results.begin());
-  }
-
   std::map<std::string, std::list<CalendarException> > getCalendarExceptions(sqlite3 *handle) {
     std::string query = "SELECT value FROM CACHE WHERE key = 'exceptions'";
     std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
     char *exceptions = (char *)results.front()["value"];
     return parseCalendarExceptions(toJson(exceptions));
+  }
+
+  std::string getVersion(sqlite3 *handle) {
+    std::string query = "SELECT value FROM CACHE WHERE key = 'version'";
+    std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
+    return (char *)results.front()["value"];
   }
 
   std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids) {
@@ -369,7 +363,7 @@ namespace cheminotc {
   bool isTripRemovedOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
     auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
     if(exceptions != calendarExceptions->end()) {
-      auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
+      auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&when](CalendarException exception) {
         return hasSameDate(&exception.date, &when) && (exception.exceptionType == 2);
       });
       return it != exceptions->second.end();
@@ -381,7 +375,7 @@ namespace cheminotc {
   bool isTripAddedOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
     auto exceptions = calendarExceptions->find(trip->calendar->serviceId);
     if(exceptions != calendarExceptions->end()) {
-      auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&](CalendarException exception) {
+      auto it = std::find_if(exceptions->second.begin(), exceptions->second.end(), [&when](CalendarException exception) {
         return hasSameDate(&exception.date, &when) && (exception.exceptionType == 1);
       });
       return it != exceptions->second.end();
@@ -403,7 +397,7 @@ namespace cheminotc {
     return before && after;
   }
 
-  bool isTripValidOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+  bool isTripValidOn(std::list<Trip>::const_iterator trip, std::map<std::string, std::list<CalendarException> > *calendarExceptions, struct tm when) {
     if(trip->calendar != NULL) {
       bool removed = isTripRemovedOn(trip, calendarExceptions, when);
       bool added = isTripAddedOn(trip, calendarExceptions, when);
@@ -414,7 +408,7 @@ namespace cheminotc {
     return false;
   }
 
-  std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, std::map<std::string, std::list<CalendarException>> *calendarExceptions, struct tm when) {
+  std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, std::map<std::string, std::list<CalendarException> > *calendarExceptions, struct tm when) {
     std::map<std::string, bool> availablities;
     auto trips = getTripsByIds(handle, ids);
     for (std::list<Trip>::const_iterator iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator) {
@@ -598,12 +592,4 @@ namespace cheminotc {
     auto arrivalTimes = refineArrivalTimes(handle, graph, calendarExceptions, vsId, veId, at);
     return pathSelection(graph, &arrivalTimes, at, vsId, veId);
   }
-}
-
-int main(void) {
-  printf("cheminotc !");
-  sqlite3 *handle = cheminotc::openConnection("cheminot.db");
-  //leMansParis(handle);
-  sqlite3_close(handle);
-  return 0;
 }

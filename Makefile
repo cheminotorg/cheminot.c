@@ -71,6 +71,16 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/local/Cellar/cmake/3.0.2/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/sre/data/Projects/me/cheminot.c/CMakeFiles /Users/sre/data/Projects/me/cheminot.c/CMakeFiles/progress.marks
@@ -115,6 +125,58 @@ cheminotc/fast:
 	$(MAKE) -f CMakeFiles/cheminotc.dir/build.make CMakeFiles/cheminotc.dir/build
 .PHONY : cheminotc/fast
 
+#=============================================================================
+# Target rules for targets named cheminotc_units
+
+# Build rule for target.
+cheminotc_units: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cheminotc_units
+.PHONY : cheminotc_units
+
+# fast build rule for target.
+cheminotc_units/fast:
+	$(MAKE) -f CMakeFiles/cheminotc_units.dir/build.make CMakeFiles/cheminotc_units.dir/build
+.PHONY : cheminotc_units/fast
+
+#=============================================================================
+# Target rules for targets named runUnitTests
+
+# Build rule for target.
+runUnitTests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 runUnitTests
+.PHONY : runUnitTests
+
+# fast build rule for target.
+runUnitTests/fast:
+	$(MAKE) -f CMakeFiles/runUnitTests.dir/build.make CMakeFiles/runUnitTests.dir/build
+.PHONY : runUnitTests/fast
+
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) -f lib/gtest-1.7.0/CMakeFiles/gtest.dir/build.make lib/gtest-1.7.0/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) -f lib/gtest-1.7.0/CMakeFiles/gtest_main.dir/build.make lib/gtest-1.7.0/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
 cheminotc.o: cheminotc.cpp.o
 .PHONY : cheminotc.o
 
@@ -139,6 +201,33 @@ cheminotc.cpp.s:
 	$(MAKE) -f CMakeFiles/cheminotc.dir/build.make CMakeFiles/cheminotc.dir/cheminotc.cpp.s
 .PHONY : cheminotc.cpp.s
 
+tests/cheminotc.o: tests/cheminotc.cpp.o
+.PHONY : tests/cheminotc.o
+
+# target to build an object file
+tests/cheminotc.cpp.o:
+	$(MAKE) -f CMakeFiles/cheminotc_units.dir/build.make CMakeFiles/cheminotc_units.dir/tests/cheminotc.cpp.o
+	$(MAKE) -f CMakeFiles/runUnitTests.dir/build.make CMakeFiles/runUnitTests.dir/tests/cheminotc.cpp.o
+.PHONY : tests/cheminotc.cpp.o
+
+tests/cheminotc.i: tests/cheminotc.cpp.i
+.PHONY : tests/cheminotc.i
+
+# target to preprocess a source file
+tests/cheminotc.cpp.i:
+	$(MAKE) -f CMakeFiles/cheminotc_units.dir/build.make CMakeFiles/cheminotc_units.dir/tests/cheminotc.cpp.i
+	$(MAKE) -f CMakeFiles/runUnitTests.dir/build.make CMakeFiles/runUnitTests.dir/tests/cheminotc.cpp.i
+.PHONY : tests/cheminotc.cpp.i
+
+tests/cheminotc.s: tests/cheminotc.cpp.s
+.PHONY : tests/cheminotc.s
+
+# target to generate assembly for a file
+tests/cheminotc.cpp.s:
+	$(MAKE) -f CMakeFiles/cheminotc_units.dir/build.make CMakeFiles/cheminotc_units.dir/tests/cheminotc.cpp.s
+	$(MAKE) -f CMakeFiles/runUnitTests.dir/build.make CMakeFiles/runUnitTests.dir/tests/cheminotc.cpp.s
+.PHONY : tests/cheminotc.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -146,11 +235,19 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... cheminotc"
+	@echo "... cheminotc_units"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... runUnitTests"
+	@echo "... test"
+	@echo "... gtest"
+	@echo "... gtest_main"
 	@echo "... cheminotc.o"
 	@echo "... cheminotc.i"
 	@echo "... cheminotc.s"
+	@echo "... tests/cheminotc.o"
+	@echo "... tests/cheminotc.i"
+	@echo "... tests/cheminotc.s"
 .PHONY : help
 
 
