@@ -25,7 +25,7 @@ namespace cheminotc {
     struct tm arrival;
     struct tm departure;
     std::string tripId;
-    Vertice *vertice;
+    Vertice vertice;
     int pos;
   };
 
@@ -35,17 +35,19 @@ namespace cheminotc {
     int exceptionType;
   };
 
+  struct tm getNow();
+
+  Json::Value toJson(std::string value);
+
   sqlite3* openConnection(std::string path);
 
   std::string getVersion(sqlite3 *handle);
 
   Json::Value parseGraph(std::string path);
 
-  std::map<std::string, Vertice> getGraph(std::string path);
+  Json::Value parseCalendarExceptions(std::string path);
 
-  std::map<std::string, std::list<CalendarException> > getCalendarExceptions(std::string path);
-
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, std::map<std::string, Vertice> *graph, std::map<std::string, std::list<CalendarException> > *calendarExceptions, std::string vsId, std::string veId, struct tm at);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Json::Value *graph, Json::Value *calendarExceptions, std::string vsId, std::string veId, struct tm at);
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
 
