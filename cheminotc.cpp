@@ -7,6 +7,7 @@
 #include <numeric>
 #include <algorithm>
 #include <sstream>
+#include <fstream>
 #include <memory>
 #include <sqlite3.h>
 #include <json/json.h>
@@ -228,17 +229,12 @@ namespace cheminotc {
     return calendar;
   }
 
-  Vertice parseVerticeRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
-    std::map<std::string, const void*> row = *it;
-    const char*id = (const char*)row["id"];
-    const char*name = (const char*)row["name"];
-    const char*edges = (const char*)row["edges"];
-    const char*stopTimes = (const char*)row["stopTimes"];
+  Vertice parseVerticeRow(Json::Value value) {
     struct Vertice vertice;
-    vertice.id = id;
-    vertice.name = name;
-    vertice.edges = parseEdges(toJson(edges));
-    vertice.stopTimes = parseStopTimes(toJson(stopTimes));
+    vertice.id = value["id"].asString();
+    vertice.name = value["name"].asString();
+    vertice.edges = parseEdges(value["edges"]);
+    vertice.stopTimes = parseStopTimes(value["stopTimes"]);
     return vertice;
   }
 
@@ -289,25 +285,44 @@ namespace cheminotc {
     return handle;
   }
 
-  std::map<std::string, Vertice> buildGraph(sqlite3 *handle) {
+  Json::Value parseGraph(std::string path) {
+    std::ifstream in(path);
+    if(in.is_open()) {
+      Json::Value json;
+      auto reader = new Json::Reader();
+      reader->parse(in, json, false);
+      return json;
+    } else {
+      throw std::runtime_error("Unexpected error while reading: " + path);
+    }
+  }
+
+  std::map<std::string, Vertice> getGraph(std::string path) {
     std::map<std::string, Vertice> graph;
-    std::list< std::map<std::string, const void*> > results = executeSQL(handle, "SELECT * FROM GRAPH;");
-    for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-      Vertice vertice = parseVerticeRow(iterator);
+    Json::Value json = parseGraph(path);
+    for(int index = 0; index < json.size(); ++index) {
+      Vertice vertice = parseVerticeRow(json[index]);
       graph[vertice.id] = vertice;
     }
     return graph;
   }
 
-  std::map<std::string, std::list<CalendarException> > getCalendarExceptions(sqlite3 *handle) {
-    std::string query = "SELECT value FROM CACHE WHERE key = 'exceptions'";
-    std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
-    char *exceptions = (char *)results.front()["value"];
-    return parseCalendarExceptions(toJson(exceptions));
+  std::map<std::string, std::list<CalendarException> > getCalendarExceptions(std::string path) {
+    std::ifstream in(path);
+    if(in.is_open()) {
+      Json::Value json;
+      auto reader = new Json::Reader();
+      reader->parse(in, json, false);
+      auto dateExceptions = parseCalendarExceptions(json);
+      in.close();
+      return dateExceptions;
+    } else {
+      throw std::runtime_error("Unexpected error while reading: " + path);
+    }
   }
 
   std::string getVersion(sqlite3 *handle) {
-    std::string query = "SELECT value FROM CACHE WHERE key = 'version'";
+    std::string query = "SELECT value FROM META WHERE key = 'version'";
     std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
     return (char *)results.front()["value"];
   }
