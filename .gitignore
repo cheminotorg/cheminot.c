@@ -1,5 +1,6 @@
 CMakeCache.txt
 CMakeFiles/*
+protobuf
 cheminotc
 cmake_install.cmake
 lib/*
@@ -8,7 +9,8 @@ Testing
 *.db
 runUnitTests
 *.a
-*.json
+calendar_dates
+graph
 Makefile
 CTestTestfile.cmake
 cheminotc_units

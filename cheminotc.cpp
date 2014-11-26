@@ -9,8 +9,6 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
-#include <sqlite3.h>
-#include <json/json.h>
 #include "cheminotc.h"
 
 namespace cheminotc {
@@ -22,26 +20,6 @@ namespace cheminotc {
     return os.str() ;
   }
 
-  struct Calendar {
-    std::string serviceId;
-    std::map<std::string, bool> week;
-    struct tm startDate;
-    struct tm endDate;
-  };
-
-  struct Trip {
-    std::string id;
-    std::unique_ptr<Calendar> calendar;
-    std::string direction;
-  };
-
-  struct Stop {
-    std::string id;
-    std::string name;
-    double lat;
-    double lng;
-  };
-
   struct tm getNow() {
     time_t rawtime;
     time(&rawtime);
@@ -51,6 +29,10 @@ namespace cheminotc {
 
   std::string formatTime(struct tm time) {
     return to_string(time.tm_hour) + ":" + to_string(time.tm_min);
+  }
+
+  std::string formatDate(struct tm time) {
+    return to_string(time.tm_mday) + "/" + to_string(time.tm_mon) + "/" + to_string(time.tm_year);
   }
 
   struct tm parseTime(std::string datetime) {
@@ -159,13 +141,6 @@ namespace cheminotc {
     }
   }
 
-  Json::Value toJson(std::string value) {
-    Json::Value json;
-    Json::Reader reader;
-    reader.parse(value, json);
-    return json;
-  }
-
   std::list<CalendarException> getCalendarExceptionsFor(Json::Value *calendarExceptions, std::string serviceId) {
     std::list<CalendarException> exceptions;
     Json::Value array = (*calendarExceptions)[serviceId];
@@ -207,21 +182,21 @@ namespace cheminotc {
     return stopIds;
   }
 
-  std::unique_ptr<Calendar> parseCalendar(Json::Value value) {
+  std::unique_ptr<Calendar> parseCalendar(m::cheminot::data::Calendar calendarBuf) {
     std::unique_ptr<Calendar> calendar(new Calendar());
     std::map<std::string, bool> week;
-    week["monday"] = value["monday"].asString() == "1";
-    week["tuesday"] = value["tuesday"].asString() == "1";
-    week["wednesday"] = value["wednesday"].asString() == "1";
-    week["thursday"] = value["thursday"].asString() == "1";
-    week["friday"] = value["friday"].asString() == "1";
-    week["saturday"] = value["saturday"].asString() == "1";
-    week["sunday"] = value["sunday"].asString() == "1";
+    week["monday"] = calendarBuf.monday() == "1";
+    week["tuesday"] = calendarBuf.tuesday() == "1";
+    week["wednesday"] = calendarBuf.wednesday() == "1";
+    week["thursday"] = calendarBuf.thursday() == "1";
+    week["friday"] = calendarBuf.friday() == "1";
+    week["saturday"] = calendarBuf.saturday() == "1";
+    week["sunday"] = calendarBuf.sunday() == "1";
 
-    calendar->serviceId = value["serviceId"].asString();
+    calendar->serviceId = calendarBuf.serviceid();
     calendar->week = week;
-    calendar->startDate = parseDate(value["startDate"].asString());
-    calendar->endDate = parseDate(value["endDate"].asString());
+    calendar->startDate = parseDate(calendarBuf.startdate());
+    calendar->endDate = parseDate(calendarBuf.enddate());
     return calendar;
   }
 
@@ -241,12 +216,14 @@ namespace cheminotc {
   Trip parseTripRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
     std::map<std::string, const void*> row = *it;
     const char *id = (const char*)row["id"];
-    const char *calendar = (const char*)row["service"];
+    const char *calendar = (const char*)row["calendar"];
     const char *direction = (const char*)row["direction"];
     struct Trip trip;
     trip.id = id;
-    if(std::string(calendar) != "null") {
-      trip.calendar = parseCalendar(toJson(calendar));
+    m::cheminot::data::Calendar calendarBuf;
+    if(calendar != NULL) {
+      calendarBuf.ParseFromString(calendar);
+      trip.calendar = parseCalendar(calendarBuf);
     }
     trip.direction = direction;
     return trip;
@@ -285,26 +262,25 @@ namespace cheminotc {
     return handle;
   }
 
-  Json::Value parseGraph(std::string path) {
+  m::cheminot::data::Graph parseGraph(std::string path) {
     std::ifstream in(path);
     if(in.is_open()) {
-      Json::Value json;
-      auto reader = new Json::Reader();
-      reader->parse(in, json, false);
-      return json;
+      m::cheminot::data::Graph graphBuf;
+      graphBuf.ParseFromIstream(&in);
+      in.close();
+      return graphBuf;
     } else {
       throw std::runtime_error("Unexpected error while reading: " + path);
     }
   }
 
-  Json::Value parseCalendarExceptions(std::string path) {
+  m::cheminot::data::CalendarDates parseCalendarDates(std::string path) {
     std::ifstream in(path);
     if(in.is_open()) {
-      Json::Value json;
-      auto reader = new Json::Reader();
-      reader->parse(in, json, false);
+      m::cheminot::data::CalendarDates calendarDates;
+      calendarDates.ParseFromIstream(&in);
       in.close();
-      return json;
+      return calendarDates;
     } else {
       throw std::runtime_error("Unexpected error while reading: " + path);
     }

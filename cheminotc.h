@@ -2,6 +2,7 @@
 #include <map>
 #include <list>
 #include <memory>
+#include "protobuf/cheminotBuf.pb.h"
 #include <../jsoncpp/json/json.h>
 
 namespace cheminotc {
@@ -35,23 +36,38 @@ namespace cheminotc {
     int exceptionType;
   };
 
-  struct tm getNow();
+  struct Calendar {
+    std::string serviceId;
+    std::map<std::string, bool> week;
+    struct tm startDate;
+    struct tm endDate;
+  };
 
-  Json::Value toJson(std::string value);
+  struct Trip {
+    std::string id;
+    std::unique_ptr<Calendar> calendar;
+    std::string direction;
+  };
+
+  struct tm getNow();
 
   sqlite3* openConnection(std::string path);
 
   std::string getVersion(sqlite3 *handle);
 
-  Json::Value parseGraph(std::string path);
+  std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids);
 
-  Json::Value parseCalendarExceptions(std::string path);
+  m::cheminot::data::Graph parseGraph(std::string path);
+
+  m::cheminot::data::CalendarDates parseCalendarDates(std::string path);
 
   std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Json::Value *graph, Json::Value *calendarExceptions, std::string vsId, std::string veId, struct tm at);
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
 
   std::string formatTime(struct tm time);
+
+  std::string formatDate(struct tm time);
 
   struct tm asDateTime(time_t t);
 }
