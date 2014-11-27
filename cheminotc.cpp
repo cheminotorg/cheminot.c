@@ -315,12 +315,12 @@ namespace cheminotc {
 
   std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids) {
     std::list<Trip> trips;
-    std::string params = std::accumulate(ids.begin(), ids.end(), (std::string)"", [](std::string acc, std::string id) {
-        std::string p = "id = '" + id + "'";
-        return (acc == "") ? p : (acc + " OR " + p);
-      });
-    if(params != "") {
-      std::string query = "SELECT * FROM TRIPS WHERE " + params;
+    std::string values = std::accumulate(ids.begin(), ids.end(), (std::string)"", [](std::string acc, std::string id) {
+        std::string quoted = "'" + id + "'";
+        return (acc == "") ? quoted : (acc + ", " + quoted);
+    });
+    if(!ids.empty()) {
+      std::string query = "SELECT * FROM TRIPS WHERE id IN (" + values + ")";
       std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
       for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
         trips.push_back(parseTripRow(iterator));
