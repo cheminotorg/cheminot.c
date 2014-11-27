@@ -30,7 +30,7 @@ namespace cheminotc {
     int pos;
   };
 
-  struct CalendarException {
+  struct CalendarDate {
     std::string serviceId;
     struct tm date;
     int exceptionType;
@@ -61,13 +61,13 @@ namespace cheminotc {
 
   m::cheminot::data::CalendarDates parseCalendarDates(std::string path);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Json::Value *graph, Json::Value *calendarExceptions, std::string vsId, std::string veId, struct tm at);
-
-  Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, m::cheminot::data::Graph *graph, m::cheminot::data::CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at);
 
   std::string formatTime(struct tm time);
 
   std::string formatDate(struct tm time);
 
   struct tm asDateTime(time_t t);
+
+  Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
 }
