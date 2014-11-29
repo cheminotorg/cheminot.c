@@ -7,6 +7,9 @@
 
 namespace cheminotc {
 
+  typedef google::protobuf::Map< std::string,m::cheminot::data::Vertice> Graph;
+  typedef google::protobuf::Map<std::__1::basic_string<char>, m::cheminot::data::CalendarExceptions> CalendarDates;
+
   struct StopTime {
     std::string tripId;
     struct tm arrival;
@@ -57,11 +60,11 @@ namespace cheminotc {
 
   std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids);
 
-  m::cheminot::data::Graph parseGraph(std::string path);
+  void parseGraph(std::string path, Graph *graph);
 
-  m::cheminot::data::CalendarDates parseCalendarDates(std::string path);
+  void parseCalendarDates(std::string path, CalendarDates *calendarDates);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, m::cheminot::data::Graph *graph, m::cheminot::data::CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at);
 
   std::string formatTime(struct tm time);
 

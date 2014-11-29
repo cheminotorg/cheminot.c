@@ -162,10 +162,9 @@ namespace cheminotc {
     return array;
   }
 
-  std::list<CalendarDate> getCalendarDatesByServiceId(m::cheminot::data::CalendarDates *calendarDates, std::string serviceId) {
+  std::list<CalendarDate> getCalendarDatesByServiceId(CalendarDates *calendarDates, std::string serviceId) {
     std::list<CalendarDate> results;
-    auto exceptionsByServiceId = calendarDates->exceptionsbyserviceid();
-    auto exceptions = exceptionsByServiceId[serviceId].calendardates();
+    auto exceptions = (*calendarDates)[serviceId].calendardates();
 
     for (auto iterator = exceptions.begin(), end = exceptions.end(); iterator != end; ++iterator) {
       m::cheminot::data::CalendarDate calendarDateBuf = *iterator;
@@ -222,10 +221,9 @@ namespace cheminotc {
     return calendar;
   }
 
-  Vertice getVerticeFromGraph(m::cheminot::data::Graph *graph, std::string id) {
+  Vertice getVerticeFromGraph(Graph *graph, std::string id) {
     struct Vertice vertice;
-    auto verticesBuf = *(graph->mutable_vertices());
-    auto verticeBuf = verticesBuf[id];
+    auto verticeBuf = (*graph)[id];
     vertice.id = verticeBuf.id();
     vertice.name = verticeBuf.name();
     vertice.edges = parseEdges(verticeBuf.edges());
@@ -283,25 +281,25 @@ namespace cheminotc {
     return handle;
   }
 
-  m::cheminot::data::Graph parseGraph(std::string path) {
+  void parseGraph(std::string path, Graph *graph) {
     std::ifstream in(path);
     if(in.is_open()) {
       m::cheminot::data::Graph graphBuf;
       graphBuf.ParseFromIstream(&in);
+      *graph = *graphBuf.mutable_vertices();
       in.close();
-      return graphBuf;
     } else {
       throw std::runtime_error("Unexpected error while reading: " + path);
     }
   }
 
-  m::cheminot::data::CalendarDates parseCalendarDates(std::string path) {
+  void parseCalendarDates(std::string path, CalendarDates *calendarDates) {
     std::ifstream in(path);
     if(in.is_open()) {
-      m::cheminot::data::CalendarDates calendarDates;
-      calendarDates.ParseFromIstream(&in);
+      m::cheminot::data::CalendarDates calendarDatesBuf;
+      calendarDatesBuf.ParseFromIstream(&in);
+      *calendarDates = calendarDatesBuf.exceptionsbyserviceid();
       in.close();
-      return calendarDates;
     } else {
       throw std::runtime_error("Unexpected error while reading: " + path);
     }
@@ -340,7 +338,7 @@ namespace cheminotc {
     }
   };
 
-  bool isTripRemovedOn(std::list<Trip>::const_iterator trip, m::cheminot::data::CalendarDates *calendarDates, struct tm when) {
+  bool isTripRemovedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, struct tm when) {
     auto exceptions = getCalendarDatesByServiceId(calendarDates, trip->calendar->serviceId);
     auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](CalendarDate calendarDate) {
         return hasSameDate(&calendarDate.date, &when) && (calendarDate.exceptionType == 2);
@@ -348,7 +346,7 @@ namespace cheminotc {
     return it != exceptions.end();
   }
 
-  bool isTripAddedOn(std::list<Trip>::const_iterator trip, m::cheminot::data::CalendarDates *calendarDates, struct tm when) {
+  bool isTripAddedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, struct tm when) {
     auto exceptions = getCalendarDatesByServiceId(calendarDates, trip->calendar->serviceId);
     auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](CalendarDate exception) {
         return hasSameDate(&exception.date, &when) && (exception.exceptionType == 1);
@@ -369,7 +367,7 @@ namespace cheminotc {
     return before && after;
   }
 
-  bool isTripValidOn(std::list<Trip>::const_iterator trip, m::cheminot::data::CalendarDates *calendarDates, struct tm when) {
+  bool isTripValidOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, struct tm when) {
     if(trip->calendar != NULL) {
       bool removed = isTripRemovedOn(trip, calendarDates, when);
       bool added = isTripAddedOn(trip, calendarDates, when);
@@ -380,7 +378,7 @@ namespace cheminotc {
     return false;
   }
 
-  std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, m::cheminot::data::CalendarDates *calendarDates, struct tm when) {
+  std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, CalendarDates *calendarDates, struct tm when) {
     std::map<std::string, bool> availablities;
     auto trips = getTripsByIds(handle, ids);
     for (std::list<Trip>::const_iterator iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator) {
@@ -414,7 +412,7 @@ namespace cheminotc {
     return next;
   }
 
-  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, m::cheminot::data::CalendarDates *calendarDates, ArrivalTime *vi, struct tm ts) {
+  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, CalendarDates *calendarDates, ArrivalTime *vi, struct tm ts) {
     std::list<StopTime> departures(sortStopTimesBy(vi->vertice.stopTimes, ts));
 
     departures.remove_if([&] (StopTime &stopTime) {
@@ -435,7 +433,7 @@ namespace cheminotc {
     return departures;
   }
 
-  std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, m::cheminot::data::Graph *graph, m::cheminot::data::CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm ts) {
+  std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm ts) {
 
     std::map<std::string, ArrivalTime> results;
     std::map< std::string, ArrivalTime > pushed;
@@ -459,7 +457,6 @@ namespace cheminotc {
 
       ArrivalTime head = pushed[queue.top().stopId];
       queue.pop();
-
       results[head.stopId] = head;
 
       if(head.stopId == veId) {
@@ -511,7 +508,7 @@ namespace cheminotc {
     return results;
   }
 
-  std::list<ArrivalTime> pathSelection(m::cheminot::data::Graph *graph, std::map<std::string, ArrivalTime> *arrivalTimes, struct tm ts, std::string vsId, std::string veId) {
+  std::list<ArrivalTime> pathSelection(Graph *graph, std::map<std::string, ArrivalTime> *arrivalTimes, struct tm ts, std::string vsId, std::string veId) {
     Vertice vs = getVerticeFromGraph(graph, vsId);
     Vertice vj = getVerticeFromGraph(graph, veId);
     ArrivalTime ge = (*arrivalTimes)[vj.id];
@@ -560,7 +557,7 @@ namespace cheminotc {
     return path;
   }
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, m::cheminot::data::Graph *graph, m::cheminot::data::CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at) {
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at) {
     auto arrivalTimes = refineArrivalTimes(handle, graph, calendarDates, vsId, veId, at);
     return pathSelection(graph, &arrivalTimes, at, vsId, veId);
   }

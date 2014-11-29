@@ -19,29 +19,29 @@ class GraphFixture : public testing::Test {
   protected:
 
   sqlite3 *handle;
-  m::cheminot::data::Graph graph;
-  m::cheminot::data::CalendarDates calendarDates;
+  cheminotc::Graph graph;
+  cheminotc::CalendarDates calendarDates;
 
   virtual void SetUp() {
     std::string path = "cheminot.db";
     handle = cheminotc::openConnection(path);
-    graph = cheminotc::parseGraph("graph");
-    calendarDates = cheminotc::parseCalendarDates("calendar_dates");
+    cheminotc::parseGraph("graph", &graph);
+    cheminotc::parseCalendarDates("calendar_dates", &calendarDates);
   }
 };
 
 TEST(GraphParsing, parse_graph) {
   std::string chartresStop = "StopPoint:OCETrain TER-87394007";
-  auto graph = cheminotc::parseGraph("graph");
-  auto vertices = *(graph.mutable_vertices());
-  EXPECT_STREQ(chartresStop.c_str(), vertices[chartresStop].id().c_str());
+  cheminotc::Graph graph;
+  cheminotc::parseGraph("graph", &graph);
+  EXPECT_STREQ(chartresStop.c_str(), graph[chartresStop].id().c_str());
 }
 
 TEST(CalendarDatesParsing, parse_calendarDates) {
   std::string serviceId = "7007";
-  auto calendar = cheminotc::parseCalendarDates("calendar_dates");
-  auto exceptionsByServiceId = calendar.exceptionsbyserviceid();
-  auto exceptions = exceptionsByServiceId[serviceId];
+  cheminotc::CalendarDates calendarDates;
+  cheminotc::parseCalendarDates("calendar_dates", &calendarDates);
+  auto exceptions = calendarDates[serviceId];
   auto x = exceptions.calendardates();
   auto y = x.Get(0);
   EXPECT_STREQ(serviceId.c_str(), y.serviceid().c_str());
