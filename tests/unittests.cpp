@@ -25,22 +25,22 @@ class GraphFixture : public testing::Test {
   virtual void SetUp() {
     std::string path = "cheminot.db";
     handle = cheminotc::openConnection(path);
-    cheminotc::parseGraph("graph", &graph);
-    cheminotc::parseCalendarDates("calendar_dates", &calendarDates);
+    cheminotc::parseGraphFromFile("graph", &graph);
+    cheminotc::parseCalendarDatesFromFile("calendar_dates", &calendarDates);
   }
 };
 
 TEST(GraphParsing, parse_graph) {
   std::string chartresStop = "StopPoint:OCETrain TER-87394007";
   cheminotc::Graph graph;
-  cheminotc::parseGraph("graph", &graph);
+  cheminotc::parseGraphFromFile("graph", &graph);
   EXPECT_STREQ(chartresStop.c_str(), graph[chartresStop].id().c_str());
 }
 
 TEST(CalendarDatesParsing, parse_calendarDates) {
   std::string serviceId = "7007";
   cheminotc::CalendarDates calendarDates;
-  cheminotc::parseCalendarDates("calendar_dates", &calendarDates);
+  cheminotc::parseCalendarDatesFromFile("calendar_dates", &calendarDates);
   auto exceptions = calendarDates[serviceId];
   auto x = exceptions.calendardates();
   auto y = x.Get(0);

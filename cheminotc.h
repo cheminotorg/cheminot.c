@@ -3,12 +3,12 @@
 #include <list>
 #include <memory>
 #include "protobuf/cheminotBuf.pb.h"
-#include <../jsoncpp/json/json.h>
+#include <json/json.h>
 
 namespace cheminotc {
 
   typedef google::protobuf::Map< std::string,m::cheminot::data::Vertice> Graph;
-  typedef google::protobuf::Map<std::__1::basic_string<char>, m::cheminot::data::CalendarExceptions> CalendarDates;
+  typedef google::protobuf::Map<std::string,m::cheminot::data::CalendarExceptions> CalendarDates;
 
   struct StopTime {
     std::string tripId;
@@ -60,9 +60,13 @@ namespace cheminotc {
 
   std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids);
 
-  void parseGraph(std::string path, Graph *graph);
+  void parseGraphFromFile(std::string path, Graph *graph);
 
-  void parseCalendarDates(std::string path, CalendarDates *calendarDates);
+  void parseGraph(std::string content, Graph *graph);
+
+  void parseCalendarDatesFromFile(std::string content, CalendarDates *calendarDates);
+
+  void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
   std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at);
 
