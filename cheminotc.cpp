@@ -281,13 +281,7 @@ namespace cheminotc {
     return handle;
   }
 
-  void parseGraph(std::string content, Graph *graph) {
-    m::cheminot::data::Graph graphBuf;
-    graphBuf.ParseFromString(content);
-    *graph = *graphBuf.mutable_vertices();
-  }
-
-  void parseGraphFromFile(std::string path, Graph *graph) {
+  void parseGraph(std::string path, Graph *graph) {
     std::ifstream in(path);
     if(in.is_open()) {
       m::cheminot::data::Graph graphBuf;
@@ -299,13 +293,7 @@ namespace cheminotc {
     }
   }
 
-  void parseCalendarDates(std::string content, CalendarDates *calendarDates) {
-    m::cheminot::data::CalendarDates calendarDatesBuf;
-    calendarDatesBuf.ParseFromString(content);
-    *calendarDates = calendarDatesBuf.exceptionsbyserviceid();
-  }
-
-  void parseCalendarDatesFromFile(std::string path, CalendarDates *calendarDates) {
+  void parseCalendarDates(std::string path, CalendarDates *calendarDates) {
     std::ifstream in(path);
     if(in.is_open()) {
       m::cheminot::data::CalendarDates calendarDatesBuf;

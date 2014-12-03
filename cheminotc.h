@@ -60,11 +60,7 @@ namespace cheminotc {
 
   std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids);
 
-  void parseGraphFromFile(std::string path, Graph *graph);
-
-  void parseGraph(std::string content, Graph *graph);
-
-  void parseCalendarDatesFromFile(std::string content, CalendarDates *calendarDates);
+  void parseGraph(std::string path, Graph *graph);
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
