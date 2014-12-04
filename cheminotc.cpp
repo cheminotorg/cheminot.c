@@ -35,6 +35,10 @@ namespace cheminotc {
     return to_string(time.tm_mday) + "/" + to_string(time.tm_mon) + "/" + to_string(time.tm_year);
   }
 
+  std::string formatDateTime(struct tm datetime) {
+    return formatDate(datetime) + " " + formatTime(datetime);
+  }
+
   struct tm parseTime(std::string datetime) {
     struct tm now = getNow();
     struct tm time;
@@ -140,6 +144,14 @@ namespace cheminotc {
     } else {
       return timeIsBeforeEq(a, b);
     }
+  }
+
+  bool datetimeNotEq(struct tm a, struct tm b) {
+    return !dateIsEq(a, b) || !timeIsEq(a, b);
+  }
+
+  bool datetimeIsBeforeNotEq(struct tm a, struct tm b) {
+    return datetimeIsBeforeEq(a, b) && !(dateIsEq(a, b) && timeIsEq(a, b));
   }
 
   Json::Value serializeArrivalTime(ArrivalTime *arrivalTime) {
@@ -389,35 +401,27 @@ namespace cheminotc {
   }
 
   std::list<StopTime> sortStopTimesBy(std::list<StopTime> stopTimes, struct tm t) {
-    typedef std::tuple<std::list<StopTime>, std::list<StopTime>> StopTimesAt;
-    StopTimesAt s = std::tuple<std::list<StopTime>, std::list<StopTime>>();
-
-    StopTimesAt beforeAfter = std::accumulate(stopTimes.begin(), stopTimes.end(), s, [t](StopTimesAt acc, StopTime stopTime) {
+    std::list<StopTime> stopTimesFromT = std::accumulate(stopTimes.begin(), stopTimes.end(), std::list<StopTime>(), [t](std::list<StopTime> acc, StopTime stopTime) {
         if(timeIsBeforeEq(stopTime.departure, t)) {
           stopTime.departure = addDays(stopTime.departure, 1);
           stopTime.arrival = addDays(stopTime.arrival, 1);
-          std::get<0>(acc).push_back(stopTime);
-        } else {
-          std::get<1>(acc).push_back(stopTime);
         }
+        acc.push_back(stopTime);
         return acc;
     });
 
-    std::list<StopTime> tommorow = std::get<0>(beforeAfter);
-    std::list<StopTime> next = std::get<1>(beforeAfter);
-    next.insert(next.end(), tommorow.begin(), tommorow.end());
-    next.sort([](const StopTime& first, const StopTime& second) {
+    stopTimesFromT.sort([](const StopTime& first, const StopTime& second) {
       return datetimeIsBeforeEq(first.departure, second.departure);
     });
 
-    return next;
+    return stopTimesFromT;
   }
 
   std::list<StopTime> getAvailableDepartures(sqlite3 *handle, CalendarDates *calendarDates, ArrivalTime *vi, struct tm ts) {
     std::list<StopTime> departures(sortStopTimesBy(vi->vertice.stopTimes, ts));
 
     departures.remove_if([&vi] (StopTime &stopTime) {
-        return !(timeIsBeforeNotEq(vi->arrival, stopTime.departure) && !isTerminus(&stopTime));
+        return !(datetimeIsBeforeNotEq(vi->arrival, stopTime.departure) && !isTerminus(&stopTime));
     });
 
     std::list<std::string> tripIds;
@@ -431,13 +435,21 @@ namespace cheminotc {
       return !availablities[stopTime.tripId];
     });
 
+    // for (std::list<StopTime>::const_iterator iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
+    //   printf("%s %s %s\n", iterator->tripId.c_str() , formatDate(iterator->departure).c_str(), formatTime(iterator->departure).c_str());
+    // }
+
     return departures;
+  }
+
+  std::string hashArrivalTime(ArrivalTime *arrivalTime) {
+    return arrivalTime->stopId + "#" + arrivalTime->tripId;
   }
 
   std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm ts) {
 
     std::map<std::string, ArrivalTime> results;
-    std::map< std::string, ArrivalTime > pushed;
+    std::map< std::string, int > pushed;
 
     // Initialize the queue
 
@@ -450,21 +462,21 @@ namespace cheminotc {
     gs.arrival = ts;
     gs.vertice = vs;
     queue.push(gs);
-    pushed[vsId] = gs;
+    pushed[gs.stopId] = 1;
 
     // OK, Let's go !
 
     while(!queue.empty()) {
 
-      ArrivalTime head = pushed[queue.top().stopId];
+      ArrivalTime head = queue.top();
       queue.pop();
       results[head.stopId] = head;
 
       if(head.stopId == veId) {
-        printf("\nDONE!");
+        //printf("DONE!\n");
         return results;
       } else {
-
+        //printf("\n[%s %s %s]\n", head.stopId.c_str(), head.tripId.c_str(), formatDateTime(head.arrival).c_str());
         Vertice vi = head.vertice;
         auto departures = getAvailableDepartures(handle, calendarDates, &head, ts);
 
@@ -473,7 +485,7 @@ namespace cheminotc {
           for (std::list<std::string>::const_iterator iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
             std::string vjId = *iterator;
             Vertice vj = getVerticeFromGraph(graph, vjId);
-            std::list<StopTime> stopTimes(sortStopTimesBy(vj.stopTimes, head.arrival));
+            std::list<StopTime> stopTimes(sortStopTimesBy(vj.stopTimes, ts));
 
             auto departuresAndArrivalTimes = std::accumulate(departures.begin(), departures.end(), std::list<std::tuple<StopTime, StopTime>>(), [&stopTimes](std::list<std::tuple<StopTime, StopTime>> acc, StopTime departureTime) {
                 auto it = std::find_if(stopTimes.begin(), stopTimes.end(), [&departureTime](StopTime stopTime) {
@@ -488,6 +500,7 @@ namespace cheminotc {
 
             if(!departuresAndArrivalTimes.empty()) {
               std::tuple<StopTime, StopTime> next = departuresAndArrivalTimes.front();
+              StopTime departureTime = std::get<0>(next);
               StopTime nextArrivalTime = std::get<1>(next);
               struct ArrivalTime arrivalTime;
               arrivalTime.stopId = vjId;
@@ -496,22 +509,26 @@ namespace cheminotc {
               arrivalTime.tripId = nextArrivalTime.tripId;
               arrivalTime.vertice = vj;
               arrivalTime.pos = nextArrivalTime.pos;
+              //printf("====> departure %s \n", formatTime(departureTime.departure).c_str());
+              //printf("=====> arrival at %s to %s at %s\n", formatDateTime(departureTime.arrival).c_str(), vjId.c_str(), formatDateTime(arrivalTime.arrival).c_str());
               if(pushed.find(vjId) == pushed.end()) {
                 queue.push(arrivalTime);
+                pushed[vjId] = 1;
               }
-              pushed[vjId] = arrivalTime;
               if(head.stopId == vsId) {
-                StopTime gsDepartureTime = std::get<0>(next);
-                results[vsId].tripId = gsDepartureTime.tripId;
-                results[vsId].arrival = gsDepartureTime.arrival;
-                results[vsId].departure = gsDepartureTime.departure;
-                results[vsId].pos = gsDepartureTime.pos;
+                auto vs = results.find(vsId);
+                vs->second.tripId = departureTime.tripId;
+                vs->second.arrival = departureTime.arrival;
+                vs->second.departure = departureTime.departure;
+                vs->second.pos = departureTime.pos;
               }
+            } else {
+              //printf("--NONE--\n");
             }
           }
 
         } else {
-          printf("\nEMPTY!");
+          //printf("\nEMPTY!");
         }
       }
     };
@@ -548,7 +565,7 @@ namespace cheminotc {
         vj = matched.front().second;
         path.push_front(gj);
       } else {
-        printf("\n ERROR");
+        //printf("\n ERROR");
         //ERROR
         break;
       }

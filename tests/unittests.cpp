@@ -61,7 +61,7 @@ TEST_F(SqliteFixture, get_trip) {
   EXPECT_STREQ("7/9/114", cheminotc::formatDate(trip->calendar->startDate).c_str());
 }
 
-TEST_F(GraphFixture, chartresParis) {
+TEST_F(GraphFixture, chartresParisAs6h30) {
   std::string chartres = "StopPoint:OCETrain TER-87394007";
   std::string paris = "StopPoint:OCETrain TER-87391003";
   struct tm ts = cheminotc::getNow();
@@ -74,6 +74,22 @@ TEST_F(GraphFixture, chartresParis) {
   printf("\n %lu %lu %lu", start, end, duration);
   for (std::list<cheminotc::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
     printf("\n%s - %i:%i", iterator->stopId.c_str() ,iterator->departure.tm_hour, iterator->departure.tm_min);
+  }
+  EXPECT_EQ(10, results.size());
+}
+
+TEST_F(GraphFixture, chartresParis22h30) {
+  std::string chartres = "StopPoint:OCETrain TER-87394007";
+  std::string paris = "StopPoint:OCETrain TER-87391003";
+  struct tm ts = cheminotc::getNow();
+  ts.tm_hour = 22;
+  ts.tm_min = 30;
+  std::time_t start = std::time(nullptr);
+  auto results = cheminotc::lookForBestTrip(handle, &graph, &calendarDates, chartres, paris, ts);
+  auto end = std::time(nullptr);
+  std::time_t duration = end - start;
+  for (std::list<cheminotc::ArrivalTime>::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+    printf("\n%s %s - %i:%i", iterator->stopId.c_str() , iterator->tripId.c_str(), iterator->departure.tm_hour, iterator->departure.tm_min);
   }
   EXPECT_EQ(10, results.size());
 }
