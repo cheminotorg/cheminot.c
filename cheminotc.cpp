@@ -41,6 +41,7 @@ namespace cheminotc {
     strptime(datetime.c_str(), "%H:%M", &time);
     now.tm_hour = time.tm_hour;
     now.tm_min = time.tm_min;
+    now.tm_sec = 0;
     return now;
   }
 
@@ -388,10 +389,10 @@ namespace cheminotc {
   }
 
   std::list<StopTime> sortStopTimesBy(std::list<StopTime> stopTimes, struct tm t) {
-    typedef std::tuple<std::list<StopTime>, std::list<StopTime>> Splitted;
-    Splitted s = std::tuple<std::list<StopTime>, std::list<StopTime>>();
+    typedef std::tuple<std::list<StopTime>, std::list<StopTime>> StopTimesAt;
+    StopTimesAt s = std::tuple<std::list<StopTime>, std::list<StopTime>>();
 
-    Splitted beforeAfter = std::accumulate(stopTimes.begin(), stopTimes.end(), s, [t](Splitted acc, StopTime stopTime) {
+    StopTimesAt beforeAfter = std::accumulate(stopTimes.begin(), stopTimes.end(), s, [t](StopTimesAt acc, StopTime stopTime) {
         if(timeIsBeforeEq(stopTime.departure, t)) {
           stopTime.departure = addDays(stopTime.departure, 1);
           stopTime.arrival = addDays(stopTime.arrival, 1);
@@ -415,7 +416,7 @@ namespace cheminotc {
   std::list<StopTime> getAvailableDepartures(sqlite3 *handle, CalendarDates *calendarDates, ArrivalTime *vi, struct tm ts) {
     std::list<StopTime> departures(sortStopTimesBy(vi->vertice.stopTimes, ts));
 
-    departures.remove_if([&] (StopTime &stopTime) {
+    departures.remove_if([&vi] (StopTime &stopTime) {
         return !(timeIsBeforeNotEq(vi->arrival, stopTime.departure) && !isTerminus(&stopTime));
     });
 
@@ -426,7 +427,7 @@ namespace cheminotc {
 
     auto availablities = tripsAvailability(handle, tripIds, calendarDates, ts);
 
-    departures.remove_if([&] (const StopTime& stopTime) {
+    departures.remove_if([&availablities] (const StopTime& stopTime) {
       return !availablities[stopTime.tripId];
     });
 
@@ -474,29 +475,38 @@ namespace cheminotc {
             Vertice vj = getVerticeFromGraph(graph, vjId);
             std::list<StopTime> stopTimes(sortStopTimesBy(vj.stopTimes, head.arrival));
 
-            auto arrivalTimes = std::accumulate(departures.begin(), departures.end(), std::list<StopTime>(), [&stopTimes](std::list<StopTime> acc, StopTime departureTime) {
+            auto departuresAndArrivalTimes = std::accumulate(departures.begin(), departures.end(), std::list<std::tuple<StopTime, StopTime>>(), [&stopTimes](std::list<std::tuple<StopTime, StopTime>> acc, StopTime departureTime) {
                 auto it = std::find_if(stopTimes.begin(), stopTimes.end(), [&departureTime](StopTime stopTime) {
                     return departureTime.tripId == stopTime.tripId && timeIsBeforeNotEq(departureTime.departure, stopTime.arrival);
                 });
+
                 if(it != stopTimes.end()) {
-                  acc.push_back(*it);
+                  acc.push_back(std::tuple<StopTime, StopTime>(departureTime, *it));
                 }
                 return acc;
             });
 
-            if(!arrivalTimes.empty()) {
-              StopTime next = arrivalTimes.front();
+            if(!departuresAndArrivalTimes.empty()) {
+              std::tuple<StopTime, StopTime> next = departuresAndArrivalTimes.front();
+              StopTime nextArrivalTime = std::get<1>(next);
               struct ArrivalTime arrivalTime;
               arrivalTime.stopId = vjId;
-              arrivalTime.arrival = next.arrival;
-              arrivalTime.departure = next.departure;
-              arrivalTime.tripId = next.tripId;
+              arrivalTime.arrival = nextArrivalTime.arrival;
+              arrivalTime.departure = nextArrivalTime.departure;
+              arrivalTime.tripId = nextArrivalTime.tripId;
               arrivalTime.vertice = vj;
-              arrivalTime.pos = next.pos;
+              arrivalTime.pos = nextArrivalTime.pos;
               if(pushed.find(vjId) == pushed.end()) {
                 queue.push(arrivalTime);
               }
               pushed[vjId] = arrivalTime;
+              if(head.stopId == vsId) {
+                StopTime gsDepartureTime = std::get<0>(next);
+                results[vsId].tripId = gsDepartureTime.tripId;
+                results[vsId].arrival = gsDepartureTime.arrival;
+                results[vsId].departure = gsDepartureTime.departure;
+                results[vsId].pos = gsDepartureTime.pos;
+              }
             }
           }
 
@@ -512,6 +522,7 @@ namespace cheminotc {
     Vertice vs = getVerticeFromGraph(graph, vsId);
     Vertice vj = getVerticeFromGraph(graph, veId);
     ArrivalTime ge = (*arrivalTimes)[vj.id];
+    ArrivalTime gs = (*arrivalTimes)[vs.id];
     std::list<ArrivalTime> path;
     while(vj.id != vs.id) {
       ArrivalTime gj = (*arrivalTimes)[vj.id];
@@ -521,7 +532,7 @@ namespace cheminotc {
         Vertice vi = getVerticeFromGraph(graph, viId);
         auto gi = arrivalTimes->find(viId);
         if(gi != arrivalTimes->end()) {
-          auto found = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&](StopTime viStopTime) {
+          auto found = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&gj](StopTime viStopTime) {
             return viStopTime.tripId == gj.tripId && timeIsBeforeNotEq(viStopTime.departure, gj.arrival);
           });
           if(found != vi.stopTimes.end()) {
@@ -531,7 +542,7 @@ namespace cheminotc {
       }
 
       if(!matched.empty()) {
-        matched.sort([&](std::pair<ArrivalTime, Vertice> a, std::pair<ArrivalTime, Vertice> b) {
+        matched.sort([](std::pair<ArrivalTime, Vertice> a, std::pair<ArrivalTime, Vertice> b) {
             return a.first.pos >= b.first.pos;
         });
         vj = matched.front().second;
@@ -542,16 +553,6 @@ namespace cheminotc {
         break;
       }
     }
-
-    ArrivalTime last = path.front();
-    ArrivalTime gs = (*arrivalTimes)[vsId];
-    auto stopTimeGs = *(std::find_if(vs.stopTimes.begin(), vs.stopTimes.end(), [&](StopTime stopTime) {
-      return stopTime.tripId == last.tripId;
-    }));
-
-    gs.tripId = stopTimeGs.tripId;
-    gs.departure = stopTimeGs.departure;
-    gs.arrival = stopTimeGs.arrival;
 
     path.push_front(gs);
     return path;
