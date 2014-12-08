@@ -347,7 +347,7 @@ namespace cheminotc {
   class CompareArrivalTime {
   public:
     bool operator()(const ArrivalTime& gi, const ArrivalTime& gj) {
-      return timeIsBeforeEq(gj.departure, gi.departure);
+      return datetimeIsBeforeEq(gj.departure, gi.departure);
     }
   };
 
