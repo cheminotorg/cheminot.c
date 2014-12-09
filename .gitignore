@@ -1,6 +1,5 @@
 CMakeCache.txt
 CMakeFiles/*
-protobuf
 cheminotc
 cmake_install.cmake
 lib/*

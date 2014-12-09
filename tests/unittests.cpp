@@ -1,5 +1,5 @@
 #include <cheminotc.h>
-#include "../protobuf/cheminotBuf.pb.h"
+#include "../src/protobuf/cheminotBuf.pb.h"
 #include <sqlite3.h>
 #include <gtest/gtest.h>
 #include <string>
