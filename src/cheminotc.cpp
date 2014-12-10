@@ -175,10 +175,50 @@ namespace cheminotc {
     return array;
   }
 
+  std::string formatArrivalTime(ArrivalTime *arrivalTime) {
+    Json::Value serialized = serializeArrivalTime(arrivalTime);
+    return serialized.toStyledString();
+  }
+
+  std::string formatArrivalTimes(std::list<ArrivalTime> arrivalTimes) {
+    return serializeArrivalTimes(arrivalTimes).toStyledString();
+  }
+
+  std::string formatEdges(std::list<std::string> edges) {
+    Json::Value array;
+    for (auto iterator = edges.begin(), end = edges.end(); iterator != end; ++iterator) {
+      array.append(*iterator);
+    }
+    return array.toStyledString();
+  }
+
+  Json::Value serializeStopTime(StopTime *stopTime) {
+    Json::Value json;
+    int arrival = asTimestamp(stopTime->arrival);
+    int departure = asTimestamp(stopTime->departure);
+    json["tripId"] = stopTime->tripId;
+    json["arrival"] = arrival;
+    json["departureTime"] = departure;
+    json["pos"] = stopTime->pos;
+    return json;
+  }
+
+  std::string formatStopTime(StopTime *stopTime) {
+    Json::Value serialized = serializeStopTime(stopTime);
+    return serialized.toStyledString();
+  }
+
+  std::string formatStopTimes(std::list<StopTime> stopTimes) {
+    Json::Value array;
+    for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
+      array.append(serializeStopTime(&*iterator));
+    }
+    return array.toStyledString();
+  }
+
   std::list<CalendarDate> getCalendarDatesByServiceId(CalendarDates *calendarDates, std::string serviceId) {
     std::list<CalendarDate> results;
     auto exceptions = (*calendarDates)[serviceId].calendardates();
-
     for (auto iterator = exceptions.begin(), end = exceptions.end(); iterator != end; ++iterator) {
       m::cheminot::data::CalendarDate calendarDateBuf = *iterator;
       CalendarDate calendarDate;
@@ -435,9 +475,8 @@ namespace cheminotc {
       return !availablities[stopTime.tripId];
     });
 
-    // for (std::list<StopTime>::const_iterator iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
-    //   printf("%s %s %s\n", iterator->tripId.c_str() , formatDate(iterator->departure).c_str(), formatTime(iterator->departure).c_str());
-    // }
+    printf("[Departures]\n");
+    printf("%s\n", formatStopTimes(departures).c_str());
 
     return departures;
   }
@@ -476,13 +515,18 @@ namespace cheminotc {
         //printf("DONE!\n");
         return results;
       } else {
-        //printf("\n[%s %s %s]\n", head.stopId.c_str(), head.tripId.c_str(), formatDateTime(head.arrival).c_str());
+        printf("[HEAD]\n");
+        printf("%s\n", formatArrivalTime(&head).c_str());
         Vertice vi = head.vertice;
         auto departures = getAvailableDepartures(handle, calendarDates, &head, ts);
 
         if(!departures.empty()) {
-
+          printf("[EDGES] \n");
+          printf("%s\n", formatEdges(vi.edges).c_str());
+          std::list<StopTime> matched;
+          std::list<ArrivalTime> justPushed;
           for (std::list<std::string>::const_iterator iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
+
             std::string vjId = *iterator;
             Vertice vj = getVerticeFromGraph(graph, vjId);
             std::list<StopTime> stopTimes(sortStopTimesBy(vj.stopTimes, ts));
@@ -509,10 +553,12 @@ namespace cheminotc {
               arrivalTime.tripId = nextArrivalTime.tripId;
               arrivalTime.vertice = vj;
               arrivalTime.pos = nextArrivalTime.pos;
+              matched.push_back(nextArrivalTime);
               //printf("====> departure %s \n", formatTime(departureTime.departure).c_str());
               //printf("=====> arrival at %s to %s at %s\n", formatDateTime(departureTime.arrival).c_str(), vjId.c_str(), formatDateTime(arrivalTime.arrival).c_str());
               if(pushed.find(vjId) == pushed.end()) {
                 queue.push(arrivalTime);
+                justPushed.push_back(arrivalTime);
                 pushed[vjId] = 1;
               }
               if(head.stopId == vsId) {
@@ -526,7 +572,11 @@ namespace cheminotc {
               //printf("--NONE--\n");
             }
           }
+          printf("[MATCHED]\n");
+          printf("%s\n", formatStopTimes(matched).c_str());
 
+          printf("[JUST PUSHED]\n");
+          printf("%s\n", formatArrivalTimes(justPushed).c_str());
         } else {
           //printf("\nEMPTY!");
         }

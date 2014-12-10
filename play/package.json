@@ -15,6 +15,7 @@
     "watchify": "latest",
     "d3": "latest",
     "dagre-d3": "latest",
-    "qajax": "latest"
+    "qajax": "latest",
+    "moment": "latest"
   }
 }
