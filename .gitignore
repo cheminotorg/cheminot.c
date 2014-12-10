@@ -13,3 +13,5 @@ graph
 Makefile
 CTestTestfile.cmake
 cheminotc_units
+play/node_modules
+play/www/app.js

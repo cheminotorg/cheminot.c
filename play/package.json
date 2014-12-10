@@ -1,0 +1,20 @@
+{
+  "name": "cheminot.c",
+  "version": "0.1.0",
+  "author": "Sebastien Renault (https://github.com/srenault)",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/srenault/cheminot.c"
+  },
+  "description": "Build tool for cheminot.m",
+  "devDependencies": {
+    "gulp": "latest",
+    "gulp-util": "latest",
+    "vinyl-source-stream": "latest",
+    "browserify": "latest",
+    "watchify": "latest",
+    "d3": "latest",
+    "dagre-d3": "latest",
+    "qajax": "latest"
+  }
+}
