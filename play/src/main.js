@@ -3,72 +3,111 @@ var d3 = require('d3');
 var qajax = require('qajax');
 var moment = require('moment');
 
-var data = {};
-var index = 0;
+(function() {
 
-document.addEventListener("DOMContentLoaded", function(event) {
-    qajax("data.json").then(function(xhr) {
-        data = JSON.parse(xhr.responseText);
-        renderGraph(data, index); //TODO
-        listenArrowKeys();
-    }).catch(function(error) {
-        console.error(error);
-    });
-});
+    var defaultStyle = function() { return { style: "fill: #afa"}; };
+    var headStyle = function() { return { style: "fill: #B4B4D5" }; };
 
-var nodes = {};
+    var data;
+    var index = 0;
+    var lastState;
 
-function renderGraph(data, index) {
-    var g = new dagreD3.graphlib.Graph().setGraph({});
-    var style = function() { return { style: "fill: #afa"}; };
-    var svg = d3.select("svg"),
-        inner = svg.append("g");
+    var g;
+    var svg;
+    var inner;
+    var render;
 
-    var state = data[index];
-    var head = state.refineArrivalTimes.head;
-    var headId = formatNode(head);
-    var pushed = state.refineArrivalTimes.pushed;
+    document.addEventListener("DOMContentLoaded", init);
 
-    g.setNode(headId, style());
-    pushed.forEach(function(gi) {
-        var giId = formatNode(gi);
-        if(!nodes[giId]) {
-            g.setNode(giId, style());
-            nodes[giId] = true;
-        }
-        g.setEdge(headId, giId, {});
-    });
+    function init() {
+        qajax("data.json").then(function(xhr) {
+            data = JSON.parse(xhr.responseText);
+            g = new dagreD3.graphlib.Graph().setGraph({});
+            svg = d3.select("svg");
+            inner = svg.append("g");
+            render = new dagreD3.render();
 
-    var render = new dagreD3.render();
+            nextState();
+            listenArrowKeys();
+        }).catch(function(error) {
+            console.error(error);
+        });
+    }
 
-    render(inner, g);
 
-    var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
-    inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
-    svg.attr("height", viewportHeight());
-}
+    function previousState() {
+        var head = lastState.refineArrivalTimes.head;
+        var headId = nodeId(head);
+        var pushed = lastState.refineArrivalTimes.pushed;
 
-function listenArrowKeys() {
-    document.onkeydown = function(event) {
-        if(event.keyCode == 39 || event.keyCode == 37) {
-            if(event.keyCode == 39) { //right
-                renderGraph(data, ++index);
-            } else { //left
-                ++index;
-                if(index > 0) renderGraph(data, index);
+        g.setNode(headId, defaultStyle());
+        pushed.forEach(function(gi) {
+            var giId = nodeId(gi);
+            g.removeNode(giId);
+        });
+
+        renderGraph();
+    }
+
+    function nextState() {
+        var state = data[index];
+        var head = state.refineArrivalTimes.head;
+        var headId = nodeId(head);
+        var pushed = state.refineArrivalTimes.pushed;
+
+        g.setNode(headId, headStyle());
+
+        pushed.forEach(function(gi) {
+            var giId = nodeId(gi);
+            if(!g.hasNode(giId)) {
+                g.setNode(giId, defaultStyle());
             }
-        }
-    };
-}
+            g.setEdge(headId, giId, {});
+        });
 
-function formatNode(node) {
-    return node.stopId + "\n"+ formatDateTime(node.arrivalTime);
-}
+        renderGraph();
 
-function formatDateTime(timestamp) {
-  return moment(timestamp * 1000).format('DD/MM/YYYY - HH:mm');
-}
+        lastState = state;
+    }
 
-function viewportHeight() {
-    return Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-}
+    function renderGraph() {
+        render(inner, g);
+        var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
+        inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
+        svg.attr("height", viewportHeight());
+    }
+
+    function listenArrowKeys() {
+        document.onkeydown = function(event) {
+            var pKey = 80;
+            var nKey = 78;
+            if(event.ctrlKey) {
+                if(event.keyCode == pKey || event.keyCode == nKey) {
+                    if(event.keyCode == pKey) { //right
+                        if((index + 1) < data.length) {
+                            index++;
+                            nextState();
+                        }
+                    } else { //left
+                        if((index - 1) >= 0) {
+                            index--;
+                            previousState();
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    function nodeId(node) {
+        return node.stopId + "\n"+ formatDateTime(node.arrivalTime);
+    }
+
+    function formatDateTime(timestamp) {
+        return moment(timestamp * 1000).format('DD/MM/YYYY - HH:mm');
+    }
+
+    function viewportHeight() {
+        return Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    }
+})();
