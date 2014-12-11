@@ -2,7 +2,7 @@
     "refineArrivalTimes": {
         "head": {
             "arrivalTime" : 1418247045,
-            "departureTime" : -1974388880,
+            "departure" : -1974388880,
             "pos" : 1796675752,
             "stopId" : "StopPoint:OCETrain TER-87394007",
             "tripId" : ""
@@ -10,355 +10,355 @@
         "departures": [
             {
                 "arrival" : 1418267040,
-                "departureTime" : 1418267040,
+                "departure" : 1418267040,
                 "pos" : 0,
                 "tripId" : "OCESN862400F0100269267"
             },
             {
                 "arrival" : 1418269800,
-                "departureTime" : 1418269920,
+                "departure" : 1418269920,
                 "pos" : 6,
                 "tripId" : "OCESN016750F0100229946"
             },
             {
                 "arrival" : 1418272440,
-                "departureTime" : 1418272440,
+                "departure" : 1418272440,
                 "pos" : 0,
                 "tripId" : "OCESN862402F0100269271"
             },
             {
                 "arrival" : 1418274240,
-                "departureTime" : 1418274240,
+                "departure" : 1418274240,
                 "pos" : 0,
                 "tripId" : "OCESN862404F0100269275"
             },
             {
                 "arrival" : 1418274540,
-                "departureTime" : 1418274540,
+                "departure" : 1418274540,
                 "pos" : 0,
                 "tripId" : "OCESN862461F0100169377"
             },
             {
                 "arrival" : 1418274540,
-                "departureTime" : 1418274540,
+                "departure" : 1418274540,
                 "pos" : 0,
                 "tripId" : "OCESN862461F0300169378"
             },
             {
                 "arrival" : 1418275500,
-                "departureTime" : 1418275620,
+                "departure" : 1418275620,
                 "pos" : 8,
                 "tripId" : "OCESN862460F0400169373"
             },
             {
                 "arrival" : 1418275920,
-                "departureTime" : 1418275920,
+                "departure" : 1418275920,
                 "pos" : 0,
                 "tripId" : "OCESN862406F0100269278"
             },
             {
                 "arrival" : 1418276880,
-                "departureTime" : 1418276880,
+                "departure" : 1418276880,
                 "pos" : 0,
                 "tripId" : "OCESN862463F0300269386"
             },
             {
                 "arrival" : 1418277000,
-                "departureTime" : 1418277120,
+                "departure" : 1418277120,
                 "pos" : 6,
                 "tripId" : "OCESN016752F0100129955"
             },
             {
                 "arrival" : 1418277240,
-                "departureTime" : 1418277240,
+                "departure" : 1418277240,
                 "pos" : 0,
                 "tripId" : "OCESN862201F0100269240"
             },
             {
                 "arrival" : 1418277420,
-                "departureTime" : 1418277420,
+                "departure" : 1418277420,
                 "pos" : 0,
                 "tripId" : "OCESN862408F0100169283"
             },
             {
                 "arrival" : 1418277720,
-                "departureTime" : 1418277720,
+                "departure" : 1418277720,
                 "pos" : 0,
                 "tripId" : "OCESN862410F0100269286"
             },
             {
                 "arrival" : 1418278800,
-                "departureTime" : 1418278920,
+                "departure" : 1418278920,
                 "pos" : 4,
                 "tripId" : "OCESN016754F0200229960"
             },
             {
                 "arrival" : 1418279100,
-                "departureTime" : 1418279220,
+                "departure" : 1418279220,
                 "pos" : 8,
                 "tripId" : "OCESN862462F0200269379"
             },
             {
                 "arrival" : 1418279640,
-                "departureTime" : 1418279640,
+                "departure" : 1418279640,
                 "pos" : 0,
                 "tripId" : "OCESN862412F0200369292"
             },
             {
                 "arrival" : 1418280000,
-                "departureTime" : 1418280180,
+                "departure" : 1418280180,
                 "pos" : 5,
                 "tripId" : "OCESN016753F0100529958"
             },
             {
                 "arrival" : 1418280420,
-                "departureTime" : 1418280420,
+                "departure" : 1418280420,
                 "pos" : 0,
                 "tripId" : "OCESN862203F0100269243"
             },
             {
                 "arrival" : 1418280360,
-                "departureTime" : 1418281020,
+                "departure" : 1418281020,
                 "pos" : 6,
                 "tripId" : "OCESN016756F0100229961"
             },
             {
                 "arrival" : 1418281320,
-                "departureTime" : 1418281320,
+                "departure" : 1418281320,
                 "pos" : 0,
                 "tripId" : "OCESN862416F0200169298"
             },
             {
                 "arrival" : 1418282700,
-                "departureTime" : 1418282820,
+                "departure" : 1418282820,
                 "pos" : 16,
                 "tripId" : "OCESN862554F0200169409"
             },
             {
                 "arrival" : 1418282700,
-                "departureTime" : 1418282820,
+                "departure" : 1418282820,
                 "pos" : 8,
                 "tripId" : "OCESN862464F0500269387"
             },
             {
                 "arrival" : 1418283120,
-                "departureTime" : 1418283120,
+                "departure" : 1418283120,
                 "pos" : 0,
                 "tripId" : "OCESN862467F0100169390"
             },
             {
                 "arrival" : 1418284260,
-                "departureTime" : 1418284320,
+                "departure" : 1418284320,
                 "pos" : 6,
                 "tripId" : "OCESN016758F0400129969"
             },
             {
                 "arrival" : 1418286840,
-                "departureTime" : 1418286840,
+                "departure" : 1418286840,
                 "pos" : 0,
                 "tripId" : "OCESN862418F0100269306"
             },
             {
                 "arrival" : 1418288040,
-                "departureTime" : 1418288040,
+                "departure" : 1418288040,
                 "pos" : 0,
                 "tripId" : "OCESN862205F0100269246"
             },
             {
                 "arrival" : 1418288820,
-                "departureTime" : 1418288940,
+                "departure" : 1418288940,
                 "pos" : 5,
                 "tripId" : "OCESN016757F0100529966"
             },
             {
                 "arrival" : 1418291400,
-                "departureTime" : 1418291520,
+                "departure" : 1418291520,
                 "pos" : 6,
                 "tripId" : "OCESN016762F0600129977"
             },
             {
                 "arrival" : 1418294040,
-                "departureTime" : 1418294040,
+                "departure" : 1418294040,
                 "pos" : 0,
                 "tripId" : "OCESN862422F0100369313"
             },
             {
                 "arrival" : 1418296020,
-                "departureTime" : 1418296140,
+                "departure" : 1418296140,
                 "pos" : 5,
                 "tripId" : "OCESN016761F0100629974"
             },
             {
                 "arrival" : 1418297520,
-                "departureTime" : 1418297520,
+                "departure" : 1418297520,
                 "pos" : 0,
                 "tripId" : "OCESN862471F0100269391"
             },
             {
                 "arrival" : 1418297880,
-                "departureTime" : 1418297880,
+                "departure" : 1418297880,
                 "pos" : 0,
                 "tripId" : "OCESN862211F0100169254"
             },
             {
                 "arrival" : 1418298600,
-                "departureTime" : 1418298720,
+                "departure" : 1418298720,
                 "pos" : 6,
                 "tripId" : "OCESN016766F0300129987"
             },
             {
                 "arrival" : 1418301240,
-                "departureTime" : 1418301240,
+                "departure" : 1418301240,
                 "pos" : 0,
                 "tripId" : "OCESN862426F0100169322"
             },
             {
                 "arrival" : 1418303280,
-                "departureTime" : 1418303400,
+                "departure" : 1418303400,
                 "pos" : 5,
                 "tripId" : "OCESN016765F0100629982"
             },
             {
                 "arrival" : 1418305080,
-                "departureTime" : 1418305080,
+                "departure" : 1418305080,
                 "pos" : 0,
                 "tripId" : "OCESN862213F0100169257"
             },
             {
                 "arrival" : 1418305800,
-                "departureTime" : 1418305920,
+                "departure" : 1418305920,
                 "pos" : 6,
                 "tripId" : "OCESN016770F0400129996"
             },
             {
                 "arrival" : 1418308440,
-                "departureTime" : 1418308440,
+                "departure" : 1418308440,
                 "pos" : 0,
                 "tripId" : "OCESN862430F0100169331"
             },
             {
                 "arrival" : 1418310420,
-                "departureTime" : 1418310540,
+                "departure" : 1418310540,
                 "pos" : 5,
                 "tripId" : "OCESN016769F0100429995"
             },
             {
                 "arrival" : 1418311920,
-                "departureTime" : 1418311920,
+                "departure" : 1418311920,
                 "pos" : 0,
                 "tripId" : "OCESN862475F0100169393"
             },
             {
                 "arrival" : 1418312040,
-                "departureTime" : 1418312040,
+                "departure" : 1418312040,
                 "pos" : 0,
                 "tripId" : "OCESN862432F0100169337"
             },
             {
                 "arrival" : 1418312280,
-                "departureTime" : 1418312280,
+                "departure" : 1418312280,
                 "pos" : 0,
                 "tripId" : "OCESN862215F0200169260"
             },
             {
                 "arrival" : 1418313000,
-                "departureTime" : 1418313120,
+                "departure" : 1418313120,
                 "pos" : 6,
                 "tripId" : "OCESN016774F0100130009"
             },
             {
                 "arrival" : 1418315340,
-                "departureTime" : 1418315460,
+                "departure" : 1418315460,
                 "pos" : 5,
                 "tripId" : "OCESN862477F0500369399"
             },
             {
                 "arrival" : 1418315640,
-                "departureTime" : 1418315640,
+                "departure" : 1418315640,
                 "pos" : 0,
                 "tripId" : "OCESN862434F0100169341"
             },
             {
                 "arrival" : 1418315880,
-                "departureTime" : 1418315880,
+                "departure" : 1418315880,
                 "pos" : 0,
                 "tripId" : "OCESN862217F0200169261"
             },
             {
                 "arrival" : 1418317320,
-                "departureTime" : 1418317320,
+                "departure" : 1418317320,
                 "pos" : 0,
                 "tripId" : "OCESN862436F0100269348"
             },
             {
                 "arrival" : 1418317500,
-                "departureTime" : 1418317740,
+                "departure" : 1418317740,
                 "pos" : 4,
                 "tripId" : "OCESN016773F0400230001"
             },
             {
                 "arrival" : 1418318940,
-                "departureTime" : 1418319060,
+                "departure" : 1418319060,
                 "pos" : 5,
                 "tripId" : "OCESN862479F0100269402"
             },
             {
                 "arrival" : 1418319240,
-                "departureTime" : 1418319240,
+                "departure" : 1418319240,
                 "pos" : 0,
                 "tripId" : "OCESN862438F0100269352"
             },
             {
                 "arrival" : 1418319480,
-                "departureTime" : 1418319480,
+                "departure" : 1418319480,
                 "pos" : 0,
                 "tripId" : "OCESN862219F0100169263"
             },
             {
                 "arrival" : 1418320140,
-                "departureTime" : 1418320260,
+                "departure" : 1418320260,
                 "pos" : 6,
                 "tripId" : "OCESN016778F0100230022"
             },
             {
                 "arrival" : 1418321100,
-                "departureTime" : 1418321340,
+                "departure" : 1418321340,
                 "pos" : 4,
                 "tripId" : "OCESN016775F0200530014"
             },
             {
                 "arrival" : 1418322540,
-                "departureTime" : 1418322660,
+                "departure" : 1418322660,
                 "pos" : 5,
                 "tripId" : "OCESN862481F0100369404"
             },
             {
                 "arrival" : 1418322840,
-                "departureTime" : 1418322840,
+                "departure" : 1418322840,
                 "pos" : 0,
                 "tripId" : "OCESN862440F0100169356"
             },
             {
                 "arrival" : 1418324880,
-                "departureTime" : 1418325000,
+                "departure" : 1418325000,
                 "pos" : 5,
                 "tripId" : "OCESN016777F0100630017"
             },
             {
                 "arrival" : 1418327400,
-                "departureTime" : 1418327520,
+                "departure" : 1418327520,
                 "pos" : 6,
                 "tripId" : "OCESN016782F0100430031"
             },
             {
                 "arrival" : 1418330040,
-                "departureTime" : 1418330040,
+                "departure" : 1418330040,
                 "pos" : 0,
                 "tripId" : "OCESN862444F0100269363"
             },
             {
                 "arrival" : 1418332020,
-                "departureTime" : 1418332140,
+                "departure" : 1418332140,
                 "pos" : 5,
                 "tripId" : "OCESN016781F0200130027"
             }
@@ -374,37 +374,37 @@
         "matched": [
             {
                 "arrival" : 1418277180,
-                "departureTime" : 1418277240,
+                "departure" : 1418277240,
                 "pos" : 1,
                 "tripId" : "OCESN862463F0300269386"
             },
             {
                 "arrival" : 1418275200,
-                "departureTime" : 1418275260,
+                "departure" : 1418275260,
                 "pos" : 1,
                 "tripId" : "OCESN862461F0100169377"
             },
             {
                 "arrival" : 1418277420,
-                "departureTime" : 1418277480,
+                "departure" : 1418277480,
                 "pos" : 1,
                 "tripId" : "OCESN862201F0100269240"
             },
             {
                 "arrival" : 1418268240,
-                "departureTime" : 1418268300,
+                "departure" : 1418268300,
                 "pos" : 4,
                 "tripId" : "OCESN862400F0100269267"
             },
             {
                 "arrival" : 1418267340,
-                "departureTime" : 1418267400,
+                "departure" : 1418267400,
                 "pos" : 1,
                 "tripId" : "OCESN862400F0100269267"
             },
             {
                 "arrival" : 1418270760,
-                "departureTime" : 1418270880,
+                "departure" : 1418270880,
                 "pos" : 8,
                 "tripId" : "OCESN862400F0100269267"
             }
@@ -412,42 +412,42 @@
         "pushed": [
             {
                 "arrivalTime" : 1418277180,
-                "departureTime" : 1418277240,
+                "departure" : 1418277240,
                 "pos" : 1,
                 "stopId" : "StopPoint:OCETrain TER-87394205",
                 "tripId" : "OCESN862463F0300269386"
             },
             {
                 "arrivalTime" : 1418275200,
-                "departureTime" : 1418275260,
+                "departure" : 1418275260,
                 "pos" : 1,
                 "stopId" : "StopPoint:OCETrain TER-87394221",
                 "tripId" : "OCESN862461F0100169377"
             },
             {
                 "arrivalTime" : 1418277420,
-                "departureTime" : 1418277480,
+                "departure" : 1418277480,
                 "pos" : 1,
                 "stopId" : "StopPoint:OCETrain TER-87394015",
                 "tripId" : "OCESN862201F0100269240"
             },
             {
                 "arrivalTime" : 1418268240,
-                "departureTime" : 1418268300,
+                "departure" : 1418268300,
                 "pos" : 4,
                 "stopId" : "StopPoint:OCETrain TER-87394130",
                 "tripId" : "OCESN862400F0100269267"
             },
             {
                 "arrivalTime" : 1418267340,
-                "departureTime" : 1418267400,
+                "departure" : 1418267400,
                 "pos" : 1,
                 "stopId" : "StopPoint:OCETrain TER-87394171",
                 "tripId" : "OCESN862400F0100269267"
             },
             {
                 "arrivalTime" : 1418270760,
-                "departureTime" : 1418270880,
+                "departure" : 1418270880,
                 "pos" : 8,
                 "stopId" : "StopPoint:OCETrain TER-87393009",
                 "tripId" : "OCESN862400F0100269267"
@@ -460,7 +460,7 @@
     "refineArrivalTimes": {
         "head": {
             "arrivalTime" : 1418267340,
-            "departureTime" : 1418267400,
+            "departure" : 1418267400,
             "pos" : 1,
             "stopId" : "StopPoint:OCETrain TER-87394171",
             "tripId" : "OCESN862400F0100269267"
@@ -468,199 +468,199 @@
         "departures": [
             {
                 "arrival" : 1418267340,
-                "departureTime" : 1418267400,
+                "departure" : 1418267400,
                 "pos" : 1,
                 "tripId" : "OCESN862400F0100269267"
             },
             {
                 "arrival" : 1418272680,
-                "departureTime" : 1418272740,
+                "departure" : 1418272740,
                 "pos" : 1,
                 "tripId" : "OCESN862402F0100269271"
             },
             {
                 "arrival" : 1418274480,
-                "departureTime" : 1418274540,
+                "departure" : 1418274540,
                 "pos" : 1,
                 "tripId" : "OCESN862404F0100269275"
             },
             {
                 "arrival" : 1418275980,
-                "departureTime" : 1418276040,
+                "departure" : 1418276040,
                 "pos" : 7,
                 "tripId" : "OCESN862401F0100269269"
             },
             {
                 "arrival" : 1418276220,
-                "departureTime" : 1418276280,
+                "departure" : 1418276280,
                 "pos" : 1,
                 "tripId" : "OCESN862406F0100269278"
             },
             {
                 "arrival" : 1418278020,
-                "departureTime" : 1418278080,
+                "departure" : 1418278080,
                 "pos" : 1,
                 "tripId" : "OCESN862410F0100269286"
             },
             {
                 "arrival" : 1418278680,
-                "departureTime" : 1418278740,
+                "departure" : 1418278740,
                 "pos" : 8,
                 "tripId" : "OCESN862403F0100169273"
             },
             {
                 "arrival" : 1418279940,
-                "departureTime" : 1418280000,
+                "departure" : 1418280000,
                 "pos" : 1,
                 "tripId" : "OCESN862412F0200369292"
             },
             {
                 "arrival" : 1418281680,
-                "departureTime" : 1418281740,
+                "departure" : 1418281740,
                 "pos" : 1,
                 "tripId" : "OCESN862416F0200169298"
             },
             {
                 "arrival" : 1418282280,
-                "departureTime" : 1418282340,
+                "departure" : 1418282340,
                 "pos" : 8,
                 "tripId" : "OCESN862407F0100169281"
             },
             {
                 "arrival" : 1418283840,
-                "departureTime" : 1418283900,
+                "departure" : 1418283900,
                 "pos" : 7,
                 "tripId" : "OCESN862409F0100169285"
             },
             {
                 "arrival" : 1418285880,
-                "departureTime" : 1418285940,
+                "departure" : 1418285940,
                 "pos" : 8,
                 "tripId" : "OCESN862411F0200169289"
             },
             {
                 "arrival" : 1418287140,
-                "departureTime" : 1418287200,
+                "departure" : 1418287200,
                 "pos" : 1,
                 "tripId" : "OCESN862418F0100269306"
             },
             {
                 "arrival" : 1418293080,
-                "departureTime" : 1418293140,
+                "departure" : 1418293140,
                 "pos" : 8,
                 "tripId" : "OCESN862413F0200169294"
             },
             {
                 "arrival" : 1418294340,
-                "departureTime" : 1418294400,
+                "departure" : 1418294400,
                 "pos" : 1,
                 "tripId" : "OCESN862422F0100369313"
             },
             {
                 "arrival" : 1418300280,
-                "departureTime" : 1418300340,
+                "departure" : 1418300340,
                 "pos" : 8,
                 "tripId" : "OCESN862417F0100169301"
             },
             {
                 "arrival" : 1418301480,
-                "departureTime" : 1418301540,
+                "departure" : 1418301540,
                 "pos" : 1,
                 "tripId" : "OCESN862426F0100169322"
             },
             {
                 "arrival" : 1418307480,
-                "departureTime" : 1418307540,
+                "departure" : 1418307540,
                 "pos" : 8,
                 "tripId" : "OCESN862421F0100269311"
             },
             {
                 "arrival" : 1418308680,
-                "departureTime" : 1418308740,
+                "departure" : 1418308740,
                 "pos" : 1,
                 "tripId" : "OCESN862430F0100169331"
             },
             {
                 "arrival" : 1418312280,
-                "departureTime" : 1418312340,
+                "departure" : 1418312340,
                 "pos" : 1,
                 "tripId" : "OCESN862432F0100169337"
             },
             {
                 "arrival" : 1418314680,
-                "departureTime" : 1418314740,
+                "departure" : 1418314740,
                 "pos" : 8,
                 "tripId" : "OCESN862425F0100269319"
             },
             {
                 "arrival" : 1418315880,
-                "departureTime" : 1418315940,
+                "departure" : 1418315940,
                 "pos" : 1,
                 "tripId" : "OCESN862434F0100169341"
             },
             {
                 "arrival" : 1418316480,
-                "departureTime" : 1418316540,
+                "departure" : 1418316540,
                 "pos" : 8,
                 "tripId" : "OCESN862427F0100269327"
             },
             {
                 "arrival" : 1418317560,
-                "departureTime" : 1418317620,
+                "departure" : 1418317620,
                 "pos" : 1,
                 "tripId" : "OCESN862436F0100269348"
             },
             {
                 "arrival" : 1418318280,
-                "departureTime" : 1418318340,
+                "departure" : 1418318340,
                 "pos" : 8,
                 "tripId" : "OCESN862429F0100469329"
             },
             {
                 "arrival" : 1418319480,
-                "departureTime" : 1418319540,
+                "departure" : 1418319540,
                 "pos" : 1,
                 "tripId" : "OCESN862438F0100269352"
             },
             {
                 "arrival" : 1418320080,
-                "departureTime" : 1418320140,
+                "departure" : 1418320140,
                 "pos" : 8,
                 "tripId" : "OCESN862431F0100269335"
             },
             {
                 "arrival" : 1418321940,
-                "departureTime" : 1418322000,
+                "departure" : 1418322000,
                 "pos" : 8,
                 "tripId" : "OCESN862435F0100569346"
             },
             {
                 "arrival" : 1418323140,
-                "departureTime" : 1418323200,
+                "departure" : 1418323200,
                 "pos" : 1,
                 "tripId" : "OCESN862440F0100169356"
             },
             {
                 "arrival" : 1418323680,
-                "departureTime" : 1418323740,
+                "departure" : 1418323740,
                 "pos" : 8,
                 "tripId" : "OCESN862437F0100169351"
             },
             {
                 "arrival" : 1418327280,
-                "departureTime" : 1418327340,
+                "departure" : 1418327340,
                 "pos" : 8,
                 "tripId" : "OCESN862441F0100369358"
             },
             {
                 "arrival" : 1418329080,
-                "departureTime" : 1418329140,
+                "departure" : 1418329140,
                 "pos" : 8,
                 "tripId" : "OCESN862443F0100469360"
             },
             {
                 "arrival" : 1418330280,
-                "departureTime" : 1418330340,
+                "departure" : 1418330340,
                 "pos" : 1,
                 "tripId" : "OCESN862444F0100269363"
             }
@@ -672,13 +672,13 @@
         "matched": [
             {
                 "arrival" : 1418267640,
-                "departureTime" : 1418267700,
+                "departure" : 1418267700,
                 "pos" : 2,
                 "tripId" : "OCESN862400F0100269267"
             },
             {
                 "arrival" : 1418276400,
-                "departureTime" : 1418276400,
+                "departure" : 1418276400,
                 "pos" : 8,
                 "tripId" : "OCESN862401F0100269269"
             }
@@ -686,7 +686,7 @@
         "pushed": [
             {
                 "arrivalTime" : 1418267640,
-                "departureTime" : 1418267700,
+                "departure" : 1418267700,
                 "pos" : 2,
                 "stopId" : "StopPoint:OCETrain TER-87394155",
                 "tripId" : "OCESN862400F0100269267"

@@ -159,8 +159,8 @@ namespace cheminotc {
     int arrival = asTimestamp(arrivalTime->arrival);
     int departure = asTimestamp(arrivalTime->departure);
     json["stopId"] = arrivalTime->stopId;
-    json["arrivalTime"] = arrival;
-    json["departureTime"] = departure;
+    json["arrival"] = arrival;
+    json["departure"] = departure;
     json["tripId"] = arrivalTime->tripId;
     json["pos"] = arrivalTime->pos;
     return json;
@@ -198,7 +198,7 @@ namespace cheminotc {
     int departure = asTimestamp(stopTime->departure);
     json["tripId"] = stopTime->tripId;
     json["arrival"] = arrival;
-    json["departureTime"] = departure;
+    json["departure"] = departure;
     json["pos"] = stopTime->pos;
     return json;
   }
