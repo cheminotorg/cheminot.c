@@ -35,6 +35,10 @@ header {
     left: 30vw;
 }
 
+.departures li.is-matched {
+    background: #D8D8D8;
+}
+
 .edges {
     left: 70vw;
 }
@@ -49,6 +53,8 @@ header {
 
 .departures ul, .edges ul, .matched ul {
     display: none;
+    max-height: 400px;
+    overflow: auto;
 }
 
 .departures.on ul, .edges.on ul, .matched.on ul {

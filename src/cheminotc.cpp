@@ -58,7 +58,7 @@ namespace cheminotc {
       }
 
       std::ofstream file;
-      file.open("data.json", std::ios::out);
+      file.open("play/www/data.json", std::ios::out);
       file << array.toStyledString() + "\n";
       file.close();
     }

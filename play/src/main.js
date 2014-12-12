@@ -42,16 +42,19 @@ var moment = require('moment');
         var pushed = state.refineArrivalTimes.pushed;
 
         g.setNode(headId, defaultStyle());
-        pushed.forEach(function(gi) {
-            var giId = nodeId(gi);
-            g.removeNode(giId);
-        });
+        if(pushed) {
+            pushed.forEach(function(gi) {
+                var giId = nodeId(gi);
+                g.removeNode(giId);
+            });
+        }
 
         renderGraph();
         var previousState = data[--index];
-        renderDepartures(previousState.refineArrivalTimes.departures);
+        var previousMatched = previousState.refineArrivalTimes.matched;
+        renderDepartures(previousState.refineArrivalTimes.departures, previousMatched);
         renderEdges(previousState.refineArrivalTimes.edges);
-        renderMatched(previousState.refineArrivalTimes.matched);
+        renderMatched(previousMatched);
     }
 
     function nextState() {
@@ -59,6 +62,7 @@ var moment = require('moment');
         var head = state.refineArrivalTimes.head;
         var headId = nodeId(head);
         var pushed = state.refineArrivalTimes.pushed;
+        var matched = state.refineArrivalTimes.matched;
 
         g.setNode(headId, headStyle());
 
@@ -73,18 +77,21 @@ var moment = require('moment');
         }
 
         renderGraph();
-        renderDepartures(state.refineArrivalTimes.departures);
+        renderDepartures(state.refineArrivalTimes.departures, matched);
         renderEdges(state.refineArrivalTimes.edges);
-        renderMatched(state.refineArrivalTimes.matched);
+        renderMatched(matched);
     }
 
-    function renderDepartures(departures) {
+    function renderDepartures(departures, matched) {
         var $departures = departures.reduce(function(acc, next) {
             var arrival = '<span class="arrival">'+ formatDateTime(next.arrival) +'</span>';
             var departure = '<span class="departure">'+ formatDateTime(next.departure) +'</span>';
             var pos = '<span class="pos">'+ next.pos +'</span>';
             var tripId = '<span class="tripId">'+ next.tripId +'</span>';
-            return acc + '<li>' + [arrival, departure, tripId, pos].join('') + '</li>';
+            var isMatched = matched.filter(function(m) {
+                return m.tripId == next.tripId;
+            })[0];
+            return acc + '<li '+ (isMatched ? 'class="is-matched"' : '') +'>' + [arrival, departure, tripId, pos].join('') + '</li>';
         }, '');
         document.querySelector('.departures ul').innerHTML = $departures;
     }
