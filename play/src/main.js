@@ -62,13 +62,15 @@ var moment = require('moment');
 
         g.setNode(headId, headStyle());
 
-        pushed.forEach(function(gi) {
-            var giId = nodeId(gi);
-            if(!g.hasNode(giId)) {
-                g.setNode(giId, defaultStyle());
-            }
-            g.setEdge(headId, giId, {});
-        });
+        if(pushed) {
+            pushed.forEach(function(gi) {
+                var giId = nodeId(gi);
+                if(!g.hasNode(giId)) {
+                    g.setNode(giId, defaultStyle());
+                }
+                g.setEdge(headId, giId, {});
+            });
+        }
 
         renderGraph();
         renderDepartures(state.refineArrivalTimes.departures);
@@ -152,7 +154,7 @@ var moment = require('moment');
     }
 
     function nodeId(node) {
-        return node.stopId + "\n"+ formatDateTime(node.arrivalTime);
+        return node.stopId + "\n"+ formatDateTime(node.arrival);
     }
 
     function formatDateTime(timestamp) {

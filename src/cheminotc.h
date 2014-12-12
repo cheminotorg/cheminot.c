@@ -73,4 +73,10 @@ namespace cheminotc {
   struct tm asDateTime(time_t t);
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
+
+  Json::Value serializeArrivalTime(ArrivalTime arrivalTime);
+
+  Json::Value serializeStopTimes(std::list<StopTime> stopTimes);
+
+  Json::Value serializeEdges(std::list<std::string> edges);
 }

@@ -13,6 +13,57 @@
 
 namespace cheminotc {
 
+  namespace play {
+
+    struct RefineArrivalTimes {
+      ArrivalTime head;
+      std::list<StopTime> departures;
+      std::list<std::string> edges;
+      std::list<StopTime> matched;
+      std::list<ArrivalTime> pushed;
+    };
+
+    struct PathSelection {
+    };
+
+    struct State {
+      RefineArrivalTimes refineArrivalTimes;
+      PathSelection pathSelection;
+    };
+
+    static std::list<State> states;
+
+    void newState() {
+      State state;
+      states.push_back(state);
+    }
+
+    Json::Value serializeRefineArrivalTimes(RefineArrivalTimes refineArrivalTime) {
+      Json::Value json;
+      json["head"] = cheminotc::serializeArrivalTime(refineArrivalTime.head);
+      json["departures"] = cheminotc::serializeStopTimes(refineArrivalTime.departures);
+      json["edges"] = cheminotc::serializeEdges(refineArrivalTime.edges);
+      json["matched"] = cheminotc::serializeStopTimes(refineArrivalTime.matched);
+      json["pushed"] = cheminotc::serializeArrivalTimes(refineArrivalTime.pushed);
+      return json;
+    }
+
+    void serializeToFile(std::list<State> states) {
+      Json::Value array;
+      for (auto iterator = states.begin(), end = states.end(); iterator != end; ++iterator) {
+        Json::Value json;
+        State state = *iterator;
+        json["refineArrivalTimes"] = serializeRefineArrivalTimes(state.refineArrivalTimes);
+        array.append(json);
+      }
+
+      std::ofstream file;
+      file.open("data.json", std::ios::out);
+      file << array.toStyledString() + "\n";
+      file.close();
+    }
+  }
+
   template <typename T>
   std::string to_string(T value) {
     std::ostringstream os ;
@@ -154,15 +205,15 @@ namespace cheminotc {
     return datetimeIsBeforeEq(a, b) && !(dateIsEq(a, b) && timeIsEq(a, b));
   }
 
-  Json::Value serializeArrivalTime(ArrivalTime *arrivalTime) {
+  Json::Value serializeArrivalTime(ArrivalTime arrivalTime) {
     Json::Value json;
-    int arrival = asTimestamp(arrivalTime->arrival);
-    int departure = asTimestamp(arrivalTime->departure);
-    json["stopId"] = arrivalTime->stopId;
+    int arrival = asTimestamp(arrivalTime.arrival);
+    int departure = asTimestamp(arrivalTime.departure);
+    json["stopId"] = arrivalTime.stopId;
     json["arrival"] = arrival;
     json["departure"] = departure;
-    json["tripId"] = arrivalTime->tripId;
-    json["pos"] = arrivalTime->pos;
+    json["tripId"] = arrivalTime.tripId;
+    json["pos"] = arrivalTime.pos;
     return json;
   }
 
@@ -170,12 +221,12 @@ namespace cheminotc {
     Json::Value array;
     for(std::list<ArrivalTime>::const_iterator iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
       ArrivalTime arrivalTime = *iterator;
-      array.append(serializeArrivalTime(&arrivalTime));
+      array.append(serializeArrivalTime(arrivalTime));
     }
     return array;
   }
 
-  std::string formatArrivalTime(ArrivalTime *arrivalTime) {
+  std::string formatArrivalTime(ArrivalTime arrivalTime) {
     Json::Value serialized = serializeArrivalTime(arrivalTime);
     return serialized.toStyledString();
   }
@@ -184,12 +235,16 @@ namespace cheminotc {
     return serializeArrivalTimes(arrivalTimes).toStyledString();
   }
 
-  std::string formatEdges(std::list<std::string> edges) {
+  Json::Value serializeEdges(std::list<std::string> edges) {
     Json::Value array;
     for (auto iterator = edges.begin(), end = edges.end(); iterator != end; ++iterator) {
       array.append(*iterator);
     }
-    return array.toStyledString();
+    return array;
+  }
+
+  std::string formatEdges(std::list<std::string> edges) {
+    return serializeEdges(edges).toStyledString();
   }
 
   Json::Value serializeStopTime(StopTime *stopTime) {
@@ -203,17 +258,21 @@ namespace cheminotc {
     return json;
   }
 
+  Json::Value serializeStopTimes(std::list<StopTime> stopTimes) {
+    Json::Value array;
+    for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
+      array.append(serializeStopTime(&*iterator));
+    }
+    return array;
+  }
+
   std::string formatStopTime(StopTime *stopTime) {
     Json::Value serialized = serializeStopTime(stopTime);
     return serialized.toStyledString();
   }
 
   std::string formatStopTimes(std::list<StopTime> stopTimes) {
-    Json::Value array;
-    for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
-      array.append(serializeStopTime(&*iterator));
-    }
-    return array.toStyledString();
+    return serializeStopTimes(stopTimes).toStyledString();
   }
 
   std::list<CalendarDate> getCalendarDatesByServiceId(CalendarDates *calendarDates, std::string serviceId) {
@@ -475,8 +534,7 @@ namespace cheminotc {
       return !availablities[stopTime.tripId];
     });
 
-    printf("[Departures]\n");
-    printf("%s\n", formatStopTimes(departures).c_str());
+    play::states.back().refineArrivalTimes.departures = departures;
 
     return departures;
   }
@@ -515,14 +573,13 @@ namespace cheminotc {
         //printf("DONE!\n");
         return results;
       } else {
-        printf("[HEAD]\n");
-        printf("%s\n", formatArrivalTime(&head).c_str());
+        play::newState();
+        play::states.back().refineArrivalTimes.head = head;
         Vertice vi = head.vertice;
         auto departures = getAvailableDepartures(handle, calendarDates, &head, ts);
 
         if(!departures.empty()) {
-          printf("[EDGES] \n");
-          printf("%s\n", formatEdges(vi.edges).c_str());
+          play::states.back().refineArrivalTimes.edges = vi.edges;
           std::list<StopTime> matched;
           std::list<ArrivalTime> justPushed;
           for (std::list<std::string>::const_iterator iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
@@ -572,11 +629,10 @@ namespace cheminotc {
               //printf("--NONE--\n");
             }
           }
-          printf("[MATCHED]\n");
-          printf("%s\n", formatStopTimes(matched).c_str());
 
-          printf("[JUST PUSHED]\n");
-          printf("%s\n", formatArrivalTimes(justPushed).c_str());
+          play::states.back().refineArrivalTimes.matched = matched;
+          play::states.back().refineArrivalTimes.pushed = justPushed;
+
         } else {
           //printf("\nEMPTY!");
         }
@@ -627,6 +683,7 @@ namespace cheminotc {
 
   std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at) {
     auto arrivalTimes = refineArrivalTimes(handle, graph, calendarDates, vsId, veId, at);
+    play::serializeToFile(play::states);
     return pathSelection(graph, &arrivalTimes, at, vsId, veId);
   }
 }
