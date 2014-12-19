@@ -7,9 +7,11 @@ var moment = require('moment');
 
     var defaultStyle = function() { return { style: "fill: #afa"}; };
     var headStyle = function() { return { style: "fill: #B4B4D5" }; };
+    var walkStyle = function() { return { style: "fill: #F4F4F5" }; };
 
     var data;
     var index = -1;
+    var heads = [];
 
     var g;
     var svg;
@@ -66,6 +68,12 @@ var moment = require('moment');
 
         g.setNode(headId, headStyle());
 
+        heads.forEach(function(headId) {
+            g.setNode(headId, walkStyle());
+        });
+
+        heads.push(headId);
+
         if(pushed) {
             pushed.forEach(function(gi) {
                 var giId = nodeId(gi);
@@ -116,9 +124,10 @@ var moment = require('moment');
 
     function renderGraph() {
         render(inner, g);
+        svg.attr("height", viewportHeight());
+        svg.attr("width", g.graph().width || 2048);
         var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
         inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
-        svg.attr("height", viewportHeight());
     }
 
     function toggleDisplay(el) {
@@ -161,7 +170,7 @@ var moment = require('moment');
     }
 
     function nodeId(node) {
-        return node.stopId + "\n"+ formatDateTime(node.arrival);
+        return [node.stopId, formatDateTime(node.arrival), formatDateTime(node.departure), node.tripId].join('\n');
     }
 
     function formatDateTime(timestamp) {

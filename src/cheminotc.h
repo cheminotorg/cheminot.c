@@ -70,6 +70,8 @@ namespace cheminotc {
 
   std::string formatDate(struct tm time);
 
+  std::string formatDateTime(struct tm datetime);
+
   struct tm asDateTime(time_t t);
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
