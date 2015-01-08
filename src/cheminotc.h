@@ -12,8 +12,8 @@ namespace cheminotc {
 
   struct StopTime {
     std::string tripId;
-    struct tm arrival;
-    struct tm departure;
+    tm arrival;
+    tm departure;
     int pos;
   };
 
@@ -26,24 +26,23 @@ namespace cheminotc {
 
   struct ArrivalTime {
     std::string stopId;
-    struct tm arrival;
-    struct tm departure;
+    tm arrival;
+    tm departure;
     std::string tripId;
-    Vertice vertice;
     int pos;
   };
 
   struct CalendarDate {
     std::string serviceId;
-    struct tm date;
+    tm date;
     int exceptionType;
   };
 
   struct Calendar {
     std::string serviceId;
     std::map<std::string, bool> week;
-    struct tm startDate;
-    struct tm endDate;
+    tm startDate;
+    tm endDate;
   };
 
   struct Trip {
@@ -52,7 +51,7 @@ namespace cheminotc {
     std::string direction;
   };
 
-  struct tm getNow();
+  tm getNow();
 
   sqlite3* openConnection(std::string path);
 
@@ -64,15 +63,15 @@ namespace cheminotc {
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, struct tm at);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm at);
 
-  std::string formatTime(struct tm time);
+  std::string formatTime(tm time);
 
-  std::string formatDate(struct tm time);
+  std::string formatDate(tm time);
 
-  std::string formatDateTime(struct tm datetime);
+  std::string formatDateTime(tm datetime);
 
-  struct tm asDateTime(time_t t);
+  tm asDateTime(time_t t);
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
 
@@ -81,4 +80,6 @@ namespace cheminotc {
   Json::Value serializeStopTimes(std::list<StopTime> stopTimes);
 
   Json::Value serializeEdges(std::list<std::string> edges);
+
+  std::map<std::string, std::string> f();
 }
