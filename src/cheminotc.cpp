@@ -13,62 +13,15 @@
 
 namespace cheminotc {
 
-  namespace play {
-
-    struct RefineArrivalTimes {
-      ArrivalTime head;
-      std::list<StopTime> departures;
-      std::list<std::string> edges;
-      std::list<StopTime> matched;
-      std::list<ArrivalTime> pushed;
-    };
-
-    struct PathSelection {
-    };
-
-    struct State {
-      RefineArrivalTimes refineArrivalTimes;
-      PathSelection pathSelection;
-    };
-
-    static std::list<State> states;
-
-    void newState() {
-      State state;
-      states.push_back(state);
-    }
-
-    Json::Value serializeRefineArrivalTimes(RefineArrivalTimes refineArrivalTime) {
-      Json::Value json;
-      json["head"] = cheminotc::serializeArrivalTime(refineArrivalTime.head);
-      json["departures"] = cheminotc::serializeStopTimes(refineArrivalTime.departures);
-      json["edges"] = cheminotc::serializeEdges(refineArrivalTime.edges);
-      json["matched"] = cheminotc::serializeStopTimes(refineArrivalTime.matched);
-      json["pushed"] = cheminotc::serializeArrivalTimes(refineArrivalTime.pushed);
-      return json;
-    }
-
-    void serializeToFile(std::list<State> states) {
-      Json::Value array;
-      for (auto iterator = states.begin(), end = states.end(); iterator != end; ++iterator) {
-        Json::Value json;
-        State state = *iterator;
-        json["refineArrivalTimes"] = serializeRefineArrivalTimes(state.refineArrivalTimes);
-        array.append(json);
-      }
-
-      std::ofstream file;
-      file.open("play/www/data.json", std::ios::out);
-      file << array.toStyledString() + "\n";
-      file.close();
-    }
-  }
-
   template <typename T>
   std::string to_string(T value) {
     std::ostringstream os ;
     os << value ;
     return os.str() ;
+  }
+
+  void oops(std::string message) {
+    throw std::runtime_error(message);
   }
 
   tm getNow() {
@@ -83,7 +36,7 @@ namespace cheminotc {
   }
 
   std::string formatDate(tm time) {
-    return to_string(time.tm_mday) + "/" + to_string(time.tm_mon) + "/" + to_string(time.tm_year);
+    return to_string(time.tm_mday) + "/" + to_string(time.tm_mon + 1) + "/" + to_string(time.tm_year);
   }
 
   std::string formatDateTime(tm datetime) {
@@ -116,7 +69,14 @@ namespace cheminotc {
   }
 
   time_t asTimestamp(tm a) {
-    return mktime(&a);
+    time_t timestamp = mktime(&a);
+    return timestamp;
+  }
+
+  tm addMinutes(tm datetime, int n) {
+    time_t t = asTimestamp(datetime);
+    t += (n * 60);
+    return asDateTime(t);
   }
 
   tm addHours(tm datetime, int n) {
@@ -125,19 +85,29 @@ namespace cheminotc {
     return asDateTime(t);
   }
 
+  tm minusHours(tm datetime, int n) {
+    time_t t = asTimestamp(datetime);
+    t -= (n * 60 * 60);
+    return asDateTime(t);
+  }
+
   tm addDays(tm datetime, int n) {
     return addHours(datetime, 24 * n);
   }
 
-  bool hasSameTime(tm *a, tm *b) {
-    return (a->tm_hour == b->tm_hour) && (a->tm_min == b->tm_min);
+  bool hasSameTime(const tm &a, const tm &b) {
+    return (a.tm_hour == b.tm_hour) && (a.tm_min == b.tm_min);
   }
 
-  bool hasSameDate(tm *a, tm *b) {
-    return (a->tm_year == b->tm_year) && (a->tm_mon == b->tm_mon) && (a->tm_mday == b->tm_mday);
+  bool hasSameDate(const tm &a, const tm &b) {
+    return (a.tm_year == b.tm_year) && (a.tm_mon == b.tm_mon) && (a.tm_mday == b.tm_mday);
   }
 
-  bool timeIsBeforeEq(tm a, tm b) {
+  bool hasSameDateTime(const tm &a, const tm &b) {
+    return hasSameTime(a, b) && hasSameDate(a, b);
+  }
+
+  bool timeIsBeforeEq(const tm &a, const tm &b) {
     if(a.tm_hour > b.tm_hour) {
       return false;
     } else if(a.tm_hour < b.tm_hour) {
@@ -151,15 +121,11 @@ namespace cheminotc {
     }
   }
 
-  bool timeIsEq(tm a, tm b) {
-    return (a.tm_hour == b.tm_hour) && (a.tm_min == b.tm_min);
+  bool timeIsBeforeNotEq(const tm &a, const tm &b) {
+    return timeIsBeforeEq(a, b) && !hasSameTime(a, b);
   }
 
-  bool timeIsBeforeNotEq(tm a, tm b) {
-    return timeIsBeforeEq(a, b) && !timeIsEq(a, b);
-  }
-
-  bool dateIsBeforeEq(tm a, tm b) {
+  bool dateIsBeforeEq(const tm &a, const tm &b) {
     if(a.tm_year > b.tm_year) {
       return false;
     } else if(a.tm_year < b.tm_year) {
@@ -179,30 +145,24 @@ namespace cheminotc {
     }
   }
 
-  bool dateIsEq(tm a, tm b) {
-    return (a.tm_year == b.tm_year) && (a.tm_mon == b.tm_mon) && (a.tm_mday == b.tm_mday);
+  bool dateIsBeforeNotEq(const tm &a, const tm &b) {
+    return dateIsBeforeEq(a, b) && !hasSameDate(a, b);
   }
 
-  bool dateIsBeforeNotEq(tm a, tm b) {
-    return dateIsBeforeEq(a, b) && !dateIsEq(a, b);
-  }
-
-  bool datetimeIsBeforeEq(tm a, tm b) {
-    if(dateIsBeforeNotEq(a, b)) {
-      return true;
-    } else if(dateIsBeforeNotEq(b, a)) {
-      return false;
+  bool datetimeIsBeforeEq(const tm &a, const tm &b) {
+    if(dateIsBeforeEq(a, b)) {
+      if(hasSameDate(a, b)) {
+        return timeIsBeforeEq(a, b);
+      } else {
+        return true;
+      }
     } else {
-      return timeIsBeforeEq(a, b);
+      return false;
     }
   }
 
-  bool datetimeNotEq(tm a, tm b) {
-    return !dateIsEq(a, b) || !timeIsEq(a, b);
-  }
-
-  bool datetimeIsBeforeNotEq(tm a, tm b) {
-    return datetimeIsBeforeEq(a, b) && !(dateIsEq(a, b) && timeIsEq(a, b));
+  bool datetimeIsBeforeNotEq(const tm &a, const tm &b) {
+    return datetimeIsBeforeEq(a, b) && !hasSameDateTime(a, b);
   }
 
   Json::Value serializeArrivalTime(ArrivalTime arrivalTime) {
@@ -219,7 +179,7 @@ namespace cheminotc {
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes) {
     Json::Value array;
-    for(std::list<ArrivalTime>::const_iterator iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
+    for(auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
       ArrivalTime arrivalTime = *iterator;
       array.append(serializeArrivalTime(arrivalTime));
     }
@@ -382,7 +342,7 @@ namespace cheminotc {
       } else if(retval == SQLITE_DONE) {
         return results;
       } else {
-        throw std::runtime_error("Unexpected error while executing this SQL query: " + query);
+        oops("Unexpected error while executing this SQL query: " + query);
       }
     }
   }
@@ -439,8 +399,8 @@ namespace cheminotc {
     return trips;
   }
 
-  bool isTerminus(StopTime *a) {
-    return hasSameTime(&a->arrival, &a->departure) && a->pos > 0;
+  bool isTerminus(const StopTime &a) {
+    return hasSameTime(a.arrival, a.departure) && a.pos > 0;
   }
 
   class CompareArrivalTime {
@@ -453,7 +413,7 @@ namespace cheminotc {
   bool isTripRemovedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, tm when) {
     auto exceptions = getCalendarDatesByServiceId(calendarDates, trip->calendar->serviceId);
     auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](CalendarDate calendarDate) {
-        return hasSameDate(&calendarDate.date, &when) && (calendarDate.exceptionType == 2);
+        return hasSameDate(calendarDate.date, when) && (calendarDate.exceptionType == 2);
       });
     return it != exceptions.end();
   }
@@ -461,7 +421,7 @@ namespace cheminotc {
   bool isTripAddedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, tm when) {
     auto exceptions = getCalendarDatesByServiceId(calendarDates, trip->calendar->serviceId);
     auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](CalendarDate exception) {
-        return hasSameDate(&exception.date, &when) && (exception.exceptionType == 1);
+        return hasSameDate(exception.date, when) && (exception.exceptionType == 1);
       });
     return it != exceptions.end();
   }
@@ -499,9 +459,9 @@ namespace cheminotc {
     return availablities;
   }
 
-  std::list<StopTime> orderStopTimesBy(std::list<StopTime> stopTimes, tm t) {
+  std::list<StopTime> orderStopTimesBy(std::list<StopTime> stopTimes, const tm &t) {
     std::list<StopTime> stopTimesFromT = std::accumulate(stopTimes.begin(), stopTimes.end(), std::list<StopTime>(), [&t](std::list<StopTime> acc, StopTime stopTime) {
-        if(timeIsBeforeEq(stopTime.departure, t)) {
+        if(datetimeIsBeforeNotEq(stopTime.departure, t)) {
           stopTime.departure = addDays(stopTime.departure, 1);
           stopTime.arrival = addDays(stopTime.arrival, 1);
         }
@@ -509,56 +469,48 @@ namespace cheminotc {
         return acc;
     });
 
-    stopTimesFromT.sort([](const StopTime& first, const StopTime& second) {
-      return datetimeIsBeforeEq(first.departure, second.departure);
+    stopTimesFromT.sort([](const StopTime &a, const StopTime &b) {
+      return datetimeIsBeforeEq(a.departure, b.departure);
     });
 
     return stopTimesFromT;
   }
 
-  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, CalendarDates *calendarDates, ArrivalTime *gi, Vertice *vi, tm ts) {
-    std::list<StopTime> departures(orderStopTimesBy(vi->stopTimes, ts));
-
-    departures.remove_if([&gi] (StopTime &stopTime) {
-        return !(datetimeIsBeforeNotEq(gi->arrival, stopTime.departure) && !isTerminus(&stopTime));
+  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, CalendarDates *calendarDates, tm arrivalTime, Vertice *vi) {
+    std::list<StopTime> departures(orderStopTimesBy(vi->stopTimes, arrivalTime));
+    departures.remove_if([&arrivalTime] (StopTime &stopTime) {
+      return !(datetimeIsBeforeEq(arrivalTime, stopTime.departure) && !isTerminus(stopTime));
     });
 
     std::list<std::string> tripIds;
-    for (std::list<StopTime>::const_iterator iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
+    for (auto iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
       tripIds.push_back(iterator->tripId);
     }
 
-    auto availablities = tripsAvailability(handle, tripIds, calendarDates, ts);
+    auto availablities = tripsAvailability(handle, tripIds, calendarDates, arrivalTime);
 
     departures.remove_if([&availablities] (const StopTime& stopTime) {
       return !availablities[stopTime.tripId];
     });
 
-    play::states.back().refineArrivalTimes.departures = departures;
-
     return departures;
   }
 
-  // ---------------------------------------------------------------------------------------------
-
   struct QueueItem {
     std::string stopId;
+    std::string tripId;
     tm ti;
     tm gi;
   };
 
   class CompareQueueItem {
   public:
-    bool operator()(const QueueItem &itemA, const QueueItem &itemB) {
-      return datetimeIsBeforeEq(itemA.gi, itemB.gi);
+    bool operator()(std::shared_ptr<QueueItem> itemA, std::shared_ptr<QueueItem> itemB) {
+      return datetimeIsBeforeEq(itemB->gi, itemA->gi);
     }
   };
 
-  typedef std::priority_queue<QueueItem, std::vector<QueueItem>, CompareQueueItem> Queue;
-
-  typedef std::map<tm, ArrivalTime> ArrivalTimeFunc;
-
-  typedef std::unordered_map< std::string, ArrivalTimeFunc> ArrivalTimesFunc;
+  typedef std::priority_queue<std::shared_ptr<QueueItem>, std::vector<std::shared_ptr<QueueItem>>, CompareQueueItem> Queue;
 
   tm infinite() {
     tm t;
@@ -574,199 +526,335 @@ namespace cheminotc {
     return t;
   }
 
-  void initTimeRefinement(Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, Queue *queue, std::string vsId, tm ts, tm te) {
-    QueueItem qs;
-    qs.stopId = vsId;
-    qs.gi = ts;
-    qs.ti = ts;
+  std::map<std::string, std::shared_ptr<QueueItem>> initTimeRefinement(sqlite3 *handle, Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, CalendarDates *calendarDates, Queue *queue, Vertice *vs, tm ts, std::list<tm> startingPeriod) {
+
+    std::map<std::string, std::shared_ptr<QueueItem>> items;
+
+    ArrivalTimeFunc gsFunc;
+    for (auto iterator = startingPeriod.begin(), end = startingPeriod.end(); iterator != end; ++iterator) {
+      tm departureTime = *iterator;
+      ArrivalTime gs;
+      gs.stopId = vs->id;
+      gs.departure = departureTime;
+      gs.arrival = departureTime;
+      gsFunc[asTimestamp(departureTime)] = gs;
+    }
+
+    (*arrivalTimesFunc)[vs->id] = gsFunc;
+
+    std::shared_ptr<QueueItem> qs {new QueueItem};
+    qs->stopId = vs->id;
+    qs->gi = ts;
+    qs->tripId = "<trip>";
+    qs->ti = ts;
     queue->push(qs);
+    items[vs->id] = qs;
 
     tm INFINITE = infinite();
 
     for(auto iterator = graph->begin(), end = graph->end(); iterator != end; ++iterator) {
       std::string stopId = iterator->first;
-      if(stopId != vsId) {
-        QueueItem qi;
-        qi.stopId = stopId;
-        qi.gi = INFINITE;
-        qi.ti = ts;
+      if(stopId != vs->id) {
+        std::shared_ptr<QueueItem> qi {new QueueItem};
+        qi->stopId = stopId;
+        qi->gi = INFINITE;
+        qi->tripId = "<trip>";
+        qi->ti = ts;
         queue->push(qi);
+        items[stopId] = qi;
       }
+    }
+    return items;
+  }
+
+  tm enlargeStartingTime(sqlite3 *handle, CalendarDates *calendarDates, Graph *graph, ArrivalTimeFunc &giFunc, std::shared_ptr<QueueItem> qi, std::shared_ptr<QueueItem> qk, Vertice *vi, std::string vsId, tm te) {
+    tm t = minusHours(qk->gi, 2);
+    if(qi->stopId == vsId) {
+      return te;
+    } else {
+      std::list<StopTime> viArrivalTimes(orderStopTimesBy(vi->stopTimes, t));
+      time_t wfi = LONG_MAX;
+      for (auto iterator = vi->edges.begin(), end = vi->edges.end(); iterator != end; ++iterator) {
+        std::string edge = *iterator;
+        Vertice vf = getVerticeFromGraph(graph, edge);
+        std::list<StopTime> vfDepartureTimes = getAvailableDepartures(handle, calendarDates, t, &vf);
+        for (auto iterator = vfDepartureTimes.begin(), end = vfDepartureTimes.end(); iterator != end; ++iterator) {
+          StopTime vfDepartureTime = *iterator;
+          for (auto iterator = viArrivalTimes.begin(), end = viArrivalTimes.end(); iterator != end; ++iterator) {
+            StopTime viArrivalTime = *iterator;
+            if((vfDepartureTime.tripId == viArrivalTime.tripId) && (vfDepartureTime.pos == (viArrivalTime.pos - 1)) && datetimeIsBeforeNotEq(vfDepartureTime.departure, viArrivalTime.arrival)) {
+              time_t travelTime = difftime(asTimestamp(viArrivalTime.arrival), asTimestamp(vfDepartureTime.departure));
+              wfi = travelTime < wfi ? travelTime : wfi;
+            }
+          }
+        }
+      }
+
+      if(wfi == LONG_MAX) {
+        oops("Unable to compute travel time between vf to vi");
+      }
+
+      tm nextEarliestArrivalTime = asDateTime(asTimestamp(qk->gi) + wfi);
+
+      std::pair<tm, tm> enlarged = { qi->ti, qi->gi };
+      for (auto iterator = giFunc.begin(), end = giFunc.end(); iterator != end; ++iterator) {
+        time_t ti = iterator->first;
+        tm gi = iterator->second.arrival;
+        if(datetimeIsBeforeEq(gi, nextEarliestArrivalTime) && datetimeIsBeforeEq(enlarged.second, gi)) {
+          enlarged = { asDateTime(ti), gi };
+        }
+      }
+
+      if(hasSameDateTime(enlarged.second, qi->gi)) {
+        auto last = std::prev(giFunc.end());
+        return asDateTime(last->first);
+      }
+
+      return enlarged.first;
     }
   }
 
-  bool isQueueItemOutdated(std::map<std::string, tm> *outdated, const QueueItem *item) {
-    auto last = outdated->find(item->stopId);
-    if(last != outdated->end()) {
-      return datetimeIsBeforeEq(item->gi, last->second);
+  ArrivalTime stopTime2ArrivalTime(std::string stopId, const StopTime *stopTime) {
+    ArrivalTime arrivalTime;
+    arrivalTime.stopId = stopId;
+    arrivalTime.arrival = stopTime->arrival;
+    arrivalTime.departure = stopTime->departure;
+    arrivalTime.tripId = stopTime->tripId;
+    arrivalTime.pos = stopTime->pos;
+    return arrivalTime;
+  }
+
+  std::list<tm> getStartingPeriod(sqlite3 *handle, CalendarDates *calendarDates, Vertice *vs, tm ts, tm te, int maxStartingTimes) {
+    auto departures = getAvailableDepartures(handle, calendarDates, ts, vs);
+
+    std::list<tm> startingPeriod;
+    for (auto iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
+      StopTime departureTime = *iterator;
+      //printf("-> %s\n", formatDateTime(iterator->departure).c_str());
+      if(datetimeIsBeforeEq(departureTime.departure, te) && (startingPeriod.size() < maxStartingTimes)) {
+        //printf("pushed %s \n", iterator->tripId.c_str());
+        startingPeriod.push_back(departureTime.departure);
+      }
+    }
+
+    if(startingPeriod.empty()) {
+      return {};
+    } else if(startingPeriod.size() == 1) {
+      return { *startingPeriod.begin(), *startingPeriod.begin() };
+    } else {
+      startingPeriod.sort([](const tm &a, const tm &b) {
+          return datetimeIsBeforeEq(a, b);
+        });
+      return { *startingPeriod.begin(), *next(startingPeriod.begin()) };
+    }
+  }
+
+  bool isQueueItemOutdated(std::map<std::string, tm> *uptodate, std::shared_ptr<QueueItem> item) {
+    auto last = uptodate->find(item->stopId);
+    if(last != uptodate->end()) {
+      return !datetimeIsBeforeEq(item->gi, last->second);
     } else {
       return false;
     }
   }
 
-  tm enlargeStartingTime(Graph *graph, QueueItem *qi, const QueueItem *qk) {
-    Vertice vi = getVerticeFromGraph(graph, qi->stopId);
+  StopTime getEarliestArrivalTime(sqlite3 *handle, CalendarDates *calendarDates, Vertice *vi, Vertice *vj, ArrivalTime *gi) {
+    std::list<StopTime> viDepartures = getAvailableDepartures(handle, calendarDates, gi->arrival, vi);
+    std::list<StopTime> vjStopTimes(orderStopTimesBy(vj->stopTimes, gi->arrival));
+    StopTime earliestArrivalTime;
+    earliestArrivalTime.arrival = infinite();
+    for(auto iterator = viDepartures.begin(), end = viDepartures.end(); iterator != end; ++iterator) {
+      StopTime viDepartureTime = *iterator;
+      for(auto iterator = vjStopTimes.begin(), end = vjStopTimes.end(); iterator != end; ++iterator) {
+        StopTime vjStopTime = *iterator;
+        if(viDepartureTime.tripId == vjStopTime.tripId && datetimeIsBeforeEq(viDepartureTime.departure, vjStopTime.arrival) && datetimeIsBeforeEq(gi->arrival, viDepartureTime.departure)) {
+          if(datetimeIsBeforeNotEq(vjStopTime.arrival, earliestArrivalTime.arrival)) {
+            earliestArrivalTime = vjStopTime;
+          }
+        }
+      }
+    }
 
-    return getNow();
+    return earliestArrivalTime;
   }
 
-  ArrivalTimesFunc refineArrivalTimes1(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te) {
+  void updateArrivalTimeFunc(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, ArrivalTimesFunc *arrivalTimesFunc, Vertice *vi, ArrivalTime *gi, std::string vjId, tm startingTime, std::function<void(StopTime)> done) {
+    Vertice vj = getVerticeFromGraph(graph, vjId);
+    StopTime vjStopTime = getEarliestArrivalTime(handle, calendarDates, vi, &vj, gi);
+    if(!hasSameDateTime(vjStopTime.arrival, infinite())) { // MAYBE TODAY, ONE EDGE ISN'T AVAILABLE
+      ArrivalTimeFunc gjFunc;
+      time_t t = asTimestamp(startingTime);
+      auto it = arrivalTimesFunc->find(vjId);
+      if(it != arrivalTimesFunc->end()) {
+        gjFunc = it->second;
+        auto currentGj = gjFunc.find(t);
+        if(currentGj != gjFunc.end()) {
+          if(datetimeIsBeforeNotEq(vjStopTime.arrival, currentGj->second.arrival)) { // UPDATING IF BETTER FOUND
+            gjFunc[t] = stopTime2ArrivalTime(vjId, &vjStopTime);
+            done(vjStopTime);
+          }
+        } else {
+          gjFunc[t] = stopTime2ArrivalTime(vjId, &vjStopTime); // NEW VALUE
+          done(vjStopTime);
+        }
+      } else {
+        gjFunc[t] = stopTime2ArrivalTime(vjId, &vjStopTime); // NEW FUNC
+        (*arrivalTimesFunc)[vjId] = gjFunc;
+        done(vjStopTime);
+      }
+      (*arrivalTimesFunc)[vjId] = gjFunc;
+    }
+  }
 
+  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
     Queue queue;
     ArrivalTimesFunc arrivalTimesFunc;
-    std::map<std::string, tm> outdated;
+    std::map<std::string, tm> uptodate;
+    Vertice vs = getVerticeFromGraph(graph, vsId);
+    std::list<tm> startingPeriod = getStartingPeriod(handle, calendarDates, &vs, ts, te, maxStartingTimes);
 
-    initTimeRefinement(graph, &arrivalTimesFunc, &queue, vsId, ts, te);
+    if(startingPeriod.empty()) {
+      return arrivalTimesFunc;
+    }
+
+    ts = *startingPeriod.begin();
+    te = *(std::prev(startingPeriod.end()));
+
+    //printf("####--> %lu StartingTimes %s to %s\n", startingPeriod.size(), formatDateTime(ts).c_str(), formatDateTime(te).c_str());
+
+    std::map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(handle, graph, &arrivalTimesFunc, calendarDates, &queue, &vs, ts, startingPeriod);
 
     while(queue.size() >= 2) {
-      QueueItem qi = queue.top();
+      std::shared_ptr<QueueItem> qi = queue.top();
+      Vertice vi = getVerticeFromGraph(graph, qi->stopId);
       queue.pop();
 
-      if(!isQueueItemOutdated(&outdated, &qi)) {
+      //printf("@@@@@@@@@@@@@@@@ Trip %s Stop %s - %s\n", qi->tripId.c_str(), qi->stopId.c_str(), formatDateTime(qi->gi).c_str());
 
-        QueueItem qk = queue.top();
+      if(!isQueueItemOutdated(&uptodate, qi)) {
+        std::shared_ptr<QueueItem> qk = queue.top();
+        ArrivalTimeFunc giFunc = arrivalTimesFunc[vi.id];
+        tm enlargedStartingTime = ts;
+        if(!hasSameDateTime(ts, te)) {
+          enlargedStartingTime = enlargeStartingTime(handle, calendarDates, graph, giFunc, qi, qk, &vi, vsId, te);
+        }
+        for (auto iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
+          std::string vjId = *iterator;
+          Vertice vj = getVerticeFromGraph(graph, vjId);
+          if(vj.id != vsId) {
+            for (auto iterator = startingPeriod.begin(), end = startingPeriod.end(); iterator != end; ++iterator) {
+              tm startingTime = *iterator;
+              if(datetimeIsBeforeEq(qi->ti, startingTime) && datetimeIsBeforeEq(startingTime, enlargedStartingTime)) {
+                ArrivalTime gi = giFunc[asTimestamp(startingTime)];
+                updateArrivalTimeFunc(handle, graph, calendarDates, &arrivalTimesFunc, &vi, &gi, vjId, startingTime, [&vjId, &queue, &uptodate, &items, &startingTime](StopTime vjStopTime) {
+                    std::shared_ptr<QueueItem> updatedQj {new QueueItem};
+                    updatedQj->stopId = vjId;
+                    updatedQj->ti = items[vjId]->ti;
+                    updatedQj->gi = vjStopTime.arrival;
+                    updatedQj->tripId = vjStopTime.tripId;
+                    queue.push(updatedQj);
+                    uptodate[vjId] = vjStopTime.arrival;
+                  });
+              }
+            }
+          }
+        }
 
-        tm enlargedStartingTime = enlargeStartingTime(graph, &qi, &qk);
+        if(datetimeIsBeforeEq(te, enlargedStartingTime)) {
+          if(vi.id == veId) {
+            return arrivalTimesFunc;
+          }
+        } else {
+          qi->ti = enlargedStartingTime;
+          qi->gi = giFunc[asTimestamp(enlargedStartingTime)].arrival;
+          queue.push(qi);
+        }
       }
     };
 
     return arrivalTimesFunc;
   }
 
-  std::map<std::string, ArrivalTime> refineArrivalTimes(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts) {
-
-    std::map<std::string, ArrivalTime> results;
-
-    // Initialize the queue
-
-    std::priority_queue<ArrivalTime, std::vector<ArrivalTime>, CompareArrivalTime> queue;
-
-    Vertice vs = getVerticeFromGraph(graph, vsId);
-
-    ArrivalTime gs;
-    gs.stopId = vsId;
-    gs.arrival = ts;
-    queue.push(gs);
-
-    // OK, Let's go !
-
-    while(!queue.empty()) {
-
-      ArrivalTime head = queue.top();
-      queue.pop();
-      results[head.stopId] = head;
-
-      if(head.stopId == veId) {
-        //printf("DONE!\n");
-        return results;
+  time_t getOptimalStartingTime(ArrivalTimeFunc *geFunc, std::string veId) {
+    std::pair<time_t, cheminotc::ArrivalTime> seed = *(geFunc->begin());
+    auto best = std::accumulate(std::next(geFunc->begin()), geFunc->end(), seed, [](std::pair<time_t, cheminotc::ArrivalTime> acc, std::pair<time_t, cheminotc::ArrivalTime> point) {
+      if(datetimeIsBeforeEq(point.second.arrival, acc.second.arrival)) {
+        return point;
       } else {
-        play::newState();
-        play::states.back().refineArrivalTimes.head = head;
-        Vertice vi = getVerticeFromGraph(graph, head.stopId);
-        auto departures = getAvailableDepartures(handle, calendarDates, &head, &vi, ts);
+        return acc;
+      }
+    });
+    return best.first;
+  }
 
-        if(!departures.empty()) {
-          play::states.back().refineArrivalTimes.edges = vi.edges;
-          std::list<StopTime> matched;
-          std::list<ArrivalTime> justPushed;
-          for (auto iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator) {
+  std::list<ArrivalTime> pathSelection(Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, tm ts, std::string vsId, std::string veId) {
+    std::list<ArrivalTime> path;
+    if(arrivalTimesFunc->empty()) {
+      return path;
+    }
 
-            std::string vjId = *iterator;
-            Vertice vj = getVerticeFromGraph(graph, vjId);
-            std::list<StopTime> stopTimes(orderStopTimesBy(vj.stopTimes, ts));
+    ArrivalTimeFunc geFunc = (*arrivalTimesFunc)[veId];
+    time_t optimalStartingTime = getOptimalStartingTime(&geFunc, veId);
+    Vertice vj = getVerticeFromGraph(graph, veId);
 
-            auto departuresAndArrivalTimes = std::accumulate(departures.begin(), departures.end(), std::list<std::tuple<StopTime, StopTime>>(), [&stopTimes](std::list<std::tuple<StopTime, StopTime>> acc, StopTime departureTime) {
-                auto it = std::find_if(stopTimes.begin(), stopTimes.end(), [&departureTime](StopTime stopTime) {
-                    return departureTime.tripId == stopTime.tripId && timeIsBeforeNotEq(departureTime.departure, stopTime.arrival);
-                });
+    std::function<bool (std::string, ArrivalTime*)> getArrivalTimeAt = [&arrivalTimesFunc, &optimalStartingTime](std::string viId, ArrivalTime *arrivalTime) {
+      auto it = arrivalTimesFunc->find(viId);
+      if(it != arrivalTimesFunc->end()) {
+        ArrivalTimeFunc arrivalTimeFunc = (*arrivalTimesFunc)[viId];
+        auto it = arrivalTimeFunc.find(optimalStartingTime);
+        if(it != arrivalTimeFunc.end()) {
+          *arrivalTime = it->second;
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    };
 
-                if(it != stopTimes.end()) {
-                  acc.push_back(std::tuple<StopTime, StopTime>(departureTime, *it));
-                }
-                return acc;
+    ArrivalTime ge;
+    if(getArrivalTimeAt(veId, &ge)) {
+      path.push_back(ge);
+    }
+
+    while(vj.id != vsId) {
+      ArrivalTime gj;
+      if(getArrivalTimeAt(vj.id, &gj)) {
+        for (auto iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
+          std::string viId = *iterator;
+          ArrivalTime gi;
+          if(getArrivalTimeAt(viId, &gi)) {
+            Vertice vi = getVerticeFromGraph(graph, viId);
+            auto it = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&gj](StopTime viStopTime) {
+              return (viStopTime.tripId == gj.tripId) && (viStopTime.pos == (gj.pos - 1));
             });
-
-            if(!departuresAndArrivalTimes.empty()) {
-              std::tuple<StopTime, StopTime> next = departuresAndArrivalTimes.front();
-              StopTime departureTime = std::get<0>(next);
-              StopTime nextArrivalTime = std::get<1>(next);
-              ArrivalTime arrivalTime;
-              arrivalTime.stopId = vjId;
-              arrivalTime.arrival = nextArrivalTime.arrival;
-              arrivalTime.departure = nextArrivalTime.departure;
-              arrivalTime.tripId = nextArrivalTime.tripId;
-              arrivalTime.pos = nextArrivalTime.pos;
-              matched.push_back(nextArrivalTime);
-              //printf("====> departure %s \n", formatTime(departureTime.departure).c_str());
-              //printf("=====> arrival at %s to %s at %s\n", formatDateTime(departureTime.arrival).c_str(), vjId.c_str(), formatDateTime(arrivalTime.arrival).c_str());
-              queue.push(arrivalTime);
-              justPushed.push_back(arrivalTime);
-              if(head.stopId == vsId) {
-                auto vs = results.find(vsId);
-                vs->second.tripId = departureTime.tripId;
-                vs->second.arrival = departureTime.arrival;
-                vs->second.departure = departureTime.departure;
-                vs->second.pos = departureTime.pos;
+            if(it != vi.stopTimes.end()) {
+              if(viId == vsId) { // RECOVER DEPARTURE
+                gi.tripId = gj.tripId;
+                gi.departure = it->departure;
+                gi.arrival = it->arrival;
+                if(dateIsBeforeNotEq(gi.departure, gj.arrival) && timeIsBeforeNotEq(gi.departure, gj.arrival)) {
+                  gi.departure.tm_mday = gj.arrival.tm_mday;
+                }
+                if(dateIsBeforeNotEq(gi.arrival, gi.departure) && timeIsBeforeEq(gi.departure, gj.arrival)) {
+                  gi.arrival.tm_mday = gi.departure.tm_mday;
+                }
               }
-            } else {
-              //printf("--NONE--\n");
+              path.push_front(gi);
+              vj = getVerticeFromGraph(graph, gi.stopId);
+              break;
             }
           }
-
-          play::states.back().refineArrivalTimes.matched = matched;
-          play::states.back().refineArrivalTimes.pushed = justPushed;
-
-        } else {
-          //printf("\nEMPTY!");
         }
       }
     };
-    return results;
-  }
 
-  std::list<ArrivalTime> pathSelection(Graph *graph, std::map<std::string, ArrivalTime> *arrivalTimes, tm ts, std::string vsId, std::string veId) {
-    Vertice vs = getVerticeFromGraph(graph, vsId);
-    Vertice vj = getVerticeFromGraph(graph, veId);
-    ArrivalTime ge = (*arrivalTimes)[vj.id];
-    ArrivalTime gs = (*arrivalTimes)[vs.id];
-    std::list<ArrivalTime> path;
-    while(vj.id != vs.id) {
-      ArrivalTime gj = (*arrivalTimes)[vj.id];
-      std::list< std::pair<ArrivalTime, Vertice> > matched;
-      for (auto iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
-        std::string viId = *iterator;
-        Vertice vi = getVerticeFromGraph(graph, viId);
-        auto gi = arrivalTimes->find(viId);
-        if(gi != arrivalTimes->end()) {
-          auto found = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&gj](StopTime viStopTime) {
-            return viStopTime.tripId == gj.tripId && timeIsBeforeNotEq(viStopTime.departure, gj.arrival);
-          });
-          if(found != vi.stopTimes.end()) {
-            matched.push_back(std::make_pair(gi->second, vi));
-          }
-        }
-      }
-
-      if(!matched.empty()) {
-        matched.sort([](std::pair<ArrivalTime, Vertice> a, std::pair<ArrivalTime, Vertice> b) {
-            return a.first.pos >= b.first.pos;
-        });
-        vj = matched.front().second;
-        path.push_front(gj);
-      } else {
-        //printf("\n ERROR");
-        //ERROR
-        break;
-      }
-    }
-
-    path.push_front(gs);
     return path;
   }
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm at) {
-    auto arrivalTimes = refineArrivalTimes(handle, graph, calendarDates, vsId, veId, at);
-    play::serializeToFile(play::states);
-    return pathSelection(graph, &arrivalTimes, at, vsId, veId);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
+    auto arrivalTimes = refineArrivalTimes(handle, graph, calendarDates, vsId, veId, ts, te, maxStartingTimes);
+    return pathSelection(graph, &arrivalTimes, ts, vsId, veId);
   }
 }

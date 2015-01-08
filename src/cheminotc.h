@@ -51,6 +51,10 @@ namespace cheminotc {
     std::string direction;
   };
 
+  typedef std::map<time_t, ArrivalTime> ArrivalTimeFunc;
+
+  typedef std::map< std::string, ArrivalTimeFunc> ArrivalTimesFunc;
+
   tm getNow();
 
   sqlite3* openConnection(std::string path);
@@ -63,7 +67,19 @@ namespace cheminotc {
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm at);
+  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+
+  bool hasSameDateTime(const tm &a, const tm &b);
+
+  bool datetimeIsBeforeEq(const tm &a, const tm &b);
+
+  bool dateIsBeforeEq(const tm &a, const tm &b);
+
+  bool timeIsBeforeEq(const tm &a, const tm &b);
+
+  bool datetimeIsBeforeNotEq(const tm &a, const tm &b);
 
   std::string formatTime(tm time);
 
@@ -72,6 +88,8 @@ namespace cheminotc {
   std::string formatDateTime(tm datetime);
 
   tm asDateTime(time_t t);
+
+  tm addMinutes(tm datetime, int n);
 
   Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
 
