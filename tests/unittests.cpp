@@ -112,49 +112,49 @@ class GraphFixture : public testing::Test {
 //   EXPECT_EQ(false, cheminotc::datetimeIsBeforeNotEq(a, b));
 // }
 
-// TEST_F(GraphFixture, chartresParisAs6h30) {
+TEST_F(GraphFixture, chartresParisAs6h30) {
+  std::string chartres = "StopPoint:OCETrain TER-87478404";
+  std::string paris = "StopPoint:OCETrain TER-87391003";
+  struct tm ts = cheminotc::getNow();
+  ts.tm_hour = 0;
+  ts.tm_min = 0;
+  printf("-----------------> %s\n", cheminotc::formatDateTime(ts).c_str());
+  tm te = cheminotc::getNow();
+
+  te.tm_hour = 12;
+  te.tm_min = 0;
+  printf("-----------------> %s\n", cheminotc::formatDateTime(te).c_str());
+  auto results = cheminotc::lookForBestTrip(handle, &graph, &calendarDates, chartres, paris, ts, te, 1);
+  for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+    printf("%s - %s - %s || %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->arrival).c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
+  }
+  EXPECT_EQ(10, results.size());
+}
+
+// TEST_F(GraphFixture, chartresParis) {
 //   std::string chartres = "StopPoint:OCETrain TER-87394007";
 //   std::string paris = "StopPoint:OCETrain TER-87391003";
-//   struct tm ts = cheminotc::getNow();
-//   ts.tm_hour = 22;
-//   ts.tm_min = 5;
-//   printf("-----------------> %s\n", cheminotc::formatDateTime(ts).c_str());
-//   tm te = cheminotc::getNow();
 
-//   te.tm_hour = 22;
-//   te.tm_min = 35;
-//   printf("-----------------> %s\n", cheminotc::formatDateTime(te).c_str());
-//   auto results = cheminotc::lookForBestTrip(handle, &graph, &calendarDates, chartres, paris, ts, te, 1);
-//   for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-//     printf("%s - %s -%s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->arrival).c_str());
+//   struct tm today = cheminotc::getNow();
+//   today.tm_hour = 0;
+//   today.tm_min = 0;
+
+//   struct tm ts = today;
+//   struct tm te = cheminotc::addMinutes(ts, 30);
+
+//   while(ts.tm_mday < (today.tm_mday + 1)) {
+//     printf("\n################################################# \n");
+//     printf("###> %s %s\n", cheminotc::formatDateTime(ts).c_str(), cheminotc::formatDateTime(te).c_str());
+//     auto results = cheminotc::lookForBestTrip(handle, &graph, &calendarDates, chartres, paris, ts, te, 1);
+//     for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+//       printf("%s %s - %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
+//     }
+//     if(results.empty()) {
+//       ts = te;
+//     } else {
+//       ts = cheminotc::addMinutes(results.begin()->departure, 1);
+//     }
+//     te = cheminotc::addMinutes(ts, 30);
 //   }
-//   EXPECT_EQ(10, results.size());
+//   EXPECT_EQ(true, true);
 // }
-
-TEST_F(GraphFixture, chartresParis) {
-  std::string chartres = "StopPoint:OCETrain TER-87394007";
-  std::string paris = "StopPoint:OCETrain TER-87391003";
-
-  struct tm today = cheminotc::getNow();
-  today.tm_hour = 0;
-  today.tm_min = 0;
-
-  struct tm ts = today;
-  struct tm te = cheminotc::addMinutes(ts, 30);
-
-  while(ts.tm_mday < (today.tm_mday + 1)) {
-    printf("\n################################################# \n");
-    printf("###> %s %s\n", cheminotc::formatDateTime(ts).c_str(), cheminotc::formatDateTime(te).c_str());
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &calendarDates, chartres, paris, ts, te, 1);
-    for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
-      printf("%s %s - %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
-    }
-    if(results.empty()) {
-      ts = te;
-    } else {
-      ts = cheminotc::addMinutes(results.begin()->departure, 1);
-    }
-    te = cheminotc::addMinutes(ts, 30);
-  }
-  EXPECT_EQ(true, true);
-}

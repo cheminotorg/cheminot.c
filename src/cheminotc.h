@@ -40,7 +40,7 @@ namespace cheminotc {
 
   struct Calendar {
     std::string serviceId;
-    std::map<std::string, bool> week;
+    std::unordered_map<std::string, bool> week;
     tm startDate;
     tm endDate;
   };
@@ -53,7 +53,7 @@ namespace cheminotc {
 
   typedef std::map<time_t, ArrivalTime> ArrivalTimeFunc;
 
-  typedef std::map< std::string, ArrivalTimeFunc> ArrivalTimesFunc;
+  typedef std::unordered_map< std::string, ArrivalTimeFunc> ArrivalTimesFunc;
 
   tm getNow();
 
@@ -98,6 +98,4 @@ namespace cheminotc {
   Json::Value serializeStopTimes(std::list<StopTime> stopTimes);
 
   Json::Value serializeEdges(std::list<std::string> edges);
-
-  std::map<std::string, std::string> f();
 }

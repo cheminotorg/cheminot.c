@@ -277,7 +277,7 @@ namespace cheminotc {
 
   std::unique_ptr<Calendar> parseCalendar(m::cheminot::data::Calendar calendarBuf) {
     std::unique_ptr<Calendar> calendar(new Calendar());
-    std::map<std::string, bool> week;
+    std::unordered_map<std::string, bool> week;
     week["monday"] = calendarBuf.monday() == "1";
     week["tuesday"] = calendarBuf.tuesday() == "1";
     week["wednesday"] = calendarBuf.wednesday() == "1";
@@ -303,8 +303,8 @@ namespace cheminotc {
     return vertice;
   }
 
-  Trip parseTripRow(std::list< std::map<std::string, const void*> >::const_iterator it) {
-    std::map<std::string, const void*> row = *it;
+  Trip parseTripRow(std::list< std::unordered_map<std::string, const void*> >::const_iterator it) {
+    std::unordered_map<std::string, const void*> row = *it;
     Trip trip;
     trip.id = (const char*)row["id"];
     trip.direction = (const char*)row["direction"];
@@ -317,9 +317,9 @@ namespace cheminotc {
     return trip;
   }
 
-  std::map< std::string, const void*> parseRow(sqlite3_stmt *stmt) {
+  std::unordered_map< std::string, const void*> parseRow(sqlite3_stmt *stmt) {
     int cols = sqlite3_column_count(stmt);
-    std::map<std::string, const void*> row;
+    std::unordered_map<std::string, const void*> row;
     for(int col=0 ; col<cols; col++) {
       std::string name(sqlite3_column_name(stmt, col));
       const char *value = (const char *)sqlite3_column_text(stmt, col);
@@ -330,8 +330,8 @@ namespace cheminotc {
     return row;
   }
 
-  std::list< std::map<std::string, const void*> > executeSQL(sqlite3 *handle, std::string query) {
-    std::list< std::map <std::string, const void*> > results;
+  std::list< std::unordered_map<std::string, const void*> > executeSQL(sqlite3 *handle, std::string query) {
+    std::list< std::unordered_map <std::string, const void*> > results;
     sqlite3_stmt *stmt;
     sqlite3_prepare_v2(handle, query.c_str(),-1, &stmt, 0);
     int retval;
@@ -379,7 +379,7 @@ namespace cheminotc {
 
   std::string getVersion(sqlite3 *handle) {
     std::string query = "SELECT value FROM META WHERE key = 'version'";
-    std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
+    std::list< std::unordered_map<std::string, const void*> > results = executeSQL(handle, query);
     return (char *)results.front()["value"];
   }
 
@@ -391,8 +391,8 @@ namespace cheminotc {
     });
     if(!ids.empty()) {
       std::string query = "SELECT * FROM TRIPS WHERE id IN (" + values + ")";
-      std::list< std::map<std::string, const void*> > results = executeSQL(handle, query);
-      for (std::list< std::map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+      std::list< std::unordered_map<std::string, const void*> > results = executeSQL(handle, query);
+      for (std::list< std::unordered_map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
         trips.push_back(parseTripRow(iterator));
       }
     }
@@ -427,7 +427,7 @@ namespace cheminotc {
   }
 
   bool isTripValidToday(std::list<Trip>::const_iterator trip, tm when) {
-    std::map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
+    std::unordered_map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
     return trip->calendar->week[week[when.tm_wday]];
   }
 
@@ -450,8 +450,8 @@ namespace cheminotc {
     return false;
   }
 
-  std::map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, CalendarDates *calendarDates, tm when) {
-    std::map<std::string, bool> availablities;
+  std::unordered_map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, CalendarDates *calendarDates, tm when) {
+    std::unordered_map<std::string, bool> availablities;
     auto trips = getTripsByIds(handle, ids);
     for (std::list<Trip>::const_iterator iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator) {
       availablities[iterator->id] = isTripValidOn(iterator, calendarDates, when);
@@ -526,9 +526,9 @@ namespace cheminotc {
     return t;
   }
 
-  std::map<std::string, std::shared_ptr<QueueItem>> initTimeRefinement(sqlite3 *handle, Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, CalendarDates *calendarDates, Queue *queue, Vertice *vs, tm ts, std::list<tm> startingPeriod) {
+  std::unordered_map<std::string, std::shared_ptr<QueueItem>> initTimeRefinement(sqlite3 *handle, Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, CalendarDates *calendarDates, Queue *queue, Vertice *vs, tm ts, std::list<tm> startingPeriod) {
 
-    std::map<std::string, std::shared_ptr<QueueItem>> items;
+    std::unordered_map<std::string, std::shared_ptr<QueueItem>> items;
 
     ArrivalTimeFunc gsFunc;
     for (auto iterator = startingPeriod.begin(), end = startingPeriod.end(); iterator != end; ++iterator) {
@@ -649,7 +649,7 @@ namespace cheminotc {
     }
   }
 
-  bool isQueueItemOutdated(std::map<std::string, tm> *uptodate, std::shared_ptr<QueueItem> item) {
+  bool isQueueItemOutdated(std::unordered_map<std::string, tm> *uptodate, std::shared_ptr<QueueItem> item) {
     auto last = uptodate->find(item->stopId);
     if(last != uptodate->end()) {
       return !datetimeIsBeforeEq(item->gi, last->second);
@@ -709,7 +709,7 @@ namespace cheminotc {
   ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
     Queue queue;
     ArrivalTimesFunc arrivalTimesFunc;
-    std::map<std::string, tm> uptodate;
+    std::unordered_map<std::string, tm> uptodate;
     Vertice vs = getVerticeFromGraph(graph, vsId);
     std::list<tm> startingPeriod = getStartingPeriod(handle, calendarDates, &vs, ts, te, maxStartingTimes);
 
@@ -722,7 +722,7 @@ namespace cheminotc {
 
     //printf("####--> %lu StartingTimes %s to %s\n", startingPeriod.size(), formatDateTime(ts).c_str(), formatDateTime(te).c_str());
 
-    std::map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(handle, graph, &arrivalTimesFunc, calendarDates, &queue, &vs, ts, startingPeriod);
+    std::unordered_map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(handle, graph, &arrivalTimesFunc, calendarDates, &queue, &vs, ts, startingPeriod);
 
     while(queue.size() >= 2) {
       std::shared_ptr<QueueItem> qi = queue.top();
