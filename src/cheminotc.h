@@ -51,9 +51,11 @@ namespace cheminotc {
     std::string direction;
   };
 
-  typedef std::map<time_t, ArrivalTime> ArrivalTimeFunc;
+  typedef std::map<time_t, ArrivalTime> ArrivalTimeFunc; //TODO unordered_map
 
-  typedef std::unordered_map< std::string, ArrivalTimeFunc> ArrivalTimesFunc;
+  typedef std::unordered_map<std::string, ArrivalTimeFunc> ArrivalTimesFunc;
+
+  typedef std::unordered_map<std::string, std::shared_ptr<Vertice>> VerticesCache;
 
   tm getNow();
 
@@ -67,9 +69,9 @@ namespace cheminotc {
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, VerticesCache *verticesCache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, VerticesCache *verticesCache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
   bool hasSameDateTime(const tm &a, const tm &b);
 

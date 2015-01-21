@@ -3,8 +3,8 @@
 #include <sqlite3.h>
 
 int main(int argc, char **argv) {
-  std::string chartres = "StopPoint:OCETrain TER-87478404";
-  std::string paris = "StopPoint:OCETrain TER-87391003";
+  std::string start = "StopPoint:OCETrain TER-87478404";
+  std::string end = "StopPoint:OCETrain TER-87391003";
   struct tm ts = cheminotc::getNow();
   ts.tm_hour = 0;
   ts.tm_min = 0;
@@ -18,8 +18,9 @@ int main(int argc, char **argv) {
   cheminotc::CalendarDates calendarDates;
   cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", &graph);
   cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendar_dates", &calendarDates);
+  cheminotc::VerticesCache verticesCache;
 
-  auto results = cheminotc::lookForBestTrip(handle, &graph, &calendarDates, chartres, paris, ts, te, 1);
+  auto results = cheminotc::lookForBestTrip(handle, &graph, &verticesCache, &calendarDates, start, end, ts, te, 1);
 
   for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
     printf("%s - %s\n", iterator->stopId.c_str() , cheminotc::formatDateTime(iterator->arrival).c_str());
