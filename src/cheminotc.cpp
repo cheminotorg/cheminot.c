@@ -68,7 +68,7 @@ namespace cheminotc {
     return *(localtime (&t));
   }
 
-  time_t asTimestamp(tm a) {
+  time_t asTimestamp(tm a) { //TODO
     time_t timestamp = mktime(&a);
     return timestamp;
   }
@@ -389,16 +389,20 @@ namespace cheminotc {
     return (char *)results.front()["value"];
   }
 
-  std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids) {
+  std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids) { //TODO
     std::list<Trip> trips;
-    std::string values = std::accumulate(ids.begin(), ids.end(), (std::string)"", [](std::string acc, std::string id) {
-        std::string quoted = "'" + id + "'";
-        return (acc == "") ? quoted : (acc + ", " + quoted);
-    });
+
+    std::string values = "";
+    for (auto iterator = ids.begin(), end = ids.end(); iterator != end; ++iterator) {
+      std::string id = *iterator;
+      std::string quoted = "'" + id + "'";
+      values = (values == "") ? quoted : (values + ", " + quoted);
+    }
+
     if(!ids.empty()) {
       std::string query = "SELECT * FROM TRIPS WHERE id IN (" + values + ")";
       std::list< std::unordered_map<std::string, const void*> > results = executeSQL(handle, query);
-      for (std::list< std::unordered_map<std::string, const void*> >::const_iterator iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+      for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
         trips.push_back(parseTripRow(iterator));
       }
     }
@@ -416,7 +420,7 @@ namespace cheminotc {
     }
   };
 
-  bool isTripRemovedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, tm when) {
+  bool isTripRemovedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, const tm &when) {
     auto exceptions = getCalendarDatesByServiceId(calendarDates, trip->calendar->serviceId);
     auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](CalendarDate calendarDate) {
         return hasSameDate(calendarDate.date, when) && (calendarDate.exceptionType == 2);
@@ -424,7 +428,7 @@ namespace cheminotc {
     return it != exceptions.end();
   }
 
-  bool isTripAddedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, tm when) {
+  bool isTripAddedOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, const tm &when) {
     auto exceptions = getCalendarDatesByServiceId(calendarDates, trip->calendar->serviceId);
     auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](CalendarDate exception) {
         return hasSameDate(exception.date, when) && (exception.exceptionType == 1);
@@ -432,12 +436,12 @@ namespace cheminotc {
     return it != exceptions.end();
   }
 
-  bool isTripValidToday(std::list<Trip>::const_iterator trip, tm when) {
+  bool isTripValidToday(std::list<Trip>::const_iterator trip, const tm &when) {
     std::unordered_map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
     return trip->calendar->week[week[when.tm_wday]];
   }
 
-  bool isTripInPeriod(std::list<Trip>::const_iterator trip, tm when) {
+  bool isTripInPeriod(std::list<Trip>::const_iterator trip, const tm &when) {
     tm startDate = trip->calendar->startDate;
     tm endDate = trip->calendar->endDate;
     bool before = dateIsBeforeEq(startDate, when);
@@ -445,7 +449,7 @@ namespace cheminotc {
     return before && after;
   }
 
-  bool isTripValidOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, tm when) {
+  bool isTripValidOn(std::list<Trip>::const_iterator trip, CalendarDates *calendarDates, const tm &when) {
     if(trip->calendar != NULL) {
       bool removed = isTripRemovedOn(trip, calendarDates, when);
       bool added = isTripAddedOn(trip, calendarDates, when);
@@ -456,7 +460,7 @@ namespace cheminotc {
     return false;
   }
 
-  std::unordered_map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, CalendarDates *calendarDates, tm when) {
+  std::unordered_map<std::string, bool> tripsAvailability(sqlite3 *handle, std::list<std::string> ids, CalendarDates *calendarDates, const tm &when) { //TODO
     std::unordered_map<std::string, bool> availablities;
     auto trips = getTripsByIds(handle, ids);
     for (auto iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator) {
@@ -465,24 +469,25 @@ namespace cheminotc {
     return availablities;
   }
 
-  std::list<StopTime> orderStopTimesBy(std::list<StopTime> stopTimes, const tm &t) {
-    std::list<StopTime> stopTimesFromT = std::accumulate(stopTimes.begin(), stopTimes.end(), std::list<StopTime>(), [&t](std::list<StopTime> acc, StopTime stopTime) {
-        if(datetimeIsBeforeNotEq(stopTime.departure, t)) {
-          stopTime.departure = addDays(stopTime.departure, 1);
-          stopTime.arrival = addDays(stopTime.arrival, 1);
-        }
-        acc.push_back(stopTime);
-        return acc;
-    });
+  std::list<StopTime> orderStopTimesBy(std::list<StopTime> stopTimes, const tm &t) { //TODO
+    std::list<StopTime> stopTimesAt;
+    for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
+      StopTime stopTime = *iterator;
+      if(datetimeIsBeforeNotEq(stopTime.departure, t)) {
+        stopTime.departure = addDays(stopTime.departure, 1);
+        stopTime.arrival = addDays(stopTime.arrival, 1);
+      }
+      stopTimesAt.push_back(stopTime);
+    };
 
-    stopTimesFromT.sort([](const StopTime &a, const StopTime &b) {
+    stopTimesAt.sort([](const StopTime &a, const StopTime &b) {
       return datetimeIsBeforeEq(a.departure, b.departure);
     });
 
-    return stopTimesFromT;
+    return stopTimesAt;
   }
 
-  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, CalendarDates *calendarDates, tm arrivalTime, std::shared_ptr<Vertice> vi) {
+  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, CalendarDates *calendarDates, tm arrivalTime, std::shared_ptr<Vertice> vi) { //TODO
     std::list<StopTime> departures(orderStopTimesBy(vi->stopTimes, arrivalTime));
     departures.remove_if([&arrivalTime] (StopTime &stopTime) {
       return !(datetimeIsBeforeEq(arrivalTime, stopTime.departure) && !isTerminus(stopTime));
@@ -782,14 +787,13 @@ namespace cheminotc {
   }
 
   time_t getOptimalStartingTime(ArrivalTimeFunc *geFunc, std::string veId) {
-    std::pair<time_t, cheminotc::ArrivalTime> seed = *(geFunc->begin());
-    auto best = std::accumulate(std::next(geFunc->begin()), geFunc->end(), seed, [](std::pair<time_t, cheminotc::ArrivalTime> acc, std::pair<time_t, cheminotc::ArrivalTime> point) {
-      if(datetimeIsBeforeEq(point.second.arrival, acc.second.arrival)) {
-        return point;
-      } else {
-        return acc;
+    std::pair<time_t, cheminotc::ArrivalTime> best = *(geFunc->begin());
+    for (auto iterator = std::next(geFunc->begin()), end = geFunc->end(); iterator != end; ++iterator) {
+      std::pair<time_t, ArrivalTime> point = *iterator;
+      if(datetimeIsBeforeEq(point.second.arrival, best.second.arrival)) {
+        best = point;
       }
-    });
+    }
     return best.first;
   }
 
