@@ -74,25 +74,27 @@ namespace cheminotc {
   }
 
   tm addMinutes(tm datetime, int n) {
-    time_t t = asTimestamp(datetime);
-    t += (n * 60);
-    return asDateTime(t);
+    datetime.tm_min += n;
+    mktime(&datetime);
+    return datetime;
   }
 
   tm addHours(tm datetime, int n) {
-    time_t t = asTimestamp(datetime);
-    t += (n * 60 * 60);
-    return asDateTime(t);
+    datetime.tm_hour += n;
+    mktime(&datetime);
+    return datetime;
   }
 
   tm minusHours(tm datetime, int n) {
-    time_t t = asTimestamp(datetime);
-    t -= (n * 60 * 60);
-    return asDateTime(t);
+    datetime.tm_hour -= n;
+    mktime(&datetime);
+    return datetime;
   }
 
   tm addDays(tm datetime, int n) {
-    return addHours(datetime, 24 * n);
+    datetime.tm_mday += n;
+    mktime(&datetime);
+    return datetime;
   }
 
   bool hasSameTime(const tm &a, const tm &b) {
