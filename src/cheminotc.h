@@ -57,21 +57,21 @@ namespace cheminotc {
 
   typedef std::unordered_map<std::string, std::shared_ptr<Vertice>> VerticesCache;
 
+  typedef std::unordered_map<std::string, std::shared_ptr<Trip>> TripsCache;
+
   tm getNow();
 
   sqlite3* openConnection(std::string path);
 
   std::string getVersion(sqlite3 *handle);
 
-  std::list<Trip> getTripsByIds(sqlite3 *handle, std::list<std::string> ids);
-
   void parseGraph(std::string path, Graph *graph);
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, VerticesCache *verticesCache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, VerticesCache *verticesCache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
   bool hasSameDateTime(const tm &a, const tm &b);
 

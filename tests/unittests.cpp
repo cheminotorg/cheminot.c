@@ -125,7 +125,8 @@ TEST_F(GraphFixture, chartresParisAs6h30) {
   te.tm_min = 0;
   printf("-----------------> %s\n", cheminotc::formatDateTime(te).c_str());
   cheminotc::VerticesCache verticesCache;
-  auto results = cheminotc::lookForBestTrip(handle, &graph, &verticesCache, &calendarDates, chartres, paris, ts, te, 1);
+  cheminotc::TripsCache tripsCache;
+  auto results = cheminotc::lookForBestTrip(handle, &graph, &tripsCache, &verticesCache, &calendarDates, chartres, paris, ts, te, 1);
   for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
     printf("%s - %s - %s || %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->arrival).c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
   }
