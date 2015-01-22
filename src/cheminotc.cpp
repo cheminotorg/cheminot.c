@@ -512,7 +512,7 @@ namespace cheminotc {
 
   std::list<StopTime> getAvailableDepartures(sqlite3 *handle, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, tm arrivalTime, std::shared_ptr<Vertice> vi) { //TODO
     std::list<StopTime> departures(orderStopTimesBy(vi->stopTimes, arrivalTime));
-    departures.remove_if([&arrivalTime] (StopTime &stopTime) {
+    departures.remove_if([&arrivalTime] (const StopTime &stopTime) {
       return !(datetimeIsBeforeEq(arrivalTime, stopTime.departure) && !isTerminus(stopTime));
     });
 
@@ -677,8 +677,8 @@ namespace cheminotc {
       return { *startingPeriod.begin(), *startingPeriod.begin() };
     } else {
       startingPeriod.sort([](const tm &a, const tm &b) {
-          return datetimeIsBeforeEq(a, b);
-        });
+        return datetimeIsBeforeEq(a, b);
+      });
       return { *startingPeriod.begin(), *next(startingPeriod.begin()) };
     }
   }

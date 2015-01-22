@@ -64,11 +64,12 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       Graph_descriptor_,
       Graph::default_instance_,
       Graph_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Graph, _has_bits_[0]),
+      -1,
       -1,
       -1,
       sizeof(Graph),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Graph, _internal_metadata_));
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Graph, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Graph, _is_default_instance_));
   Graph_VerticesEntry_descriptor_ = Graph_descriptor_->nested_type(0);
   Vertice_descriptor_ = file->message_type(1);
   static const int Vertice_offsets_[4] = {
@@ -82,11 +83,12 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       Vertice_descriptor_,
       Vertice::default_instance_,
       Vertice_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, _has_bits_[0]),
+      -1,
       -1,
       -1,
       sizeof(Vertice),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, _internal_metadata_));
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, _is_default_instance_));
   StopTime_descriptor_ = file->message_type(2);
   static const int StopTime_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StopTime, tripid_),
@@ -100,11 +102,12 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       StopTime_descriptor_,
       StopTime::default_instance_,
       StopTime_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StopTime, _has_bits_[0]),
+      -1,
       -1,
       -1,
       sizeof(StopTime),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StopTime, _internal_metadata_));
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StopTime, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StopTime, _is_default_instance_));
   CalendarDates_descriptor_ = file->message_type(3);
   static const int CalendarDates_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDates, exceptionsbyserviceid_),
@@ -114,11 +117,12 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       CalendarDates_descriptor_,
       CalendarDates::default_instance_,
       CalendarDates_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDates, _has_bits_[0]),
+      -1,
       -1,
       -1,
       sizeof(CalendarDates),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDates, _internal_metadata_));
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDates, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDates, _is_default_instance_));
   CalendarDates_ExceptionsByServiceIdEntry_descriptor_ = CalendarDates_descriptor_->nested_type(0);
   CalendarExceptions_descriptor_ = file->message_type(4);
   static const int CalendarExceptions_offsets_[1] = {
@@ -129,11 +133,12 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       CalendarExceptions_descriptor_,
       CalendarExceptions::default_instance_,
       CalendarExceptions_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarExceptions, _has_bits_[0]),
+      -1,
       -1,
       -1,
       sizeof(CalendarExceptions),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarExceptions, _internal_metadata_));
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarExceptions, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarExceptions, _is_default_instance_));
   CalendarDate_descriptor_ = file->message_type(5);
   static const int CalendarDate_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDate, serviceid_),
@@ -145,11 +150,12 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       CalendarDate_descriptor_,
       CalendarDate::default_instance_,
       CalendarDate_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDate, _has_bits_[0]),
+      -1,
       -1,
       -1,
       sizeof(CalendarDate),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDate, _internal_metadata_));
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDate, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CalendarDate, _is_default_instance_));
   Calendar_descriptor_ = file->message_type(6);
   static const int Calendar_offsets_[10] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Calendar, serviceid_),
@@ -168,11 +174,12 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       Calendar_descriptor_,
       Calendar::default_instance_,
       Calendar_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Calendar, _has_bits_[0]),
+      -1,
       -1,
       -1,
       sizeof(Calendar),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Calendar, _internal_metadata_));
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Calendar, _internal_metadata_),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Calendar, _is_default_instance_));
 }
 
 namespace {
@@ -249,12 +256,12 @@ void protobuf_AddDesc_cheminotBuf_2eproto() {
     "\005Graph\0226\n\010vertices\030\001 \003(\0132$.m.cheminot.da"
     "ta.Graph.VerticesEntry\032I\n\rVerticesEntry\022"
     "\013\n\003key\030\001 \001(\t\022\'\n\005value\030\002 \001(\0132\030.m.cheminot"
-    ".data.Vertice:\0028\001\"`\n\007Vertice\022\n\n\002id\030\001 \002(\t"
-    "\022\014\n\004name\030\002 \002(\t\022\r\n\005edges\030\003 \003(\t\022,\n\tstopTim"
+    ".data.Vertice:\0028\001\"`\n\007Vertice\022\n\n\002id\030\001 \001(\t"
+    "\022\014\n\004name\030\002 \001(\t\022\r\n\005edges\030\003 \003(\t\022,\n\tstopTim"
     "es\030\004 \003(\0132\031.m.cheminot.data.StopTime\"[\n\010S"
-    "topTime\022\016\n\006tripId\030\001 \002(\t\022\017\n\007arrival\030\002 \002(\t"
-    "\022\021\n\tdeparture\030\003 \002(\t\022\016\n\006stopId\030\004 \002(\t\022\013\n\003p"
-    "os\030\005 \002(\005\"\314\001\n\rCalendarDates\022X\n\025exceptions"
+    "topTime\022\016\n\006tripId\030\001 \001(\t\022\017\n\007arrival\030\002 \001(\t"
+    "\022\021\n\tdeparture\030\003 \001(\t\022\016\n\006stopId\030\004 \001(\t\022\013\n\003p"
+    "os\030\005 \001(\005\"\314\001\n\rCalendarDates\022X\n\025exceptions"
     "ByServiceId\030\001 \003(\01329.m.cheminot.data.Cale"
     "ndarDates.ExceptionsByServiceIdEntry\032a\n\032"
     "ExceptionsByServiceIdEntry\022\013\n\003key\030\001 \001(\t\022"
@@ -262,12 +269,12 @@ void protobuf_AddDesc_cheminotBuf_2eproto() {
     "rExceptions:\0028\001\"J\n\022CalendarExceptions\0224\n"
     "\rcalendarDates\030\001 \003(\0132\035.m.cheminot.data.C"
     "alendarDate\"F\n\014CalendarDate\022\021\n\tserviceId"
-    "\030\001 \002(\t\022\014\n\004date\030\002 \002(\t\022\025\n\rexceptionType\030\003 "
-    "\002(\005\"\271\001\n\010Calendar\022\021\n\tserviceId\030\001 \002(\t\022\016\n\006m"
-    "onday\030\002 \002(\t\022\017\n\007tuesday\030\003 \002(\t\022\021\n\twednesda"
-    "y\030\004 \002(\t\022\020\n\010thursday\030\005 \002(\t\022\016\n\006friday\030\006 \002("
-    "\t\022\020\n\010saturday\030\007 \002(\t\022\016\n\006sunday\030\010 \002(\t\022\021\n\ts"
-    "tartDate\030\t \002(\t\022\017\n\007endDate\030\n \002(\t", 911);
+    "\030\001 \001(\t\022\014\n\004date\030\002 \001(\t\022\025\n\rexceptionType\030\003 "
+    "\001(\005\"\271\001\n\010Calendar\022\021\n\tserviceId\030\001 \001(\t\022\016\n\006m"
+    "onday\030\002 \001(\t\022\017\n\007tuesday\030\003 \001(\t\022\021\n\twednesda"
+    "y\030\004 \001(\t\022\020\n\010thursday\030\005 \001(\t\022\016\n\006friday\030\006 \001("
+    "\t\022\020\n\010saturday\030\007 \001(\t\022\016\n\006sunday\030\010 \001(\t\022\021\n\ts"
+    "tartDate\030\t \001(\t\022\017\n\007endDate\030\n \001(\tb\006proto3", 919);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "cheminotBuf.proto", &protobuf_RegisterTypes);
   Graph::default_instance_ = new Graph();
@@ -317,6 +324,7 @@ Graph::Graph()
 }
 
 void Graph::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
 }
 
 Graph::Graph(const Graph& from)
@@ -328,12 +336,12 @@ Graph::Graph(const Graph& from)
 }
 
 void Graph::SharedCtor() {
+    _is_default_instance_ = false;
   _cached_size_ = 0;
   vertices_.SetAssignDescriptorCallback(
       protobuf_AssignDescriptorsOnce);
   vertices_.SetEntryDescriptor(
       &::m::cheminot::data::Graph_VerticesEntry_descriptor_);
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Graph::~Graph() {
@@ -373,10 +381,6 @@ Graph* Graph::New(::google::protobuf::Arena* arena) const {
 
 void Graph::Clear() {
   vertices_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
 }
 
 bool Graph::MergePartialFromCodedStream(
@@ -412,8 +416,7 @@ bool Graph::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
         break;
       }
     }
@@ -441,10 +444,6 @@ void Graph::SerializeWithCachedSizes(
     }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.Graph)
 }
 
@@ -463,10 +462,6 @@ void Graph::SerializeWithCachedSizes(
     }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.Graph)
   return target;
 }
@@ -486,11 +481,6 @@ int Graph::ByteSize() const {
     }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -512,9 +502,6 @@ void Graph::MergeFrom(const ::google::protobuf::Message& from) {
 void Graph::MergeFrom(const Graph& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
   vertices_.MergeFrom(from.vertices_);
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
 }
 
 void Graph::CopyFrom(const ::google::protobuf::Message& from) {
@@ -531,7 +518,6 @@ void Graph::CopyFrom(const Graph& from) {
 
 bool Graph::IsInitialized() const {
 
-  if (!::google::protobuf::internal::AllAreInitialized(this->vertices())) return false;
   return true;
 }
 
@@ -541,7 +527,6 @@ void Graph::Swap(Graph* other) {
 }
 void Graph::InternalSwap(Graph* other) {
   vertices_.Swap(&other->vertices_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -571,6 +556,7 @@ Vertice::Vertice()
 }
 
 void Vertice::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
 }
 
 Vertice::Vertice(const Vertice& from)
@@ -582,11 +568,11 @@ Vertice::Vertice(const Vertice& from)
 }
 
 void Vertice::SharedCtor() {
+    _is_default_instance_ = false;
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Vertice::~Vertice() {
@@ -627,20 +613,10 @@ Vertice* Vertice::New(::google::protobuf::Arena* arena) const {
 }
 
 void Vertice::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_id()) {
-      id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_name()) {
-      name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-  }
+  id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   edges_.Clear();
   stoptimes_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
 }
 
 bool Vertice::MergePartialFromCodedStream(
@@ -653,7 +629,7 @@ bool Vertice::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string id = 1;
+      // optional string id = 1;
       case 1: {
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
@@ -669,7 +645,7 @@ bool Vertice::MergePartialFromCodedStream(
         break;
       }
 
-      // required string name = 2;
+      // optional string name = 2;
       case 2: {
         if (tag == 18) {
          parse_name:
@@ -726,8 +702,7 @@ bool Vertice::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
         break;
       }
     }
@@ -744,8 +719,8 @@ failure:
 void Vertice::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.Vertice)
-  // required string id = 1;
-  if (has_id()) {
+  // optional string id = 1;
+  if (this->id().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->id().data(), this->id().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -754,8 +729,8 @@ void Vertice::SerializeWithCachedSizes(
       1, this->id(), output);
   }
 
-  // required string name = 2;
-  if (has_name()) {
+  // optional string name = 2;
+  if (this->name().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -780,18 +755,14 @@ void Vertice::SerializeWithCachedSizes(
       4, this->stoptimes(i), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.Vertice)
 }
 
 ::google::protobuf::uint8* Vertice::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.Vertice)
-  // required string id = 1;
-  if (has_id()) {
+  // optional string id = 1;
+  if (this->id().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->id().data(), this->id().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -801,8 +772,8 @@ void Vertice::SerializeWithCachedSizes(
         1, this->id(), target);
   }
 
-  // required string name = 2;
-  if (has_name()) {
+  // optional string name = 2;
+  if (this->name().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -829,50 +800,27 @@ void Vertice::SerializeWithCachedSizes(
         4, this->stoptimes(i), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.Vertice)
   return target;
 }
 
-int Vertice::RequiredFieldsByteSizeFallback() const {
-  int total_size = 0;
-
-  if (has_id()) {
-    // required string id = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->id());
-  }
-
-  if (has_name()) {
-    // required string name = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->name());
-  }
-
-  return total_size;
-}
 int Vertice::ByteSize() const {
   int total_size = 0;
 
-  if (((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
-    // required string id = 1;
+  // optional string id = 1;
+  if (this->id().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->id());
+  }
 
-    // required string name = 2;
+  // optional string name = 2;
+  if (this->name().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->name());
-
-  } else {
-    total_size += RequiredFieldsByteSizeFallback();
   }
+
   // repeated string edges = 3;
   total_size += 1 * this->edges_size();
   for (int i = 0; i < this->edges_size(); i++) {
@@ -888,11 +836,6 @@ int Vertice::ByteSize() const {
         this->stoptimes(i));
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -915,18 +858,13 @@ void Vertice::MergeFrom(const Vertice& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
   edges_.MergeFrom(from.edges_);
   stoptimes_.MergeFrom(from.stoptimes_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_id()) {
-      set_has_id();
-      id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.id_);
-    }
-    if (from.has_name()) {
-      set_has_name();
-      name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
-    }
+  if (from.id().size() > 0) {
+
+    id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.id_);
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+  if (from.name().size() > 0) {
+
+    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
 }
 
@@ -943,9 +881,7 @@ void Vertice::CopyFrom(const Vertice& from) {
 }
 
 bool Vertice::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
 
-  if (!::google::protobuf::internal::AllAreInitialized(this->stoptimes())) return false;
   return true;
 }
 
@@ -958,7 +894,6 @@ void Vertice::InternalSwap(Vertice* other) {
   name_.Swap(&other->name_);
   edges_.UnsafeArenaSwap(&other->edges_);
   stoptimes_.UnsafeArenaSwap(&other->stoptimes_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -989,6 +924,7 @@ StopTime::StopTime()
 }
 
 void StopTime::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
 }
 
 StopTime::StopTime(const StopTime& from)
@@ -1000,6 +936,7 @@ StopTime::StopTime(const StopTime& from)
 }
 
 void StopTime::SharedCtor() {
+    _is_default_instance_ = false;
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   tripid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
@@ -1007,7 +944,6 @@ void StopTime::SharedCtor() {
   departure_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   stopid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   pos_ = 0;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 StopTime::~StopTime() {
@@ -1050,25 +986,11 @@ StopTime* StopTime::New(::google::protobuf::Arena* arena) const {
 }
 
 void StopTime::Clear() {
-  if (_has_bits_[0 / 32] & 31) {
-    if (has_tripid()) {
-      tripid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_arrival()) {
-      arrival_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_departure()) {
-      departure_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_stopid()) {
-      stopid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    pos_ = 0;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  tripid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  arrival_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  departure_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  stopid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  pos_ = 0;
 }
 
 bool StopTime::MergePartialFromCodedStream(
@@ -1081,7 +1003,7 @@ bool StopTime::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string tripId = 1;
+      // optional string tripId = 1;
       case 1: {
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
@@ -1097,7 +1019,7 @@ bool StopTime::MergePartialFromCodedStream(
         break;
       }
 
-      // required string arrival = 2;
+      // optional string arrival = 2;
       case 2: {
         if (tag == 18) {
          parse_arrival:
@@ -1114,7 +1036,7 @@ bool StopTime::MergePartialFromCodedStream(
         break;
       }
 
-      // required string departure = 3;
+      // optional string departure = 3;
       case 3: {
         if (tag == 26) {
          parse_departure:
@@ -1131,7 +1053,7 @@ bool StopTime::MergePartialFromCodedStream(
         break;
       }
 
-      // required string stopId = 4;
+      // optional string stopId = 4;
       case 4: {
         if (tag == 34) {
          parse_stopId:
@@ -1148,14 +1070,14 @@ bool StopTime::MergePartialFromCodedStream(
         break;
       }
 
-      // required int32 pos = 5;
+      // optional int32 pos = 5;
       case 5: {
         if (tag == 40) {
          parse_pos:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &pos_)));
-          set_has_pos();
+
         } else {
           goto handle_unusual;
         }
@@ -1170,8 +1092,7 @@ bool StopTime::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
         break;
       }
     }
@@ -1188,8 +1109,8 @@ failure:
 void StopTime::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.StopTime)
-  // required string tripId = 1;
-  if (has_tripid()) {
+  // optional string tripId = 1;
+  if (this->tripid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->tripid().data(), this->tripid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1198,8 +1119,8 @@ void StopTime::SerializeWithCachedSizes(
       1, this->tripid(), output);
   }
 
-  // required string arrival = 2;
-  if (has_arrival()) {
+  // optional string arrival = 2;
+  if (this->arrival().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->arrival().data(), this->arrival().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1208,8 +1129,8 @@ void StopTime::SerializeWithCachedSizes(
       2, this->arrival(), output);
   }
 
-  // required string departure = 3;
-  if (has_departure()) {
+  // optional string departure = 3;
+  if (this->departure().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->departure().data(), this->departure().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1218,8 +1139,8 @@ void StopTime::SerializeWithCachedSizes(
       3, this->departure(), output);
   }
 
-  // required string stopId = 4;
-  if (has_stopid()) {
+  // optional string stopId = 4;
+  if (this->stopid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->stopid().data(), this->stopid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1228,23 +1149,19 @@ void StopTime::SerializeWithCachedSizes(
       4, this->stopid(), output);
   }
 
-  // required int32 pos = 5;
-  if (has_pos()) {
+  // optional int32 pos = 5;
+  if (this->pos() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->pos(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.StopTime)
 }
 
 ::google::protobuf::uint8* StopTime::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.StopTime)
-  // required string tripId = 1;
-  if (has_tripid()) {
+  // optional string tripId = 1;
+  if (this->tripid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->tripid().data(), this->tripid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1254,8 +1171,8 @@ void StopTime::SerializeWithCachedSizes(
         1, this->tripid(), target);
   }
 
-  // required string arrival = 2;
-  if (has_arrival()) {
+  // optional string arrival = 2;
+  if (this->arrival().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->arrival().data(), this->arrival().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1265,8 +1182,8 @@ void StopTime::SerializeWithCachedSizes(
         2, this->arrival(), target);
   }
 
-  // required string departure = 3;
-  if (has_departure()) {
+  // optional string departure = 3;
+  if (this->departure().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->departure().data(), this->departure().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1276,8 +1193,8 @@ void StopTime::SerializeWithCachedSizes(
         3, this->departure(), target);
   }
 
-  // required string stopId = 4;
-  if (has_stopid()) {
+  // optional string stopId = 4;
+  if (this->stopid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->stopid().data(), this->stopid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -1287,96 +1204,53 @@ void StopTime::SerializeWithCachedSizes(
         4, this->stopid(), target);
   }
 
-  // required int32 pos = 5;
-  if (has_pos()) {
+  // optional int32 pos = 5;
+  if (this->pos() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->pos(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.StopTime)
   return target;
 }
 
-int StopTime::RequiredFieldsByteSizeFallback() const {
-  int total_size = 0;
-
-  if (has_tripid()) {
-    // required string tripId = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->tripid());
-  }
-
-  if (has_arrival()) {
-    // required string arrival = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->arrival());
-  }
-
-  if (has_departure()) {
-    // required string departure = 3;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->departure());
-  }
-
-  if (has_stopid()) {
-    // required string stopId = 4;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->stopid());
-  }
-
-  if (has_pos()) {
-    // required int32 pos = 5;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->pos());
-  }
-
-  return total_size;
-}
 int StopTime::ByteSize() const {
   int total_size = 0;
 
-  if (((_has_bits_[0] & 0x0000001f) ^ 0x0000001f) == 0) {  // All required fields are present.
-    // required string tripId = 1;
+  // optional string tripId = 1;
+  if (this->tripid().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->tripid());
+  }
 
-    // required string arrival = 2;
+  // optional string arrival = 2;
+  if (this->arrival().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->arrival());
+  }
 
-    // required string departure = 3;
+  // optional string departure = 3;
+  if (this->departure().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->departure());
+  }
 
-    // required string stopId = 4;
+  // optional string stopId = 4;
+  if (this->stopid().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->stopid());
+  }
 
-    // required int32 pos = 5;
+  // optional int32 pos = 5;
+  if (this->pos() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
         this->pos());
+  }
 
-  } else {
-    total_size += RequiredFieldsByteSizeFallback();
-  }
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -1397,29 +1271,24 @@ void StopTime::MergeFrom(const ::google::protobuf::Message& from) {
 
 void StopTime::MergeFrom(const StopTime& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_tripid()) {
-      set_has_tripid();
-      tripid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.tripid_);
-    }
-    if (from.has_arrival()) {
-      set_has_arrival();
-      arrival_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.arrival_);
-    }
-    if (from.has_departure()) {
-      set_has_departure();
-      departure_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.departure_);
-    }
-    if (from.has_stopid()) {
-      set_has_stopid();
-      stopid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stopid_);
-    }
-    if (from.has_pos()) {
-      set_pos(from.pos());
-    }
+  if (from.tripid().size() > 0) {
+
+    tripid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.tripid_);
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+  if (from.arrival().size() > 0) {
+
+    arrival_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.arrival_);
+  }
+  if (from.departure().size() > 0) {
+
+    departure_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.departure_);
+  }
+  if (from.stopid().size() > 0) {
+
+    stopid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.stopid_);
+  }
+  if (from.pos() != 0) {
+    set_pos(from.pos());
   }
 }
 
@@ -1436,7 +1305,6 @@ void StopTime::CopyFrom(const StopTime& from) {
 }
 
 bool StopTime::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000001f) != 0x0000001f) return false;
 
   return true;
 }
@@ -1451,7 +1319,6 @@ void StopTime::InternalSwap(StopTime* other) {
   departure_.Swap(&other->departure_);
   stopid_.Swap(&other->stopid_);
   std::swap(pos_, other->pos_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1478,6 +1345,7 @@ CalendarDates::CalendarDates()
 }
 
 void CalendarDates::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
 }
 
 CalendarDates::CalendarDates(const CalendarDates& from)
@@ -1489,12 +1357,12 @@ CalendarDates::CalendarDates(const CalendarDates& from)
 }
 
 void CalendarDates::SharedCtor() {
+    _is_default_instance_ = false;
   _cached_size_ = 0;
   exceptionsbyserviceid_.SetAssignDescriptorCallback(
       protobuf_AssignDescriptorsOnce);
   exceptionsbyserviceid_.SetEntryDescriptor(
       &::m::cheminot::data::CalendarDates_ExceptionsByServiceIdEntry_descriptor_);
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 CalendarDates::~CalendarDates() {
@@ -1534,10 +1402,6 @@ CalendarDates* CalendarDates::New(::google::protobuf::Arena* arena) const {
 
 void CalendarDates::Clear() {
   exceptionsbyserviceid_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
 }
 
 bool CalendarDates::MergePartialFromCodedStream(
@@ -1573,8 +1437,7 @@ bool CalendarDates::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
         break;
       }
     }
@@ -1602,10 +1465,6 @@ void CalendarDates::SerializeWithCachedSizes(
     }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.CalendarDates)
 }
 
@@ -1624,10 +1483,6 @@ void CalendarDates::SerializeWithCachedSizes(
     }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.CalendarDates)
   return target;
 }
@@ -1647,11 +1502,6 @@ int CalendarDates::ByteSize() const {
     }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -1673,9 +1523,6 @@ void CalendarDates::MergeFrom(const ::google::protobuf::Message& from) {
 void CalendarDates::MergeFrom(const CalendarDates& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
   exceptionsbyserviceid_.MergeFrom(from.exceptionsbyserviceid_);
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
 }
 
 void CalendarDates::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1692,7 +1539,6 @@ void CalendarDates::CopyFrom(const CalendarDates& from) {
 
 bool CalendarDates::IsInitialized() const {
 
-  if (!::google::protobuf::internal::AllAreInitialized(this->exceptionsbyserviceid())) return false;
   return true;
 }
 
@@ -1702,7 +1548,6 @@ void CalendarDates::Swap(CalendarDates* other) {
 }
 void CalendarDates::InternalSwap(CalendarDates* other) {
   exceptionsbyserviceid_.Swap(&other->exceptionsbyserviceid_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1729,6 +1574,7 @@ CalendarExceptions::CalendarExceptions()
 }
 
 void CalendarExceptions::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
 }
 
 CalendarExceptions::CalendarExceptions(const CalendarExceptions& from)
@@ -1740,8 +1586,8 @@ CalendarExceptions::CalendarExceptions(const CalendarExceptions& from)
 }
 
 void CalendarExceptions::SharedCtor() {
+    _is_default_instance_ = false;
   _cached_size_ = 0;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 CalendarExceptions::~CalendarExceptions() {
@@ -1781,10 +1627,6 @@ CalendarExceptions* CalendarExceptions::New(::google::protobuf::Arena* arena) co
 
 void CalendarExceptions::Clear() {
   calendardates_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
 }
 
 bool CalendarExceptions::MergePartialFromCodedStream(
@@ -1818,8 +1660,7 @@ bool CalendarExceptions::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
         break;
       }
     }
@@ -1842,10 +1683,6 @@ void CalendarExceptions::SerializeWithCachedSizes(
       1, this->calendardates(i), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.CalendarExceptions)
 }
 
@@ -1859,10 +1696,6 @@ void CalendarExceptions::SerializeWithCachedSizes(
         1, this->calendardates(i), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.CalendarExceptions)
   return target;
 }
@@ -1878,11 +1711,6 @@ int CalendarExceptions::ByteSize() const {
         this->calendardates(i));
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -1904,9 +1732,6 @@ void CalendarExceptions::MergeFrom(const ::google::protobuf::Message& from) {
 void CalendarExceptions::MergeFrom(const CalendarExceptions& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
   calendardates_.MergeFrom(from.calendardates_);
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
 }
 
 void CalendarExceptions::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1923,7 +1748,6 @@ void CalendarExceptions::CopyFrom(const CalendarExceptions& from) {
 
 bool CalendarExceptions::IsInitialized() const {
 
-  if (!::google::protobuf::internal::AllAreInitialized(this->calendardates())) return false;
   return true;
 }
 
@@ -1933,7 +1757,6 @@ void CalendarExceptions::Swap(CalendarExceptions* other) {
 }
 void CalendarExceptions::InternalSwap(CalendarExceptions* other) {
   calendardates_.UnsafeArenaSwap(&other->calendardates_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1962,6 +1785,7 @@ CalendarDate::CalendarDate()
 }
 
 void CalendarDate::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
 }
 
 CalendarDate::CalendarDate(const CalendarDate& from)
@@ -1973,12 +1797,12 @@ CalendarDate::CalendarDate(const CalendarDate& from)
 }
 
 void CalendarDate::SharedCtor() {
+    _is_default_instance_ = false;
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   serviceid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   date_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   exceptiontype_ = 0;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 CalendarDate::~CalendarDate() {
@@ -2019,19 +1843,9 @@ CalendarDate* CalendarDate::New(::google::protobuf::Arena* arena) const {
 }
 
 void CalendarDate::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_serviceid()) {
-      serviceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_date()) {
-      date_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    exceptiontype_ = 0;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  serviceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  date_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  exceptiontype_ = 0;
 }
 
 bool CalendarDate::MergePartialFromCodedStream(
@@ -2044,7 +1858,7 @@ bool CalendarDate::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string serviceId = 1;
+      // optional string serviceId = 1;
       case 1: {
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
@@ -2060,7 +1874,7 @@ bool CalendarDate::MergePartialFromCodedStream(
         break;
       }
 
-      // required string date = 2;
+      // optional string date = 2;
       case 2: {
         if (tag == 18) {
          parse_date:
@@ -2077,14 +1891,14 @@ bool CalendarDate::MergePartialFromCodedStream(
         break;
       }
 
-      // required int32 exceptionType = 3;
+      // optional int32 exceptionType = 3;
       case 3: {
         if (tag == 24) {
          parse_exceptionType:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &exceptiontype_)));
-          set_has_exceptiontype();
+
         } else {
           goto handle_unusual;
         }
@@ -2099,8 +1913,7 @@ bool CalendarDate::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
         break;
       }
     }
@@ -2117,8 +1930,8 @@ failure:
 void CalendarDate::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.CalendarDate)
-  // required string serviceId = 1;
-  if (has_serviceid()) {
+  // optional string serviceId = 1;
+  if (this->serviceid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->serviceid().data(), this->serviceid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2127,8 +1940,8 @@ void CalendarDate::SerializeWithCachedSizes(
       1, this->serviceid(), output);
   }
 
-  // required string date = 2;
-  if (has_date()) {
+  // optional string date = 2;
+  if (this->date().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->date().data(), this->date().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2137,23 +1950,19 @@ void CalendarDate::SerializeWithCachedSizes(
       2, this->date(), output);
   }
 
-  // required int32 exceptionType = 3;
-  if (has_exceptiontype()) {
+  // optional int32 exceptionType = 3;
+  if (this->exceptiontype() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->exceptiontype(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.CalendarDate)
 }
 
 ::google::protobuf::uint8* CalendarDate::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.CalendarDate)
-  // required string serviceId = 1;
-  if (has_serviceid()) {
+  // optional string serviceId = 1;
+  if (this->serviceid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->serviceid().data(), this->serviceid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2163,8 +1972,8 @@ void CalendarDate::SerializeWithCachedSizes(
         1, this->serviceid(), target);
   }
 
-  // required string date = 2;
-  if (has_date()) {
+  // optional string date = 2;
+  if (this->date().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->date().data(), this->date().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2174,72 +1983,39 @@ void CalendarDate::SerializeWithCachedSizes(
         2, this->date(), target);
   }
 
-  // required int32 exceptionType = 3;
-  if (has_exceptiontype()) {
+  // optional int32 exceptionType = 3;
+  if (this->exceptiontype() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->exceptiontype(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.CalendarDate)
   return target;
 }
 
-int CalendarDate::RequiredFieldsByteSizeFallback() const {
-  int total_size = 0;
-
-  if (has_serviceid()) {
-    // required string serviceId = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->serviceid());
-  }
-
-  if (has_date()) {
-    // required string date = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->date());
-  }
-
-  if (has_exceptiontype()) {
-    // required int32 exceptionType = 3;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->exceptiontype());
-  }
-
-  return total_size;
-}
 int CalendarDate::ByteSize() const {
   int total_size = 0;
 
-  if (((_has_bits_[0] & 0x00000007) ^ 0x00000007) == 0) {  // All required fields are present.
-    // required string serviceId = 1;
+  // optional string serviceId = 1;
+  if (this->serviceid().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->serviceid());
+  }
 
-    // required string date = 2;
+  // optional string date = 2;
+  if (this->date().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->date());
+  }
 
-    // required int32 exceptionType = 3;
+  // optional int32 exceptionType = 3;
+  if (this->exceptiontype() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
         this->exceptiontype());
+  }
 
-  } else {
-    total_size += RequiredFieldsByteSizeFallback();
-  }
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -2260,21 +2036,16 @@ void CalendarDate::MergeFrom(const ::google::protobuf::Message& from) {
 
 void CalendarDate::MergeFrom(const CalendarDate& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_serviceid()) {
-      set_has_serviceid();
-      serviceid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.serviceid_);
-    }
-    if (from.has_date()) {
-      set_has_date();
-      date_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.date_);
-    }
-    if (from.has_exceptiontype()) {
-      set_exceptiontype(from.exceptiontype());
-    }
+  if (from.serviceid().size() > 0) {
+
+    serviceid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.serviceid_);
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+  if (from.date().size() > 0) {
+
+    date_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.date_);
+  }
+  if (from.exceptiontype() != 0) {
+    set_exceptiontype(from.exceptiontype());
   }
 }
 
@@ -2291,7 +2062,6 @@ void CalendarDate::CopyFrom(const CalendarDate& from) {
 }
 
 bool CalendarDate::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
 
   return true;
 }
@@ -2304,7 +2074,6 @@ void CalendarDate::InternalSwap(CalendarDate* other) {
   serviceid_.Swap(&other->serviceid_);
   date_.Swap(&other->date_);
   std::swap(exceptiontype_, other->exceptiontype_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -2340,6 +2109,7 @@ Calendar::Calendar()
 }
 
 void Calendar::InitAsDefaultInstance() {
+  _is_default_instance_ = true;
 }
 
 Calendar::Calendar(const Calendar& from)
@@ -2351,6 +2121,7 @@ Calendar::Calendar(const Calendar& from)
 }
 
 void Calendar::SharedCtor() {
+    _is_default_instance_ = false;
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   serviceid_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
@@ -2363,7 +2134,6 @@ void Calendar::SharedCtor() {
   sunday_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   startdate_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   enddate_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Calendar::~Calendar() {
@@ -2412,44 +2182,16 @@ Calendar* Calendar::New(::google::protobuf::Arena* arena) const {
 }
 
 void Calendar::Clear() {
-  if (_has_bits_[0 / 32] & 255) {
-    if (has_serviceid()) {
-      serviceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_monday()) {
-      monday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_tuesday()) {
-      tuesday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_wednesday()) {
-      wednesday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_thursday()) {
-      thursday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_friday()) {
-      friday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_saturday()) {
-      saturday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_sunday()) {
-      sunday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-  }
-  if (_has_bits_[8 / 32] & 768) {
-    if (has_startdate()) {
-      startdate_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-    if (has_enddate()) {
-      enddate_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  serviceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  monday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  tuesday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  wednesday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  thursday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  friday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  saturday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  sunday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  startdate_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  enddate_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 bool Calendar::MergePartialFromCodedStream(
@@ -2462,7 +2204,7 @@ bool Calendar::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string serviceId = 1;
+      // optional string serviceId = 1;
       case 1: {
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
@@ -2478,7 +2220,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string monday = 2;
+      // optional string monday = 2;
       case 2: {
         if (tag == 18) {
          parse_monday:
@@ -2495,7 +2237,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string tuesday = 3;
+      // optional string tuesday = 3;
       case 3: {
         if (tag == 26) {
          parse_tuesday:
@@ -2512,7 +2254,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string wednesday = 4;
+      // optional string wednesday = 4;
       case 4: {
         if (tag == 34) {
          parse_wednesday:
@@ -2529,7 +2271,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string thursday = 5;
+      // optional string thursday = 5;
       case 5: {
         if (tag == 42) {
          parse_thursday:
@@ -2546,7 +2288,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string friday = 6;
+      // optional string friday = 6;
       case 6: {
         if (tag == 50) {
          parse_friday:
@@ -2563,7 +2305,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string saturday = 7;
+      // optional string saturday = 7;
       case 7: {
         if (tag == 58) {
          parse_saturday:
@@ -2580,7 +2322,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string sunday = 8;
+      // optional string sunday = 8;
       case 8: {
         if (tag == 66) {
          parse_sunday:
@@ -2597,7 +2339,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string startDate = 9;
+      // optional string startDate = 9;
       case 9: {
         if (tag == 74) {
          parse_startDate:
@@ -2614,7 +2356,7 @@ bool Calendar::MergePartialFromCodedStream(
         break;
       }
 
-      // required string endDate = 10;
+      // optional string endDate = 10;
       case 10: {
         if (tag == 82) {
          parse_endDate:
@@ -2638,8 +2380,7 @@ bool Calendar::MergePartialFromCodedStream(
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
           goto success;
         }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
         break;
       }
     }
@@ -2656,8 +2397,8 @@ failure:
 void Calendar::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.Calendar)
-  // required string serviceId = 1;
-  if (has_serviceid()) {
+  // optional string serviceId = 1;
+  if (this->serviceid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->serviceid().data(), this->serviceid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2666,8 +2407,8 @@ void Calendar::SerializeWithCachedSizes(
       1, this->serviceid(), output);
   }
 
-  // required string monday = 2;
-  if (has_monday()) {
+  // optional string monday = 2;
+  if (this->monday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->monday().data(), this->monday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2676,8 +2417,8 @@ void Calendar::SerializeWithCachedSizes(
       2, this->monday(), output);
   }
 
-  // required string tuesday = 3;
-  if (has_tuesday()) {
+  // optional string tuesday = 3;
+  if (this->tuesday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->tuesday().data(), this->tuesday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2686,8 +2427,8 @@ void Calendar::SerializeWithCachedSizes(
       3, this->tuesday(), output);
   }
 
-  // required string wednesday = 4;
-  if (has_wednesday()) {
+  // optional string wednesday = 4;
+  if (this->wednesday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->wednesday().data(), this->wednesday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2696,8 +2437,8 @@ void Calendar::SerializeWithCachedSizes(
       4, this->wednesday(), output);
   }
 
-  // required string thursday = 5;
-  if (has_thursday()) {
+  // optional string thursday = 5;
+  if (this->thursday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->thursday().data(), this->thursday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2706,8 +2447,8 @@ void Calendar::SerializeWithCachedSizes(
       5, this->thursday(), output);
   }
 
-  // required string friday = 6;
-  if (has_friday()) {
+  // optional string friday = 6;
+  if (this->friday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->friday().data(), this->friday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2716,8 +2457,8 @@ void Calendar::SerializeWithCachedSizes(
       6, this->friday(), output);
   }
 
-  // required string saturday = 7;
-  if (has_saturday()) {
+  // optional string saturday = 7;
+  if (this->saturday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->saturday().data(), this->saturday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2726,8 +2467,8 @@ void Calendar::SerializeWithCachedSizes(
       7, this->saturday(), output);
   }
 
-  // required string sunday = 8;
-  if (has_sunday()) {
+  // optional string sunday = 8;
+  if (this->sunday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->sunday().data(), this->sunday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2736,8 +2477,8 @@ void Calendar::SerializeWithCachedSizes(
       8, this->sunday(), output);
   }
 
-  // required string startDate = 9;
-  if (has_startdate()) {
+  // optional string startDate = 9;
+  if (this->startdate().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->startdate().data(), this->startdate().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2746,8 +2487,8 @@ void Calendar::SerializeWithCachedSizes(
       9, this->startdate(), output);
   }
 
-  // required string endDate = 10;
-  if (has_enddate()) {
+  // optional string endDate = 10;
+  if (this->enddate().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->enddate().data(), this->enddate().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2756,18 +2497,14 @@ void Calendar::SerializeWithCachedSizes(
       10, this->enddate(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.Calendar)
 }
 
 ::google::protobuf::uint8* Calendar::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.Calendar)
-  // required string serviceId = 1;
-  if (has_serviceid()) {
+  // optional string serviceId = 1;
+  if (this->serviceid().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->serviceid().data(), this->serviceid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2777,8 +2514,8 @@ void Calendar::SerializeWithCachedSizes(
         1, this->serviceid(), target);
   }
 
-  // required string monday = 2;
-  if (has_monday()) {
+  // optional string monday = 2;
+  if (this->monday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->monday().data(), this->monday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2788,8 +2525,8 @@ void Calendar::SerializeWithCachedSizes(
         2, this->monday(), target);
   }
 
-  // required string tuesday = 3;
-  if (has_tuesday()) {
+  // optional string tuesday = 3;
+  if (this->tuesday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->tuesday().data(), this->tuesday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2799,8 +2536,8 @@ void Calendar::SerializeWithCachedSizes(
         3, this->tuesday(), target);
   }
 
-  // required string wednesday = 4;
-  if (has_wednesday()) {
+  // optional string wednesday = 4;
+  if (this->wednesday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->wednesday().data(), this->wednesday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2810,8 +2547,8 @@ void Calendar::SerializeWithCachedSizes(
         4, this->wednesday(), target);
   }
 
-  // required string thursday = 5;
-  if (has_thursday()) {
+  // optional string thursday = 5;
+  if (this->thursday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->thursday().data(), this->thursday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2821,8 +2558,8 @@ void Calendar::SerializeWithCachedSizes(
         5, this->thursday(), target);
   }
 
-  // required string friday = 6;
-  if (has_friday()) {
+  // optional string friday = 6;
+  if (this->friday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->friday().data(), this->friday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2832,8 +2569,8 @@ void Calendar::SerializeWithCachedSizes(
         6, this->friday(), target);
   }
 
-  // required string saturday = 7;
-  if (has_saturday()) {
+  // optional string saturday = 7;
+  if (this->saturday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->saturday().data(), this->saturday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2843,8 +2580,8 @@ void Calendar::SerializeWithCachedSizes(
         7, this->saturday(), target);
   }
 
-  // required string sunday = 8;
-  if (has_sunday()) {
+  // optional string sunday = 8;
+  if (this->sunday().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->sunday().data(), this->sunday().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2854,8 +2591,8 @@ void Calendar::SerializeWithCachedSizes(
         8, this->sunday(), target);
   }
 
-  // required string startDate = 9;
-  if (has_startdate()) {
+  // optional string startDate = 9;
+  if (this->startdate().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->startdate().data(), this->startdate().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2865,8 +2602,8 @@ void Calendar::SerializeWithCachedSizes(
         9, this->startdate(), target);
   }
 
-  // required string endDate = 10;
-  if (has_enddate()) {
+  // optional string endDate = 10;
+  if (this->enddate().size() > 0) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->enddate().data(), this->enddate().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
@@ -2876,151 +2613,83 @@ void Calendar::SerializeWithCachedSizes(
         10, this->enddate(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.Calendar)
   return target;
 }
 
-int Calendar::RequiredFieldsByteSizeFallback() const {
-  int total_size = 0;
-
-  if (has_serviceid()) {
-    // required string serviceId = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->serviceid());
-  }
-
-  if (has_monday()) {
-    // required string monday = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->monday());
-  }
-
-  if (has_tuesday()) {
-    // required string tuesday = 3;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->tuesday());
-  }
-
-  if (has_wednesday()) {
-    // required string wednesday = 4;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->wednesday());
-  }
-
-  if (has_thursday()) {
-    // required string thursday = 5;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->thursday());
-  }
-
-  if (has_friday()) {
-    // required string friday = 6;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->friday());
-  }
-
-  if (has_saturday()) {
-    // required string saturday = 7;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->saturday());
-  }
-
-  if (has_sunday()) {
-    // required string sunday = 8;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->sunday());
-  }
-
-  if (has_startdate()) {
-    // required string startDate = 9;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->startdate());
-  }
-
-  if (has_enddate()) {
-    // required string endDate = 10;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->enddate());
-  }
-
-  return total_size;
-}
 int Calendar::ByteSize() const {
   int total_size = 0;
 
-  if (((_has_bits_[0] & 0x000003ff) ^ 0x000003ff) == 0) {  // All required fields are present.
-    // required string serviceId = 1;
+  // optional string serviceId = 1;
+  if (this->serviceid().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->serviceid());
+  }
 
-    // required string monday = 2;
+  // optional string monday = 2;
+  if (this->monday().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->monday());
+  }
 
-    // required string tuesday = 3;
+  // optional string tuesday = 3;
+  if (this->tuesday().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->tuesday());
+  }
 
-    // required string wednesday = 4;
+  // optional string wednesday = 4;
+  if (this->wednesday().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->wednesday());
+  }
 
-    // required string thursday = 5;
+  // optional string thursday = 5;
+  if (this->thursday().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->thursday());
+  }
 
-    // required string friday = 6;
+  // optional string friday = 6;
+  if (this->friday().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->friday());
+  }
 
-    // required string saturday = 7;
+  // optional string saturday = 7;
+  if (this->saturday().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->saturday());
+  }
 
-    // required string sunday = 8;
+  // optional string sunday = 8;
+  if (this->sunday().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->sunday());
+  }
 
-    // required string startDate = 9;
+  // optional string startDate = 9;
+  if (this->startdate().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->startdate());
+  }
 
-    // required string endDate = 10;
+  // optional string endDate = 10;
+  if (this->enddate().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->enddate());
+  }
 
-  } else {
-    total_size += RequiredFieldsByteSizeFallback();
-  }
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = total_size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
@@ -3041,52 +2710,45 @@ void Calendar::MergeFrom(const ::google::protobuf::Message& from) {
 
 void Calendar::MergeFrom(const Calendar& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_serviceid()) {
-      set_has_serviceid();
-      serviceid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.serviceid_);
-    }
-    if (from.has_monday()) {
-      set_has_monday();
-      monday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.monday_);
-    }
-    if (from.has_tuesday()) {
-      set_has_tuesday();
-      tuesday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.tuesday_);
-    }
-    if (from.has_wednesday()) {
-      set_has_wednesday();
-      wednesday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.wednesday_);
-    }
-    if (from.has_thursday()) {
-      set_has_thursday();
-      thursday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.thursday_);
-    }
-    if (from.has_friday()) {
-      set_has_friday();
-      friday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.friday_);
-    }
-    if (from.has_saturday()) {
-      set_has_saturday();
-      saturday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.saturday_);
-    }
-    if (from.has_sunday()) {
-      set_has_sunday();
-      sunday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.sunday_);
-    }
+  if (from.serviceid().size() > 0) {
+
+    serviceid_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.serviceid_);
   }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    if (from.has_startdate()) {
-      set_has_startdate();
-      startdate_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.startdate_);
-    }
-    if (from.has_enddate()) {
-      set_has_enddate();
-      enddate_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.enddate_);
-    }
+  if (from.monday().size() > 0) {
+
+    monday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.monday_);
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+  if (from.tuesday().size() > 0) {
+
+    tuesday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.tuesday_);
+  }
+  if (from.wednesday().size() > 0) {
+
+    wednesday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.wednesday_);
+  }
+  if (from.thursday().size() > 0) {
+
+    thursday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.thursday_);
+  }
+  if (from.friday().size() > 0) {
+
+    friday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.friday_);
+  }
+  if (from.saturday().size() > 0) {
+
+    saturday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.saturday_);
+  }
+  if (from.sunday().size() > 0) {
+
+    sunday_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.sunday_);
+  }
+  if (from.startdate().size() > 0) {
+
+    startdate_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.startdate_);
+  }
+  if (from.enddate().size() > 0) {
+
+    enddate_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.enddate_);
   }
 }
 
@@ -3103,7 +2765,6 @@ void Calendar::CopyFrom(const Calendar& from) {
 }
 
 bool Calendar::IsInitialized() const {
-  if ((_has_bits_[0] & 0x000003ff) != 0x000003ff) return false;
 
   return true;
 }
@@ -3123,7 +2784,6 @@ void Calendar::InternalSwap(Calendar* other) {
   sunday_.Swap(&other->sunday_);
   startdate_.Swap(&other->startdate_);
   enddate_.Swap(&other->enddate_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
 }
