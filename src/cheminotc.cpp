@@ -167,11 +167,12 @@ namespace cheminotc {
     return datetimeIsBeforeEq(a, b) && !hasSameDateTime(a, b);
   }
 
-  Json::Value serializeArrivalTime(ArrivalTime arrivalTime) {
+  Json::Value serializeArrivalTime(Graph *graph, VerticesCache *verticesCache, ArrivalTime arrivalTime) {
     Json::Value json;
     int arrival = asTimestamp(arrivalTime.arrival);
     int departure = asTimestamp(arrivalTime.departure);
     json["stopId"] = arrivalTime.stopId;
+    json["stopName"] = cheminotc::getVerticeFromGraph(graph, verticesCache, arrivalTime.stopId)->name;
     json["arrival"] = arrival;
     json["departure"] = departure;
     json["tripId"] = arrivalTime.tripId;
@@ -179,34 +180,13 @@ namespace cheminotc {
     return json;
   }
 
-  Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes) {
+  Json::Value serializeArrivalTimes(Graph *graph, VerticesCache *verticesCache, std::list<ArrivalTime> arrivalTimes) {
     Json::Value array;
     for(auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
       ArrivalTime arrivalTime = *iterator;
-      array.append(serializeArrivalTime(arrivalTime));
+      array.append(serializeArrivalTime(graph, verticesCache, arrivalTime));
     }
     return array;
-  }
-
-  std::string formatArrivalTime(ArrivalTime arrivalTime) {
-    Json::Value serialized = serializeArrivalTime(arrivalTime);
-    return serialized.toStyledString();
-  }
-
-  std::string formatArrivalTimes(std::list<ArrivalTime> arrivalTimes) {
-    return serializeArrivalTimes(arrivalTimes).toStyledString();
-  }
-
-  Json::Value serializeEdges(std::list<std::string> edges) {
-    Json::Value array;
-    for (auto iterator = edges.begin(), end = edges.end(); iterator != end; ++iterator) {
-      array.append(*iterator);
-    }
-    return array;
-  }
-
-  std::string formatEdges(std::list<std::string> edges) {
-    return serializeEdges(edges).toStyledString();
   }
 
   Json::Value serializeStopTime(StopTime *stopTime) {
@@ -740,7 +720,7 @@ namespace cheminotc {
     }
   }
 
-  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
+  ArrivalTimesFunc refineArrivalTimes(Tracker *tracker, sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
     Queue queue;
     ArrivalTimesFunc arrivalTimesFunc;
     std::unordered_map<std::string, tm> uptodate;
@@ -758,7 +738,7 @@ namespace cheminotc {
 
     std::unordered_map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(handle, graph, &arrivalTimesFunc, calendarDates, &queue, vs, ts, startingPeriod);
 
-    while(queue.size() >= 2) {
+    while(!tracker->abort && queue.size() >= 2) {
       std::shared_ptr<QueueItem> qi = queue.top();
       std::shared_ptr<Vertice> vi = getVerticeFromGraph(graph, verticesCache, qi->stopId);
       queue.pop();
@@ -886,8 +866,8 @@ namespace cheminotc {
     return path;
   }
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
-    auto arrivalTimes = refineArrivalTimes(handle, graph, tripsCache, verticesCache, calendarDates, calendarDatesCache, vsId, veId, ts, te, maxStartingTimes);
+  std::list<ArrivalTime> lookForBestTrip(Tracker *tracker, sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
+    auto arrivalTimes = refineArrivalTimes(tracker, handle, graph, tripsCache, verticesCache, calendarDates, calendarDatesCache, vsId, veId, ts, te, maxStartingTimes);
     return pathSelection(graph, verticesCache, &arrivalTimes, ts, vsId, veId);
   }
 }

@@ -10,6 +10,10 @@ namespace cheminotc {
   typedef google::protobuf::Map< std::string,m::cheminot::data::Vertice> Graph;
   typedef google::protobuf::Map<std::string,m::cheminot::data::CalendarExceptions> CalendarDates;
 
+  struct Tracker {
+    bool abort;
+  };
+
   struct StopTime {
     std::string tripId;
     tm arrival;
@@ -71,9 +75,9 @@ namespace cheminotc {
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-  ArrivalTimesFunc refineArrivalTimes(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  ArrivalTimesFunc refineArrivalTimes(Tracker *tracker, sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
-  std::list<ArrivalTime> lookForBestTrip(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  std::list<ArrivalTime> lookForBestTrip(Tracker *tracker, sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
   bool hasSameDateTime(const tm &a, const tm &b);
 
@@ -97,11 +101,7 @@ namespace cheminotc {
 
   tm addHours(tm datetime, int n);
 
-  Json::Value serializeArrivalTimes(std::list<ArrivalTime> arrivalTimes);
+  Json::Value serializeArrivalTimes(Graph *graph, VerticesCache *verticesCache, std::list<ArrivalTime> arrivalTimes);
 
-  Json::Value serializeArrivalTime(ArrivalTime arrivalTime);
-
-  Json::Value serializeStopTimes(std::list<StopTime> stopTimes);
-
-  Json::Value serializeEdges(std::list<std::string> edges);
+  std::shared_ptr<Vertice> getVerticeFromGraph(Graph *graph, VerticesCache *verticesCache, std::string id);
 }
