@@ -251,12 +251,21 @@ namespace cheminotc {
     return stopTimes;
   }
 
-  std::list<std::string> parseEdges(google::protobuf::RepeatedPtrField< std::string > edgesBuf) {
+  std::list<std::string> parseTripStopIds(m::cheminot::data::TripStopIds tripStopIdsBuf) {
     std::list<std::string> stopIds;
-    for(auto iterator = edgesBuf.begin(), end = edgesBuf.end(); iterator != end; ++iterator) {
+    auto stopids = tripStopIdsBuf.stopids();
+    for(auto iterator = stopids.begin(), end = stopids.end(); iterator != end; ++iterator) {
       stopIds.push_back(*iterator);
     }
     return stopIds;
+  }
+
+  std::list<std::string> parseEdges(google::protobuf::RepeatedPtrField< std::string > edgesBuf) {
+    std::list<std::string> edges;
+    for(auto iterator = edgesBuf.begin(), end = edgesBuf.end(); iterator != end; ++iterator) {
+      edges.push_back(*iterator);
+    }
+    return edges;
   }
 
   std::unique_ptr<Calendar> parseCalendar(m::cheminot::data::Calendar calendarBuf) {
@@ -300,6 +309,14 @@ namespace cheminotc {
     std::shared_ptr<Trip> trip {new Trip};
     trip->id = (const char*)row["id"];
     trip->direction = (const char*)row["direction"];
+
+    const char* stopIds = (const char*)row["stopIds"];
+    if(stopIds != NULL) {
+      m::cheminot::data::TripStopIds tripStopIdsBuf;
+      tripStopIdsBuf.ParseFromString(stopIds);
+      trip->stopIds = parseTripStopIds(tripStopIdsBuf);
+    }
+
     const char *calendar = (const char*)row["calendar"];
     if(calendar != NULL) {
       m::cheminot::data::Calendar calendarBuf;
@@ -373,6 +390,23 @@ namespace cheminotc {
     std::string query = "SELECT value FROM META WHERE key = 'version'";
     std::list< std::unordered_map<std::string, const void*> > results = executeSQL(handle, query);
     return (char *)results.front()["value"];
+  }
+
+  std::list<std::shared_ptr<Trip>> getDirectTrips(sqlite3 *handle, TripsCache *tripsCache, std::string vsId, std::string veId) {
+    std::string query = "SELECT a.* FROM TRIPS "
+      "a INNER JOIN TRIPS_STOPS b ON a.id = b.tripId "
+      "WHERE b.stopId = '" + vsId + "' OR b.stopId = '" + veId + "'GROUP BY b.tripId HAVING COUNT(*) = 2";
+
+    std::list<std::shared_ptr<Trip>> trips;
+    auto results = executeSQL(handle, query);
+    for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+      std::shared_ptr<Trip> trip = parseTripRow(iterator);
+      if(tripsCache->find(trip->id) == tripsCache->end()) {
+        (*tripsCache)[trip->id] = trip;
+      }
+      trips.push_back(trip);
+    }
+    return trips;
   }
 
   std::list<std::shared_ptr<Trip>> getTripsByIds(sqlite3 *handle, TripsCache *tripsCache, std::list<std::string> ids) {
@@ -488,8 +522,8 @@ namespace cheminotc {
     return stopTimesAt;
   }
 
-  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, tm arrivalTime, std::shared_ptr<Vertice> vi) { //TODO
-    std::list<StopTime> departures(orderStopTimesBy(vi->stopTimes, arrivalTime));
+  std::list<StopTime> getAvailableDepartures(sqlite3 *handle, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, tm arrivalTime, std::shared_ptr<Vertice> vi) {
+    std::list<StopTime> departures(orderStopTimesBy(vi->stopTimes, arrivalTime)); //HERE
     departures.remove_if([&arrivalTime] (const StopTime &stopTime) {
       return !(datetimeIsBeforeEq(arrivalTime, stopTime.departure) && !isTerminus(stopTime));
     });
@@ -584,7 +618,7 @@ namespace cheminotc {
     if(qi->stopId == vsId) {
       return te;
     } else {
-      std::list<StopTime> viArrivalTimes(orderStopTimesBy(vi->stopTimes, t));
+      std::list<StopTime> viArrivalTimes(orderStopTimesBy(vi->stopTimes, t)); //HERE
       time_t wfi = LONG_MAX;
       for (auto iterator = vi->edges.begin(), end = vi->edges.end(); iterator != end; ++iterator) {
         std::string edge = *iterator;
@@ -642,9 +676,7 @@ namespace cheminotc {
     std::list<tm> startingPeriod;
     for (auto iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
       StopTime departureTime = *iterator;
-      //printf("-> %s\n", formatDateTime(iterator->departure).c_str());
       if(datetimeIsBeforeEq(departureTime.departure, te) && (startingPeriod.size() < maxStartingTimes)) {
-        //printf("pushed %s \n", iterator->tripId.c_str());
         startingPeriod.push_back(departureTime.departure);
       }
     }
@@ -672,7 +704,7 @@ namespace cheminotc {
 
   StopTime getEarliestArrivalTime(sqlite3 *handle, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::shared_ptr<Vertice> vi, std::shared_ptr<Vertice> vj, ArrivalTime *gi) {
     std::list<StopTime> viDepartures = getAvailableDepartures(handle, tripsCache, calendarDates, calendarDatesCache, gi->arrival, vi);
-    std::list<StopTime> vjStopTimes(orderStopTimesBy(vj->stopTimes, gi->arrival));
+    std::list<StopTime> vjStopTimes(orderStopTimesBy(vj->stopTimes, gi->arrival)); //HERE
     StopTime earliestArrivalTime;
     earliestArrivalTime.arrival = infinite();
     for(auto iterator = viDepartures.begin(), end = viDepartures.end(); iterator != end; ++iterator) {
@@ -732,16 +764,12 @@ namespace cheminotc {
     ts = *startingPeriod.begin();
     te = *(std::prev(startingPeriod.end()));
 
-    //printf("####--> %lu StartingTimes %s to %s\n", startingPeriod.size(), formatDateTime(ts).c_str(), formatDateTime(te).c_str());
-
     std::unordered_map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(handle, graph, &arrivalTimesFunc, calendarDates, &queue, vs, ts, startingPeriod);
 
     while(!tracker->abort && queue.size() >= 2) {
       std::shared_ptr<QueueItem> qi = queue.top();
       std::shared_ptr<Vertice> vi = getVerticeFromGraph(&ts, graph, verticesCache, qi->stopId);
       queue.pop();
-
-      //printf("@@@@@@@@@@@@@@@@ Trip %s Stop %s - %s\n", qi->tripId.c_str(), qi->stopId.c_str(), formatDateTime(qi->gi).c_str());
 
       if(!isQueueItemOutdated(&uptodate, qi)) {
         std::shared_ptr<QueueItem> qk = queue.top();
@@ -862,6 +890,72 @@ namespace cheminotc {
     };
 
     return path;
+  }
+
+  std::list<ArrivalTime> lookForBestDirectTrip(sqlite3 *handle, Graph *graph, VerticesCache *verticesCache, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te) {
+    std::shared_ptr<Vertice> vs = getVerticeFromGraph(&ts, graph, verticesCache, vsId);
+    std::shared_ptr<Vertice> ve = getVerticeFromGraph(&ts, graph, verticesCache, veId);
+    std::list<std::shared_ptr<Trip>> trips = getDirectTrips(handle, tripsCache, vsId, veId);
+    std::pair<std::shared_ptr<Trip>, StopTime> bestTrip;
+    bool hasBestTrip = false;
+    for(auto iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator) {
+      std::shared_ptr<Trip> trip = *iterator;
+      if(isTripValidOn(trip, calendarDates, calendarDatesCache, ts)) {
+        auto veIt = std::find_if(ve->stopTimes.begin(), ve->stopTimes.end(), [&trip](const StopTime &stopTime) {
+          return stopTime.tripId == trip->id;
+        });
+        auto vsIt = std::find_if(vs->stopTimes.begin(), vs->stopTimes.end(), [&trip](const StopTime &stopTime) {
+          return stopTime.tripId == trip->id;
+        });
+        if(vsIt != vs->stopTimes.end() && veIt != ve->stopTimes.end()) {
+          StopTime stopTimeVs = *vsIt;
+          StopTime stopTimeVe = *veIt;
+          if(stopTimeVs.pos < stopTimeVe.pos && datetimeIsBeforeEq(ts, stopTimeVs.departure) && datetimeIsBeforeEq(stopTimeVs.departure, te)) {
+            if(!hasBestTrip || datetimeIsBeforeNotEq(stopTimeVe.arrival, bestTrip.second.arrival)) {
+              bestTrip = {trip, stopTimeVe};
+              hasBestTrip = true;
+            }
+          }
+        }
+      }
+    }
+
+    std::function<bool (std::string, std::shared_ptr<Trip>, ArrivalTime*)> getArrivalTime = [&ts, &graph, &verticesCache](std::string viId, std::shared_ptr<Trip> trip, ArrivalTime *arrivalTime) {
+      std::shared_ptr<Vertice> vi = getVerticeFromGraph(&ts, graph, verticesCache, viId);
+      auto it = std::find_if(vi->stopTimes.begin(), vi->stopTimes.end(), [&trip](const StopTime &stopTime) {
+        return stopTime.tripId == trip->id;
+      });
+      if(it != vi->stopTimes.end()) {
+        StopTime stopTime = *it;
+        *arrivalTime = stopTime2ArrivalTime(viId, &stopTime);
+        return true;
+      }
+      return false;
+    };
+
+    std::list<ArrivalTime> arrivalTimes;
+    std::shared_ptr<Trip> trip = bestTrip.first;
+    for(auto iterator = trip->stopIds.begin(), end = trip->stopIds.end(); iterator != end; ++iterator) {
+      std::string stopId = *iterator;
+      if(arrivalTimes.empty()) {
+        if(stopId == vsId) {
+          ArrivalTime arrivalTime;
+          if(getArrivalTime(stopId, trip, &arrivalTime)) {
+            arrivalTimes.push_back(arrivalTime);
+          }
+        }
+      } else {
+        std::shared_ptr<Vertice> vertice = getVerticeFromGraph(&ts, graph, verticesCache, stopId);
+        ArrivalTime arrivalTime;
+        if(getArrivalTime(stopId, trip, &arrivalTime)) {
+          arrivalTimes.push_back(arrivalTime);
+        }
+        if(stopId == veId) {
+          break;
+        }
+      }
+    }
+    return arrivalTimes;
   }
 
   std::list<ArrivalTime> lookForBestTrip(Tracker *tracker, sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
