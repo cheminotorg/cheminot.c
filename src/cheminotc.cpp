@@ -177,7 +177,7 @@ namespace cheminotc {
   }
 
   Json::Value serializeArrivalTimes(Graph *graph, VerticesCache *verticesCache, std::list<ArrivalTime> arrivalTimes) {
-    Json::Value array;
+    Json::Value array = Json::Value(Json::arrayValue);
     for(auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
       ArrivalTime arrivalTime = *iterator;
       array.append(serializeArrivalTime(graph, verticesCache, arrivalTime));
