@@ -116,7 +116,7 @@ TEST_F(GraphFixture, chartresParisAs6h30) {
   std::string chartres = "StopPoint:OCETrain TER-87394007";
   std::string paris = "StopPoint:OCETrain TER-87391003";
   struct tm ts = cheminotc::getNow();
-  ts.tm_hour = 6;
+  ts.tm_hour = 22;
   ts.tm_min = 0;
   printf("-----------------> %s\n", cheminotc::formatDateTime(ts).c_str());
   tm te = cheminotc::addHours(ts, 10);
@@ -125,7 +125,7 @@ TEST_F(GraphFixture, chartresParisAs6h30) {
   cheminotc::TripsCache tripsCache;
   cheminotc::CalendarDatesCache calendarDatesCache;
   auto results = cheminotc::lookForBestDirectTrip(handle, &graph, &verticesCache, &tripsCache, &calendarDates, &calendarDatesCache, chartres, paris, ts, te);
-  for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+  for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator) {
     printf("%s - %s - %s || %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->arrival).c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
   }
   EXPECT_EQ(true, true);

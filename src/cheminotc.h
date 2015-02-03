@@ -78,7 +78,7 @@ namespace cheminotc {
 
   ArrivalTimesFunc refineArrivalTimes(Tracker *tracker, sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
-  std::list<ArrivalTime> lookForBestDirectTrip(sqlite3 *handle, Graph *graph, VerticesCache *verticesCache, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te);
+  std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(sqlite3 *handle, Graph *graph, VerticesCache *verticesCache, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te);
 
   std::list<ArrivalTime> lookForBestTrip(Tracker *tracker, sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
