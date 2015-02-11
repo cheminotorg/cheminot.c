@@ -420,6 +420,31 @@ namespace cheminotc {
     return (char *)results.front()["value"];
   }
 
+  tm getCreationDate(sqlite3 *handle) {
+    std::string query = "SELECT value FROM META WHERE key = 'createdAt'";
+    std::list< std::unordered_map<std::string, const void*> > results = executeQuery(handle, query);
+    std::string date = (char *)results.front()["value"];
+    return parseDate(date);
+  }
+
+  tm getExpirationDate(sqlite3 *handle) {
+    std::string query = "SELECT value FROM META WHERE key = 'expiredAt'";
+    std::list< std::unordered_map<std::string, const void*> > results = executeQuery(handle, query);
+    std::string date = (char *)results.front()["value"];
+    return parseDate(date);
+  }
+
+  Json::Value getMeta(sqlite3 *handle) {
+    std::string version = getVersion(handle);
+    int createdAt = asTimestamp(getCreationDate(handle));
+    int expiredAt = asTimestamp(getExpirationDate(handle));
+    Json::Value json;
+    json["version"] = version;
+    json["createdAt"] = createdAt;
+    json["expiredAt"] = expiredAt;
+    return json;
+  }
+
   std::list<std::shared_ptr<Trip>> getDirectTrips(sqlite3 *handle, TripsCache *tripsCache, std::string vsId, std::string veId) {
     std::string query = "SELECT a.* FROM TRIPS "
       "a INNER JOIN TRIPS_STOPS b ON a.id = b.tripId "
