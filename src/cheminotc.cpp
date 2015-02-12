@@ -55,6 +55,9 @@ namespace cheminotc {
   tm parseDate(std::string datetime) {
     tm date;
     strptime(datetime.c_str(), "%d/%m/%Y", &date);
+    date.tm_hour = 0;
+    date.tm_min = 0;
+    date.tm_sec = 0;
     return date;
   }
 
@@ -63,7 +66,7 @@ namespace cheminotc {
     return *(localtime (&t));
   }
 
-  time_t asTimestamp(tm a) { //TODO
+  time_t asTimestamp(tm a) {
     time_t timestamp = mktime(&a);
     return timestamp;
   }
