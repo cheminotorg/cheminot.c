@@ -562,6 +562,24 @@ namespace cheminotc {
     return availablities;
   }
 
+  std::list<ArrivalTime> orderArrivalTimesBy(std::list<ArrivalTime> arrivalTimes, const tm &t) {
+    std::list<ArrivalTime> arrivalTimesAt;
+    for (auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
+      ArrivalTime arrivalTime = *iterator;
+      if(datetimeIsBeforeNotEq(arrivalTime.departure, t)) {
+        arrivalTime.departure = addDays(arrivalTime.departure, 1);
+        arrivalTime.arrival = addDays(arrivalTime.arrival, 1);
+      }
+      arrivalTimesAt.push_back(arrivalTime);
+    };
+
+    arrivalTimesAt.sort([](const ArrivalTime &a, const ArrivalTime &b) {
+      return datetimeIsBeforeEq(a.departure, b.departure);
+    });
+
+    return arrivalTimesAt;
+  }
+
   std::list<StopTime> orderStopTimesBy(std::list<StopTime> stopTimes, const tm &t) { //TODO
     std::list<StopTime> stopTimesAt;
     for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
@@ -1030,7 +1048,7 @@ namespace cheminotc {
       }
     }
 
-    return { trips.size() > 0, arrivalTimes };
+    return { trips.size() > 0, orderArrivalTimesBy(arrivalTimes, te) };
   }
 
   std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
