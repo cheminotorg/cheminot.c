@@ -830,9 +830,8 @@ namespace cheminotc {
     Queue queue;
     ArrivalTimesFunc arrivalTimesFunc;
     std::unordered_map<std::string, tm> uptodate;
-    std::shared_ptr<Vertice> vs = getVerticeFromGraph(&te, graph, verticesCache, vsId);
+    std::shared_ptr<Vertice> vs = getVerticeFromGraph(&ts, graph, verticesCache, vsId);
     std::list<tm> startingPeriod = getStartingPeriod(handle, tripsCache, calendarDates, calendarDatesCache, vs, ts, te, maxStartingTimes);
-
     if(startingPeriod.empty()) {
       return { false, arrivalTimesFunc };
     }
