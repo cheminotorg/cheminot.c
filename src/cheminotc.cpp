@@ -566,7 +566,7 @@ namespace cheminotc {
     std::list<ArrivalTime> arrivalTimesAt;
     for (auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator) {
       ArrivalTime arrivalTime = *iterator;
-      if(datetimeIsBeforeNotEq(arrivalTime.departure, t)) {
+      if(datetimeIsBeforeNotEq(arrivalTime.arrival, t)) {
         arrivalTime.departure = addDays(arrivalTime.departure, 1);
         arrivalTime.arrival = addDays(arrivalTime.arrival, 1);
       }
@@ -574,7 +574,7 @@ namespace cheminotc {
     };
 
     arrivalTimesAt.sort([](const ArrivalTime &a, const ArrivalTime &b) {
-      return datetimeIsBeforeEq(a.departure, b.departure);
+      return datetimeIsBeforeEq(a.arrival, b.arrival);
     });
 
     return arrivalTimesAt;
@@ -748,7 +748,6 @@ namespace cheminotc {
 
   std::list<tm> getStartingPeriod(sqlite3 *handle, TripsCache *tripsCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::shared_ptr<Vertice> vs, tm ts, tm te, int maxStartingTimes) {
     auto departures = getAvailableDepartures(handle, tripsCache, calendarDates, calendarDatesCache, ts, vs);
-
     std::list<tm> startingPeriod;
     for (auto iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator) {
       StopTime departureTime = *iterator;
