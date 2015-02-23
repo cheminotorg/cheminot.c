@@ -8,7 +8,7 @@ Testing
 *.db
 runUnitTests
 *.a
-calendar_dates
+calendardates
 graph
 Makefile
 CTestTestfile.cmake
