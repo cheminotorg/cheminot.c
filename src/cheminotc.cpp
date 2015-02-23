@@ -1046,7 +1046,7 @@ namespace cheminotc {
       }
     }
 
-    return { trips.size() > 0, orderArrivalTimesBy(arrivalTimes, te) };
+    return { trips.size() > 0, orderArrivalTimesBy(arrivalTimes, ts) };
   }
 
   std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, TripsCache *tripsCache, VerticesCache *verticesCache, CalendarDates *calendarDates, CalendarDatesCache *calendarDatesCache, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes) {
