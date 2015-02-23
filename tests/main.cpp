@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
   cheminotc::Graph graph;
   cheminotc::CalendarDates calendarDates;
   cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", &graph);
-  cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendar_dates", &calendarDates);
+  cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendardates", &calendarDates);
   cheminotc::VerticesCache verticesCache;
   cheminotc::TripsCache tripsCache;
   cheminotc::CalendarDatesCache calendarDatesCache;
