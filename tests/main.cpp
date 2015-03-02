@@ -18,10 +18,8 @@ int main(int argc, char **argv) {
   cheminotc::CalendarDates calendarDates;
   cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", &graph);
   cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendardates", &calendarDates);
-  cheminotc::VerticesCache verticesCache;
-  cheminotc::TripsCache tripsCache;
-  cheminotc::CalendarDatesCache calendarDatesCache;
-  auto results = cheminotc::lookForBestTrip(handle, &graph, &tripsCache, &verticesCache, &calendarDates, &calendarDatesCache, start, end, ts, te, 1);
+  cheminotc::Cache cache;
+  auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, start, end, ts, te, 1);
 
   for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator) {
     printf("%s - %s\n", iterator->stopId.c_str() , cheminotc::formatDateTime(iterator->arrival).c_str());

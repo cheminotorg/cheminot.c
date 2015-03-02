@@ -27,7 +27,7 @@ class GraphFixture : public testing::Test {
     std::string path = "cheminot.db";
     handle = cheminotc::openConnection(path);
     cheminotc::parseGraph("graph", &graph);
-    cheminotc::parseCalendarDates("calendar_dates", &calendarDates);
+    cheminotc::parseCalendarDates("calendardates", &calendarDates);
   }
 };
 
@@ -58,6 +58,13 @@ class GraphFixture : public testing::Test {
 //   EXPECT_STREQ("MjAxNC0xMC0wM18wOS0yOS0wMA==", version.c_str());
 // }
 
+TEST_F(SqliteFixture, get_metas) {
+  auto metas = cheminotc::getMeta(handle);
+  Json::FastWriter* writer = new Json::FastWriter();
+  printf("%s \n", writer->write(metas).c_str());
+  EXPECT_EQ(true, true);
+}
+
 // TEST_F(SqliteFixture, get_trip) {
 //   std::string tripId = "OCESN026208F0100133422";
 //   auto trips = cheminotc::getTripsByIds(handle, { tripId });
@@ -68,16 +75,18 @@ class GraphFixture : public testing::Test {
 // }
 
 // TEST_F(GraphFixture, chartresParisAs6h30) {
-//   std::string chartres = "StopPoint:OCETrain TER-87394007";
-//   std::string paris = "StopPoint:OCETrain TER-87391003";
+//   std::string stmalo = "StopPoint:OCETrain TER-87478107";
+//   std::string laval = "StopPoint:OCETrain TER-87478404";
 //   tm ts = cheminotc::getNow();
-//   ts.tm_hour = 8;
+//   ts.tm_hour = 17;
 //   ts.tm_min = 45;
-//   tm te = cheminotc::getNow();
-//   te.tm_hour = 9;
-//   te.tm_min = 45;
-//   auto results = cheminotc::lookForBestTrip(handle, &graph, &calendarDates, chartres, paris, ts, te);
-//   for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
+//   tm te = cheminotc::addHours(ts, 12);
+//   cheminotc::VerticesCache verticesCache;
+//   cheminotc::TripsCache tripsCache;
+//   cheminotc::CalendarDatesCache calendarDatesCache;
+//   auto results = cheminotc::lookForBestTrip(handle, &graph, &tripsCache, &verticesCache, &calendarDates, &calendarDatesCache, laval, stmalo, ts, te, 1);
+//   printf("-------> %lu\n", results.second.size());
+//   for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator) {
 //     printf("%s - %s\n", iterator->stopId.c_str() , cheminotc::formatDateTime(iterator->arrival).c_str());
 //   }
 //   EXPECT_EQ(true, true);
@@ -117,44 +126,41 @@ class GraphFixture : public testing::Test {
 //   EXPECT_EQ(false, cheminotc::datetimeIsBeforeNotEq(a, b));
 // }
 
-TEST_F(GraphFixture, chartresParisAs6h30) {
-  std::string chartres = "StopPoint:OCETrain TER-87394007";
-  std::string paris = "StopPoint:OCETrain TER-87391003";
-  struct tm ts = cheminotc::getNow();
-  ts.tm_hour = 16;
-  ts.tm_min = 52;
-  printf("-----------------> %s\n", cheminotc::formatDateTime(ts).c_str());
-  tm te = cheminotc::addHours(ts, 12);
-  printf("-----------------> %s\n", cheminotc::formatDateTime(te).c_str());
-  cheminotc::VerticesCache verticesCache;
-  cheminotc::TripsCache tripsCache;
-  cheminotc::CalendarDatesCache calendarDatesCache;
-  auto results = cheminotc::lookForBestDirectTrip(handle, &graph, &verticesCache, &tripsCache, &calendarDates, &calendarDatesCache, chartres, paris, ts, te);
-  for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator) {
-    printf("%s - %s - %s || %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->arrival).c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
-  }
-  EXPECT_EQ(true, true);
-}
-
 // TEST_F(GraphFixture, chartresParisAs6h30) {
-//   std::string chartres = "StopPoint:OCETrain TER-87478404";
+//   std::string chartres = "StopPoint:OCETrain TER-87394007";
 //   std::string paris = "StopPoint:OCETrain TER-87391003";
 //   struct tm ts = cheminotc::getNow();
-//   ts.tm_hour = 0;
-//   ts.tm_min = 0;
-//   ts.tm_mday = 29;
+//   ts.tm_hour = 18;
+//   ts.tm_min = 15;
 //   printf("-----------------> %s\n", cheminotc::formatDateTime(ts).c_str());
-//   tm te = cheminotc::addHours(ts, 10);
+//   tm te = cheminotc::addHours(ts, 12);
 //   printf("-----------------> %s\n", cheminotc::formatDateTime(te).c_str());
 //   cheminotc::VerticesCache verticesCache;
 //   cheminotc::TripsCache tripsCache;
 //   cheminotc::CalendarDatesCache calendarDatesCache;
-//   auto results = cheminotc::lookForBestTrip(handle, &graph, &tripsCache, &verticesCache, &calendarDates, &calendarDatesCache, chartres, paris, ts, te, 1);
+//   auto results = cheminotc::lookForBestDirectTrip(handle, &graph, &verticesCache, &tripsCache, &calendarDates, &calendarDatesCache, chartres, paris, ts, te);
 //   for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator) {
 //     printf("%s - %s - %s || %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->arrival).c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
 //   }
 //   EXPECT_EQ(true, true);
 // }
+
+TEST_F(GraphFixture, chartresParisAs6h30) {
+  std::string laval = "StopPoint:OCETrain TER-87478404";
+  std::string chartres = "StopPoint:OCETrain TER-87394007";
+  struct tm ts = cheminotc::getNow();
+  ts.tm_hour = 8;
+  ts.tm_min = 0;
+  printf("-----------------> %s\n", cheminotc::formatDateTime(ts).c_str());
+  tm te = cheminotc::addHours(ts, 24);
+  printf("-----------------> %s\n", cheminotc::formatDateTime(te).c_str());
+  cheminotc::Cache cache;
+  auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, chartres, laval, ts, te, 1);
+  for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator) {
+    printf("%s - %s - %s || %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), cheminotc::formatDateTime(iterator->arrival).c_str(), cheminotc::formatDateTime(iterator->departure).c_str());
+  }
+  EXPECT_EQ(true, true);
+}
 
 // TEST_F(GraphFixture, chartresParis) {
 //   std::string chartres = "StopPoint:OCETrain TER-87394007";
