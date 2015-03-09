@@ -242,7 +242,7 @@ namespace cheminotc {
     stopTime.arrival = parseTime(*dateref, stopTimeBuf.arrival());
     stopTime.departure = parseTime(*dateref, stopTimeBuf.departure());
     stopTime.pos = stopTimeBuf.pos();
-    if(timeIsBeforeEq(stopTime.arrival, *dateref)) {
+    if(timeIsBeforeEq(stopTime.departure, *dateref)) {
       stopTime.arrival = addDays(stopTime.arrival, 1);
       stopTime.departure = addDays(stopTime.departure, 1);
     }
@@ -293,7 +293,7 @@ namespace cheminotc {
     return calendar;
   }
 
-  std::list<StopTime> orderStopTimesBy(const std::list<StopTime> &stopTimes, const tm &t) { //TODO
+  std::list<StopTime> orderStopTimesBy(const std::list<StopTime> &stopTimes, const tm &t) {
     std::list<StopTime> stopTimesAt;
     for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator) {
       StopTime stopTime = *iterator;
@@ -612,7 +612,7 @@ namespace cheminotc {
       arrivalTime.arrival.tm_yday = t.tm_yday;
       arrivalTime.arrival.tm_mon = t.tm_mon;
       arrivalTime.arrival.tm_year = t.tm_year;
-      if(datetimeIsBeforeNotEq(arrivalTime.arrival, t)) {
+      if(datetimeIsBeforeNotEq(arrivalTime.departure, t)) {
         arrivalTime.departure = addDays(arrivalTime.departure, 1);
         arrivalTime.arrival = addDays(arrivalTime.arrival, 1);
       }
@@ -627,7 +627,7 @@ namespace cheminotc {
   }
 
   std::list<StopTime> getAvailableDepartures(sqlite3 *handle, Cache *cache, CalendarDates *calendarDates, tm arrivalTime, const Vertice *vi) {
-    std::list<StopTime> departures(vi->stopTimes); //HERE
+    std::list<StopTime> departures(vi->stopTimes);
     departures.remove_if([&arrivalTime] (const StopTime &stopTime) {
       return !(datetimeIsBeforeEq(arrivalTime, stopTime.departure) && !isTerminus(stopTime));
     });
@@ -726,7 +726,7 @@ namespace cheminotc {
     if(qi->stopId == vsId) {
       return te;
     } else {
-      std::list<StopTime> viArrivalTimes(orderStopTimesBy(vi->stopTimes, t)); //HERE
+      std::list<StopTime> viArrivalTimes(orderStopTimesBy(vi->stopTimes, t));
       time_t wfi = LONG_MAX;
       for (auto iterator = vi->edges.begin(), end = vi->edges.end(); iterator != end; ++iterator) {
         std::string edge = *iterator;
