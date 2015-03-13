@@ -84,7 +84,7 @@ namespace cheminotc {
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-  std::pair<bool, ArrivalTimesFunc> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
 
   std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te);
 
@@ -117,4 +117,26 @@ namespace cheminotc {
   Vertice getVerticeFromGraph(const tm *dateref, Graph *graph, Cache *cache, std::string id);
 
   Json::Value getMeta(sqlite3 *handle);
+
+  // -- PARIS
+  static std::string parisStopId = "StopPoint:OCETrain TER-PARISXXX";
+
+  static std::list<std::string> parisStopIds = {
+    parisStopId,
+    "StopPoint:OCETrain TER-87391102",
+    "StopPoint:OCETrain TER-87391003",
+    "StopPoint:OCETrain TER-87686667",
+    "StopPoint:OCETrain TER-87686006",
+    "StopPoint:OCETrain TER-87113001",
+    "StopPoint:OCETrain TER-87271007",
+    "StopPoint:OCETrain TER-87384008",
+    "StopPoint:OCETrain TER-87547000"
+  };
+
+  static std::function<bool (std::string)> isParis = [](std::string id) {
+    auto it = std::find_if(parisStopIds.begin(), parisStopIds.end(), [&id](std:: string vid) {
+      return id == vid;
+    });
+    return it != parisStopIds.end();
+  };
 }

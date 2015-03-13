@@ -856,14 +856,14 @@ namespace cheminotc {
     }
   }
 
-  std::pair<bool, ArrivalTimesFunc> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max) {
+  std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max) {
     Queue queue;
     ArrivalTimesFunc arrivalTimesFunc;
     std::unordered_map<std::string, tm> uptodate;
     Vertice vs = getVerticeFromGraph(&ts, graph, cache, vsId);
     std::list<tm> startingPeriod = getStartingPeriod(handle, cache, calendarDates, &vs, ts, te, max);
     if(startingPeriod.empty()) {
-      return { false, arrivalTimesFunc };
+      return { false, arrivalTimesFunc, veId };
     }
 
     ts = *startingPeriod.begin();
@@ -906,8 +906,8 @@ namespace cheminotc {
         }
 
         if(datetimeIsBeforeEq(te, enlargedStartingTime)) {
-          if(vi.id == veId) {
-            return { false, arrivalTimesFunc };
+          if(vi.id == veId || (isParis(veId) && isParis(vi.id))) {
+            return { false, arrivalTimesFunc, vi.id };
           }
         } else {
           qi->ti = enlargedStartingTime;
@@ -932,6 +932,7 @@ namespace cheminotc {
   }
 
   std::list<ArrivalTime> pathSelection(Graph *graph, Cache *cache, ArrivalTimesFunc *arrivalTimesFunc, const tm &ts, std::string vsId, std::string veId) {
+
     std::list<ArrivalTime> path;
     if(arrivalTimesFunc->empty()) {
       return path;
@@ -962,7 +963,11 @@ namespace cheminotc {
       path.push_back(ge);
     }
 
-    while(vj.id != vsId) {
+    std::function<bool (std::string, std::string)> running = [](std::string vjId, std::string vsId) {
+      return !(vjId == vsId || (isParis(vsId) && isParis(vjId)));
+    };
+
+    while(running(vj.id, vsId)) {
       ArrivalTime gj;
       if(getArrivalTimeAt(vj.id, &gj)) {
         for (auto iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator) {
@@ -974,7 +979,7 @@ namespace cheminotc {
               return (viStopTime.tripId == gj.tripId) && (viStopTime.pos == (gj.pos - 1));
             });
             if(it != vi.stopTimes.end()) {
-              if(viId == vsId) { // RECOVER DEPARTURE
+              if(viId == vsId || (isParis(vsId) && isParis(viId))) { // RECOVER DEPARTURE
                 gi.tripId = gj.tripId;
                 gi.departure = it->departure;
                 gi.arrival = it->arrival;
@@ -1075,8 +1080,9 @@ namespace cheminotc {
 
   std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max) {
     auto result = refineArrivalTimes(handle, graph, cache, calendarDates, vsId, veId, ts, te, max);
-    ArrivalTimesFunc arrivalTimes = result.second;
-    bool locked = result.first;
+    ArrivalTimesFunc arrivalTimes = std::get<1>(result);
+    bool locked = std::get<0>(result);
+    veId = std::get<2>(result);
     if(locked) {
       return { locked, {} };
     } else {
