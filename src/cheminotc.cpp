@@ -490,11 +490,25 @@ namespace cheminotc {
     return json;
   }
 
+  std::string parisStopIdsQuery() {
+    std::string subQueryParisIds = "";
+    for (auto iterator = parisStopIds.begin(), end = parisStopIds.end(); iterator != end; ++iterator) {
+      std::string stopId = *iterator;
+      if(subQueryParisIds == "") {
+        subQueryParisIds += " b.stopId = '" + stopId + "'";
+      } else {
+        subQueryParisIds += " OR b.stopId = '" + stopId + "'";
+      }
+    }
+    return subQueryParisIds;
+  }
+
   std::list<std::shared_ptr<Trip>> getDirectTrips(sqlite3 *handle, Cache *cache, std::string vsId, std::string veId) {
+    std::string vsIdQuery = isParis(vsId) ? parisStopIdsQuery() : "b.stopId = '" + vsId + "'";
+    std::string veIdQuery = isParis(veId) ? parisStopIdsQuery() : "b.stopId = '" + veId + "'";
     std::string query = "SELECT a.* FROM TRIPS "
       "a INNER JOIN TRIPS_STOPS b ON a.id = b.tripId "
-      "WHERE b.stopId = '" + vsId + "' OR b.stopId = '" + veId + "'GROUP BY b.tripId HAVING COUNT(*) = 2";
-
+      "WHERE " + vsIdQuery + " OR " + veIdQuery + " GROUP BY b.tripId HAVING COUNT(*) = 2";
     std::list<std::shared_ptr<Trip>> trips;
     auto results = executeQuery(handle, query);
     for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator) {
@@ -1025,7 +1039,6 @@ namespace cheminotc {
         StopTime stopTimeVe = *veIt;
         tm departureVs = stopTimeVs.departure;
         tm arrivalVe = stopTimeVe.arrival;
-
         if(isTripValidOn(cache, trip, calendarDates, departureVs)) {
           if(stopTimeVs.pos < stopTimeVe.pos && datetimeIsBeforeEq(ts, departureVs) && datetimeIsBeforeEq(departureVs, te)) {
             if(!hasBestTrip || datetimeIsBeforeNotEq(arrivalVe, bestTrip.second)) {
@@ -1057,7 +1070,7 @@ namespace cheminotc {
       for(auto iterator = trip->stopIds.begin(), end = trip->stopIds.end(); iterator != end; ++iterator) {
         std::string stopId = *iterator;
         if(arrivalTimes.empty()) {
-          if(stopId == vsId) {
+          if(stopId == vsId || (vsId == parisStopId && isParis(stopId))) {
             ArrivalTime arrivalTime;
             if(getArrivalTime(stopId, trip, &arrivalTime)) {
               arrivalTimes.push_back(arrivalTime);
@@ -1068,7 +1081,7 @@ namespace cheminotc {
           if(getArrivalTime(stopId, trip, &arrivalTime)) {
             arrivalTimes.push_back(arrivalTime);
           }
-          if(stopId == veId) {
+          if(stopId == veId || (veId == parisStopId && isParis(stopId))) {
             break;
           }
         }

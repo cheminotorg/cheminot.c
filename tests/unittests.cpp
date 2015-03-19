@@ -71,6 +71,17 @@ TEST_F(GraphFixture, lookforbestdirecttrip_chartres_paris) {
   EXPECT_EQ(false, results.second.empty());
 }
 
+TEST_F(GraphFixture, lookforbestdirecttrip_paris_chartres) {
+  struct tm ts = cheminotc::getNow();
+  ts.tm_hour = 7;
+  ts.tm_min = 47;
+  tm te = cheminotc::addHours(ts, 24);
+  cheminotc::Cache cache;
+  auto results = cheminotc::lookForBestDirectTrip(handle, &graph, &cache, &calendarDates, stops::paris, stops::chartres, ts, te);
+  utils::print(results.second);
+  EXPECT_EQ(false, results.second.empty());
+}
+
 TEST_F(GraphFixture, lookforbesttrip_chartre_parismont) {
   struct tm ts = cheminotc::getNow();
   ts.tm_hour = 7;
