@@ -10,6 +10,7 @@
 #include <fstream>
 #include <memory>
 #include "cheminotc.h"
+#include "fastmktime/fastmktime.h"
 
 namespace cheminotc {
 
@@ -79,31 +80,31 @@ namespace cheminotc {
   }
 
   time_t asTimestamp(tm a) {
-    time_t timestamp = mktime(&a);
+    time_t timestamp = fastmktime::mktime(&a);
     return timestamp;
   }
 
   tm addMinutes(tm datetime, int n) {
     datetime.tm_min += n;
-    mktime(&datetime);
+    fastmktime::mktime(&datetime);
     return datetime;
   }
 
   tm addHours(tm datetime, int n) {
     datetime.tm_hour += n;
-    mktime(&datetime);
+    fastmktime::mktime(&datetime);
     return datetime;
   }
 
   tm minusHours(tm datetime, int n) {
     datetime.tm_hour -= n;
-    mktime(&datetime);
+    fastmktime::mktime(&datetime);
     return datetime;
   }
 
   tm addDays(tm datetime, int n) {
     datetime.tm_mday += n;
-    mktime(&datetime);
+    fastmktime::mktime(&datetime);
     return datetime;
   }
 

@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
   std::string creil = "StopPoint:OCETrain TER-87276006";
   std::string versailles = "StopPoint:OCETrain TER-87393009";
   std::string lehavre = "StopPoint:OCETrain TER-87413013";
+  std::string avallon = "StopPoint:OCETrain TER-87683789";
   std::string marseillestcharles = "StopPoint:OCETrain TER-87751008";
   struct tm ts = cheminotc::getNow();
   ts.tm_hour = 0;
