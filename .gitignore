@@ -17,4 +17,4 @@ play/node_modules
 play/www/app.js
 data.json
 main
-android/obj
+android/

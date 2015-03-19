@@ -29,6 +29,13 @@ namespace cheminotc {
     return stopId.find(subwayTripPrefix) == 0;
   }
 
+  bool isParis(std::string id) {
+    auto it = std::find_if(parisStopIds.begin(), parisStopIds.end(), [&id](std:: string vid) {
+      return id == vid;
+    });
+    return it != parisStopIds.end();
+  };
+
   tm getNow() {
     time_t rawtime;
     time(&rawtime);
@@ -878,7 +885,7 @@ namespace cheminotc {
     Vertice vs = getVerticeFromGraph(&ts, graph, cache, vsId);
     std::list<tm> startingPeriod = getStartingPeriod(handle, cache, calendarDates, &vs, ts, te, max);
     if(startingPeriod.empty()) {
-      return { false, arrivalTimesFunc, veId };
+      return std::make_tuple(false, arrivalTimesFunc, veId);
     }
 
     ts = *startingPeriod.begin();
@@ -922,7 +929,7 @@ namespace cheminotc {
 
         if(datetimeIsBeforeEq(te, enlargedStartingTime)) {
           if(vi.id == veId || (isParis(veId) && isParis(vi.id))) {
-            return { false, arrivalTimesFunc, vi.id };
+            return std::make_tuple(false, arrivalTimesFunc, vi.id);
           }
         } else {
           qi->ti = enlargedStartingTime;
@@ -932,7 +939,7 @@ namespace cheminotc {
       }
     };
 
-    return { locked, arrivalTimesFunc };
+    return std::make_tuple(locked, arrivalTimesFunc, veId);
   }
 
   time_t getOptimalStartingTime(ArrivalTimeFunc *geFunc, std::string veId) {

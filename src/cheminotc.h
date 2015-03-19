@@ -84,11 +84,11 @@ namespace cheminotc {
 
   void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-  std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 
   std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te);
 
-  std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int maxStartingTimes);
+  std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 
   bool hasSameDateTime(const tm &a, const tm &b);
 
@@ -131,12 +131,5 @@ namespace cheminotc {
     "StopPoint:OCETrain TER-87271007",
     "StopPoint:OCETrain TER-87384008",
     "StopPoint:OCETrain TER-87547000"
-  };
-
-  static std::function<bool (std::string)> isParis = [](std::string id) {
-    auto it = std::find_if(parisStopIds.begin(), parisStopIds.end(), [&id](std:: string vid) {
-      return id == vid;
-    });
-    return it != parisStopIds.end();
   };
 }
