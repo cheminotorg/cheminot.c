@@ -80,31 +80,31 @@ namespace cheminotc {
   }
 
   time_t asTimestamp(tm a) {
-    time_t timestamp = fastmktime::mktime(&a);
+    time_t timestamp = fastmktime::mk(&a);
     return timestamp;
   }
 
   tm addMinutes(tm datetime, int n) {
     datetime.tm_min += n;
-    fastmktime::mktime(&datetime);
+    fastmktime::mk(&datetime);
     return datetime;
   }
 
   tm addHours(tm datetime, int n) {
     datetime.tm_hour += n;
-    fastmktime::mktime(&datetime);
+    fastmktime::mk(&datetime);
     return datetime;
   }
 
   tm minusHours(tm datetime, int n) {
     datetime.tm_hour -= n;
-    fastmktime::mktime(&datetime);
+    fastmktime::mk(&datetime);
     return datetime;
   }
 
   tm addDays(tm datetime, int n) {
     datetime.tm_mday += n;
-    fastmktime::mktime(&datetime);
+    fastmktime::mk(&datetime);
     return datetime;
   }
 

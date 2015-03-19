@@ -2,5 +2,5 @@
 
 namespace fastmktime {
 
-  time_t mktime(struct tm *tm);
+  time_t mk(struct tm *tm);
 }
