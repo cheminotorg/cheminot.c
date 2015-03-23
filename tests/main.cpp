@@ -26,14 +26,14 @@ int main(int argc, char **argv)
     sqlite3 *handle = cheminotc::openConnection("/Users/sre/data/Projects/me/cheminot.c/cheminot.db");
     cheminotc::Graph graph;
     cheminotc::CalendarDates calendarDates;
-    cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", &graph);
-    cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendardates", &calendarDates);
+    google::protobuf::Arena *arena = new google::protobuf::Arena();
+    cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", arena, &graph);
+    cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendardates", arena, &calendarDates);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, chartres, marseillestcharles, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, arena, &graph, &cache, &calendarDates, chartres, marseillestcharles, ts, te, 1);
 
     for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator)
     {
         printf("%s - %s - %s\n", iterator->stopId.c_str() , cheminotc::formatDateTime(iterator->arrival).c_str(), iterator->tripId.c_str());
     }
 }
-//OCESN847903F0100445796
