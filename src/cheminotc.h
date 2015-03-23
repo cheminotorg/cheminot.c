@@ -122,7 +122,7 @@ namespace cheminotc
 
     Json::Value serializeArrivalTimes(Graph *graph, Cache *cache, std::list<ArrivalTime> arrivalTimes);
 
-    Vertice getVerticeFromGraph(const tm *dateref, Graph *graph, Cache *cache, std::string id);
+    Vertice getVerticeFromGraph(const tm *dateref, Graph *graph, Cache *cache, std::string id, bool byDeparture = true);
 
     Json::Value getMeta(sqlite3 *handle);
 
