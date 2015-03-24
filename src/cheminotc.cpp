@@ -1269,7 +1269,6 @@ namespace cheminotc
         Vertice vs = getVerticeFromGraph(&ts, graph, cache, vsId);
         Vertice ve = getVerticeFromGraph(&ts, graph, cache, veId);
         std::list<std::shared_ptr<Trip>> trips = getDirectTrips(handle, cache, vsId, veId);
-
         std::pair<std::shared_ptr<Trip>, tm> bestTrip;
         bool hasBestTrip = false;
         for(auto iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator)

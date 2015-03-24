@@ -55,6 +55,19 @@ protected:
     }
 };
 
+TEST_F(GraphFixture, lookforbestdirecttrip_empty_notrip)
+{
+    struct tm ts = cheminotc::getNow();
+    ts.tm_hour = 0;
+    ts.tm_min = 0;
+    tm te = cheminotc::addHours(ts, 24);
+    cheminotc::Cache cache;
+    auto results = cheminotc::lookForBestDirectTrip(handle, &graph, &cache, &calendarDates, stops::laval, stops::paris, ts, te);
+    utils::print(results.second);
+    EXPECT_EQ(0, results.second.size());
+    EXPECT_EQ(false, results.first);
+}
+
 TEST_F(GraphFixture, lookforbestdirecttrip_chartres_parismont)
 {
     struct tm ts = cheminotc::getNow();
