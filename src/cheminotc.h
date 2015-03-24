@@ -76,6 +76,14 @@ namespace cheminotc
         TripsCache trips;
     };
 
+    struct LatLng
+    {
+        double lat;
+        double lng;
+    };
+
+    double distance(const LatLng &a, const LatLng &b);
+
     tm getNow();
 
     sqlite3* openConnection(std::string path);

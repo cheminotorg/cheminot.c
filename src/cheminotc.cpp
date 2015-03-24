@@ -28,6 +28,23 @@ namespace cheminotc
         throw std::runtime_error(message);
     }
 
+    double distance(const LatLng &a, const LatLng &b)
+    {
+        double radius = 6371;
+        double nDLat = (b.lat - a.lat) * (M_PI/180);
+        double nDLon = (b.lng - a.lng) * (M_PI/180);
+
+        double nLatA =  a.lat * (M_PI/180);
+        double nLatB =  b.lat * (M_PI/180);
+
+        double nA = pow ( sin(nDLat/2), 2 ) +
+            cos(nLatA) * cos(nLatB) *
+            pow ( sin(nDLon/2), 2 );
+
+        double nC = 2 * atan2( sqrt(nA), sqrt( 1 - nA ));
+        return radius * nC;
+    }
+
     bool isSubwayTrip(const std::string &stopId)
     {
         std::string subwayTripPrefix = "SUBWAY:";
