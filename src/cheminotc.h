@@ -23,6 +23,8 @@ namespace cheminotc
     {
         std::string id;
         std::string name;
+        double lat;
+        double lng;
         std::list<std::string> edges;
         std::list<StopTime> stopTimes;
     };

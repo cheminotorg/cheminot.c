@@ -75,9 +75,11 @@ void protobuf_AssignDesc_cheminotBuf_2eproto() {
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Graph, _is_default_instance_));
   Graph_VerticesEntry_descriptor_ = Graph_descriptor_->nested_type(0);
   Vertice_descriptor_ = file->message_type(1);
-  static const int Vertice_offsets_[4] = {
+  static const int Vertice_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, lat_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, lng_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, edges_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Vertice, stoptimes_),
   };
@@ -278,26 +280,27 @@ void protobuf_AddDesc_cheminotBuf_2eproto() {
     "\005Graph\0226\n\010vertices\030\001 \003(\0132$.m.cheminot.da"
     "ta.Graph.VerticesEntry\032I\n\rVerticesEntry\022"
     "\013\n\003key\030\001 \001(\t\022\'\n\005value\030\002 \001(\0132\030.m.cheminot"
-    ".data.Vertice:\0028\001\"`\n\007Vertice\022\n\n\002id\030\001 \001(\t"
-    "\022\014\n\004name\030\002 \001(\t\022\r\n\005edges\030\003 \003(\t\022,\n\tstopTim"
-    "es\030\004 \003(\0132\031.m.cheminot.data.StopTime\"[\n\010S"
-    "topTime\022\016\n\006tripId\030\001 \001(\t\022\017\n\007arrival\030\002 \001(\t"
-    "\022\021\n\tdeparture\030\003 \001(\t\022\016\n\006stopId\030\004 \001(\t\022\013\n\003p"
-    "os\030\005 \001(\005\"\314\001\n\rCalendarDates\022X\n\025exceptions"
-    "ByServiceId\030\001 \003(\01329.m.cheminot.data.Cale"
-    "ndarDates.ExceptionsByServiceIdEntry\032a\n\032"
-    "ExceptionsByServiceIdEntry\022\013\n\003key\030\001 \001(\t\022"
-    "2\n\005value\030\002 \001(\0132#.m.cheminot.data.Calenda"
-    "rExceptions:\0028\001\"J\n\022CalendarExceptions\0224\n"
-    "\rcalendarDates\030\001 \003(\0132\035.m.cheminot.data.C"
-    "alendarDate\"F\n\014CalendarDate\022\021\n\tserviceId"
-    "\030\001 \001(\t\022\014\n\004date\030\002 \001(\t\022\025\n\rexceptionType\030\003 "
-    "\001(\005\"\271\001\n\010Calendar\022\021\n\tserviceId\030\001 \001(\t\022\016\n\006m"
-    "onday\030\002 \001(\t\022\017\n\007tuesday\030\003 \001(\t\022\021\n\twednesda"
-    "y\030\004 \001(\t\022\020\n\010thursday\030\005 \001(\t\022\016\n\006friday\030\006 \001("
-    "\t\022\020\n\010saturday\030\007 \001(\t\022\016\n\006sunday\030\010 \001(\t\022\021\n\ts"
-    "tartDate\030\t \001(\t\022\017\n\007endDate\030\n \001(\t\"\036\n\013TripS"
-    "topIds\022\017\n\007stopIds\030\001 \003(\tB\002H\001b\006proto3", 955);
+    ".data.Vertice:\0028\001\"z\n\007Vertice\022\n\n\002id\030\001 \001(\t"
+    "\022\014\n\004name\030\002 \001(\t\022\013\n\003lat\030\003 \001(\001\022\013\n\003lng\030\004 \001(\001"
+    "\022\r\n\005edges\030\005 \003(\t\022,\n\tstopTimes\030\006 \003(\0132\031.m.c"
+    "heminot.data.StopTime\"[\n\010StopTime\022\016\n\006tri"
+    "pId\030\001 \001(\t\022\017\n\007arrival\030\002 \001(\t\022\021\n\tdeparture\030"
+    "\003 \001(\t\022\016\n\006stopId\030\004 \001(\t\022\013\n\003pos\030\005 \001(\005\"\314\001\n\rC"
+    "alendarDates\022X\n\025exceptionsByServiceId\030\001 "
+    "\003(\01329.m.cheminot.data.CalendarDates.Exce"
+    "ptionsByServiceIdEntry\032a\n\032ExceptionsBySe"
+    "rviceIdEntry\022\013\n\003key\030\001 \001(\t\0222\n\005value\030\002 \001(\013"
+    "2#.m.cheminot.data.CalendarExceptions:\0028"
+    "\001\"J\n\022CalendarExceptions\0224\n\rcalendarDates"
+    "\030\001 \003(\0132\035.m.cheminot.data.CalendarDate\"F\n"
+    "\014CalendarDate\022\021\n\tserviceId\030\001 \001(\t\022\014\n\004date"
+    "\030\002 \001(\t\022\025\n\rexceptionType\030\003 \001(\005\"\271\001\n\010Calend"
+    "ar\022\021\n\tserviceId\030\001 \001(\t\022\016\n\006monday\030\002 \001(\t\022\017\n"
+    "\007tuesday\030\003 \001(\t\022\021\n\twednesday\030\004 \001(\t\022\020\n\010thu"
+    "rsday\030\005 \001(\t\022\016\n\006friday\030\006 \001(\t\022\020\n\010saturday\030"
+    "\007 \001(\t\022\016\n\006sunday\030\010 \001(\t\022\021\n\tstartDate\030\t \001(\t"
+    "\022\017\n\007endDate\030\n \001(\t\"\036\n\013TripStopIds\022\017\n\007stop"
+    "Ids\030\001 \003(\tB\002H\001b\006proto3", 981);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "cheminotBuf.proto", &protobuf_RegisterTypes);
   Graph::default_instance_ = new Graph();
@@ -592,6 +595,8 @@ Graph::mutable_vertices() {
 #ifndef _MSC_VER
 const int Vertice::kIdFieldNumber;
 const int Vertice::kNameFieldNumber;
+const int Vertice::kLatFieldNumber;
+const int Vertice::kLngFieldNumber;
 const int Vertice::kEdgesFieldNumber;
 const int Vertice::kStopTimesFieldNumber;
 #endif  // !_MSC_VER
@@ -620,6 +625,8 @@ void Vertice::SharedCtor() {
   _cached_size_ = 0;
   id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  lat_ = 0;
+  lng_ = 0;
 }
 
 Vertice::~Vertice() {
@@ -660,8 +667,21 @@ Vertice* Vertice::New(::google::protobuf::Arena* arena) const {
 }
 
 void Vertice::Clear() {
+#define ZR_HELPER_(f) reinterpret_cast<char*>(\
+  &reinterpret_cast<Vertice*>(16)->f)
+
+#define ZR_(first, last) do {\
+  ::memset(&first, 0,\
+           ZR_HELPER_(last) - ZR_HELPER_(first) + sizeof(last));\
+} while (0)
+
+  ZR_(lat_, lng_);
   id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+
+#undef ZR_HELPER_
+#undef ZR_
+
   edges_.Clear();
   stoptimes_.Clear();
 }
@@ -705,13 +725,43 @@ bool Vertice::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(26)) goto parse_edges;
+        if (input->ExpectTag(25)) goto parse_lat;
         break;
       }
 
-      // repeated string edges = 3;
+      // optional double lat = 3;
       case 3: {
-        if (tag == 26) {
+        if (tag == 25) {
+         parse_lat:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lat_)));
+
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(33)) goto parse_lng;
+        break;
+      }
+
+      // optional double lng = 4;
+      case 4: {
+        if (tag == 33) {
+         parse_lng:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lng_)));
+
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_edges;
+        break;
+      }
+
+      // repeated string edges = 5;
+      case 5: {
+        if (tag == 42) {
          parse_edges:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->add_edges()));
@@ -723,21 +773,21 @@ bool Vertice::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(26)) goto parse_edges;
-        if (input->ExpectTag(34)) goto parse_stopTimes;
+        if (input->ExpectTag(42)) goto parse_edges;
+        if (input->ExpectTag(50)) goto parse_stopTimes;
         break;
       }
 
-      // repeated .m.cheminot.data.StopTime stopTimes = 4;
-      case 4: {
-        if (tag == 34) {
+      // repeated .m.cheminot.data.StopTime stopTimes = 6;
+      case 6: {
+        if (tag == 50) {
          parse_stopTimes:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_stoptimes()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_stopTimes;
+        if (input->ExpectTag(50)) goto parse_stopTimes;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -786,20 +836,30 @@ void Vertice::SerializeWithCachedSizes(
       2, this->name(), output);
   }
 
-  // repeated string edges = 3;
+  // optional double lat = 3;
+  if (this->lat() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->lat(), output);
+  }
+
+  // optional double lng = 4;
+  if (this->lng() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->lng(), output);
+  }
+
+  // repeated string edges = 5;
   for (int i = 0; i < this->edges_size(); i++) {
   ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
     this->edges(i).data(), this->edges(i).length(),
     ::google::protobuf::internal::WireFormat::SERIALIZE,
     "m.cheminot.data.Vertice.edges");
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      3, this->edges(i), output);
+      5, this->edges(i), output);
   }
 
-  // repeated .m.cheminot.data.StopTime stopTimes = 4;
+  // repeated .m.cheminot.data.StopTime stopTimes = 6;
   for (unsigned int i = 0, n = this->stoptimes_size(); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->stoptimes(i), output);
+      6, this->stoptimes(i), output);
   }
 
   // @@protoc_insertion_point(serialize_end:m.cheminot.data.Vertice)
@@ -830,21 +890,31 @@ void Vertice::SerializeWithCachedSizes(
         2, this->name(), target);
   }
 
-  // repeated string edges = 3;
+  // optional double lat = 3;
+  if (this->lat() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->lat(), target);
+  }
+
+  // optional double lng = 4;
+  if (this->lng() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(4, this->lng(), target);
+  }
+
+  // repeated string edges = 5;
   for (int i = 0; i < this->edges_size(); i++) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->edges(i).data(), this->edges(i).length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "m.cheminot.data.Vertice.edges");
     target = ::google::protobuf::internal::WireFormatLite::
-      WriteStringToArray(3, this->edges(i), target);
+      WriteStringToArray(5, this->edges(i), target);
   }
 
-  // repeated .m.cheminot.data.StopTime stopTimes = 4;
+  // repeated .m.cheminot.data.StopTime stopTimes = 6;
   for (unsigned int i = 0, n = this->stoptimes_size(); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->stoptimes(i), target);
+        6, this->stoptimes(i), target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:m.cheminot.data.Vertice)
@@ -868,14 +938,24 @@ int Vertice::ByteSize() const {
         this->name());
   }
 
-  // repeated string edges = 3;
+  // optional double lat = 3;
+  if (this->lat() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // optional double lng = 4;
+  if (this->lng() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // repeated string edges = 5;
   total_size += 1 * this->edges_size();
   for (int i = 0; i < this->edges_size(); i++) {
     total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
       this->edges(i));
   }
 
-  // repeated .m.cheminot.data.StopTime stopTimes = 4;
+  // repeated .m.cheminot.data.StopTime stopTimes = 6;
   total_size += 1 * this->stoptimes_size();
   for (int i = 0; i < this->stoptimes_size(); i++) {
     total_size +=
@@ -913,6 +993,12 @@ void Vertice::MergeFrom(const Vertice& from) {
 
     name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
   }
+  if (from.lat() != 0) {
+    set_lat(from.lat());
+  }
+  if (from.lng() != 0) {
+    set_lng(from.lng());
+  }
 }
 
 void Vertice::CopyFrom(const ::google::protobuf::Message& from) {
@@ -939,6 +1025,8 @@ void Vertice::Swap(Vertice* other) {
 void Vertice::InternalSwap(Vertice* other) {
   id_.Swap(&other->id_);
   name_.Swap(&other->name_);
+  std::swap(lat_, other->lat_);
+  std::swap(lng_, other->lng_);
   edges_.UnsafeArenaSwap(&other->edges_);
   stoptimes_.UnsafeArenaSwap(&other->stoptimes_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
@@ -1042,7 +1130,35 @@ void Vertice::InternalSwap(Vertice* other) {
   // @@protoc_insertion_point(field_set_allocated:m.cheminot.data.Vertice.name)
 }
 
-// repeated string edges = 3;
+// optional double lat = 3;
+ void Vertice::clear_lat() {
+  lat_ = 0;
+}
+ double Vertice::lat() const {
+  // @@protoc_insertion_point(field_get:m.cheminot.data.Vertice.lat)
+  return lat_;
+}
+ void Vertice::set_lat(double value) {
+  
+  lat_ = value;
+  // @@protoc_insertion_point(field_set:m.cheminot.data.Vertice.lat)
+}
+
+// optional double lng = 4;
+ void Vertice::clear_lng() {
+  lng_ = 0;
+}
+ double Vertice::lng() const {
+  // @@protoc_insertion_point(field_get:m.cheminot.data.Vertice.lng)
+  return lng_;
+}
+ void Vertice::set_lng(double value) {
+  
+  lng_ = value;
+  // @@protoc_insertion_point(field_set:m.cheminot.data.Vertice.lng)
+}
+
+// repeated string edges = 5;
  int Vertice::edges_size() const {
   return edges_.size();
 }
@@ -1096,7 +1212,7 @@ Vertice::mutable_edges() {
   return &edges_;
 }
 
-// repeated .m.cheminot.data.StopTime stopTimes = 4;
+// repeated .m.cheminot.data.StopTime stopTimes = 6;
  int Vertice::stoptimes_size() const {
   return stoptimes_.size();
 }
