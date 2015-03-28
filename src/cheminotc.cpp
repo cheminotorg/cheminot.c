@@ -873,20 +873,17 @@ namespace cheminotc
 
     typedef std::priority_queue<std::shared_ptr<QueueItem>, std::vector<std::shared_ptr<QueueItem>>, CompareQueueItem> Queue;
 
-    tm infinite()
-    {
-        tm t;
-        t.tm_sec = INT_MAX;
-        t.tm_min = INT_MAX;
-        t.tm_hour = INT_MAX;
-        t.tm_mday = INT_MAX;
-        t.tm_mon = INT_MAX;
-        t.tm_year = INT_MAX;
-        t.tm_wday = INT_MAX;
-        t.tm_yday = INT_MAX;
-        t.tm_wday = INT_MAX;
-        return t;
-    }
+    static tm INFINITE = {
+        INT_MAX,
+        INT_MAX,
+        INT_MAX,
+        INT_MAX,
+        INT_MAX,
+        INT_MAX,
+        INT_MAX,
+        INT_MAX,
+        INT_MAX
+    };
 
     std::unordered_map<std::string, std::shared_ptr<QueueItem>> initTimeRefinement(sqlite3 *handle, Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, CalendarDates *calendarDates, Queue *queue, const Vertice *vs, tm ts, std::list<tm> startingPeriod)
     {
@@ -913,8 +910,6 @@ namespace cheminotc
         qs->ti = ts;
         queue->push(qs);
         items[vs->id] = qs;
-
-        tm INFINITE = infinite();
 
         for(auto iterator = graph->begin(), end = graph->end(); iterator != end; ++iterator)
         {
@@ -1043,7 +1038,7 @@ namespace cheminotc
     {
         std::list<StopTime> viDepartures = getAvailableDepartures(handle, cache, calendarDates, gi->arrival, vi);
         StopTime earliestArrivalTime;
-        earliestArrivalTime.arrival = infinite();
+        earliestArrivalTime.arrival = INFINITE;
         for(auto iterator = vj->stopTimes.begin(), end = vj->stopTimes.end(); iterator != end; ++iterator)
         {
             StopTime vjStopTime = *iterator;
@@ -1066,7 +1061,7 @@ namespace cheminotc
     {
         Vertice vj = getVerticeFromGraph(&gi->arrival, graph, cache, vjId, false);
         StopTime vjStopTime = getEarliestArrivalTime(handle, cache, calendarDates, vi, &vj, gi);
-        if(!hasSameDateTime(vjStopTime.arrival, infinite()))   // MAYBE TODAY, ONE EDGE ISN'T AVAILABLE
+        if(!hasSameDateTime(vjStopTime.arrival, INFINITE))   // MAYBE TODAY, ONE EDGE ISN'T AVAILABLE
         {
             ArrivalTimeFunc gjFunc;
             time_t t = asTimestamp(startingTime);
