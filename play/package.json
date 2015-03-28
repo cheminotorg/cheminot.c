@@ -9,13 +9,10 @@
   "description": "Build tool for cheminot.m",
   "devDependencies": {
     "gulp": "latest",
-    "gulp-util": "latest",
     "vinyl-source-stream": "latest",
+    "gulp-util": "latest",
     "browserify": "latest",
     "watchify": "latest",
-    "d3": "latest",
-    "dagre-d3": "latest",
-    "qajax": "latest",
-    "moment": "latest"
+    "qajax": "latest"
   }
 }

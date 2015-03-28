@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", &graph);
     cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendardates", &calendarDates);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, chartres, marseillestcharles, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, chartres, parisMont, ts, te, 1);
 
     for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator)
     {

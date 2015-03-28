@@ -10,6 +10,7 @@
 #include <fstream>
 #include <memory>
 #include "cheminotc.h"
+#include "play.h"
 #include "fastmktime/fastmktime.h"
 
 namespace cheminotc
@@ -463,6 +464,8 @@ namespace cheminotc
             auto verticeBuf = (*graph)[id];
             vertice->id = verticeBuf.id();
             vertice->name = verticeBuf.name();
+            vertice->lat = verticeBuf.lat();
+            vertice->lng = verticeBuf.lng();
             vertice->edges = parseEdges(verticeBuf.edges());
             if(dateref != NULL)
             {
@@ -1116,6 +1119,7 @@ namespace cheminotc
         {
             std::shared_ptr<QueueItem> qi = queue.top();
             Vertice vi = getVerticeFromGraph(&qi->gi, graph, cache, qi->stopId);
+            cheminotc::play::push(vi);
             queue.pop();
 
             if(!isQueueItemOutdated(&uptodate, qi))
@@ -1376,6 +1380,7 @@ namespace cheminotc
         ArrivalTimesFunc arrivalTimes = std::get<1>(result);
         bool locked = std::get<0>(result);
         veId = std::get<2>(result);
+        cheminotc::play::serializeToFile();
         if(locked)
         {
             return { locked, {} };

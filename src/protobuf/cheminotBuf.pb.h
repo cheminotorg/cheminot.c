@@ -221,10 +221,22 @@ class Vertice : public ::google::protobuf::Message {
   ::std::string* release_name();
   void set_allocated_name(::std::string* name);
 
-  // repeated string edges = 3;
+  // optional double lat = 3;
+  void clear_lat();
+  static const int kLatFieldNumber = 3;
+  double lat() const;
+  void set_lat(double value);
+
+  // optional double lng = 4;
+  void clear_lng();
+  static const int kLngFieldNumber = 4;
+  double lng() const;
+  void set_lng(double value);
+
+  // repeated string edges = 5;
   int edges_size() const;
   void clear_edges();
-  static const int kEdgesFieldNumber = 3;
+  static const int kEdgesFieldNumber = 5;
   const ::std::string& edges(int index) const;
   ::std::string* mutable_edges(int index);
   void set_edges(int index, const ::std::string& value);
@@ -237,10 +249,10 @@ class Vertice : public ::google::protobuf::Message {
   const ::google::protobuf::RepeatedPtrField< ::std::string>& edges() const;
   ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_edges();
 
-  // repeated .m.cheminot.data.StopTime stopTimes = 4;
+  // repeated .m.cheminot.data.StopTime stopTimes = 6;
   int stoptimes_size() const;
   void clear_stoptimes();
-  static const int kStopTimesFieldNumber = 4;
+  static const int kStopTimesFieldNumber = 6;
   const ::m::cheminot::data::StopTime& stoptimes(int index) const;
   ::m::cheminot::data::StopTime* mutable_stoptimes(int index);
   ::m::cheminot::data::StopTime* add_stoptimes();
@@ -256,6 +268,8 @@ class Vertice : public ::google::protobuf::Message {
   bool _is_default_instance_;
   ::google::protobuf::internal::ArenaStringPtr id_;
   ::google::protobuf::internal::ArenaStringPtr name_;
+  double lat_;
+  double lng_;
   ::google::protobuf::RepeatedPtrField< ::std::string> edges_;
   ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime > stoptimes_;
   mutable int _cached_size_;
@@ -1065,7 +1079,35 @@ inline void Vertice::set_allocated_name(::std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:m.cheminot.data.Vertice.name)
 }
 
-// repeated string edges = 3;
+// optional double lat = 3;
+inline void Vertice::clear_lat() {
+  lat_ = 0;
+}
+inline double Vertice::lat() const {
+  // @@protoc_insertion_point(field_get:m.cheminot.data.Vertice.lat)
+  return lat_;
+}
+inline void Vertice::set_lat(double value) {
+  
+  lat_ = value;
+  // @@protoc_insertion_point(field_set:m.cheminot.data.Vertice.lat)
+}
+
+// optional double lng = 4;
+inline void Vertice::clear_lng() {
+  lng_ = 0;
+}
+inline double Vertice::lng() const {
+  // @@protoc_insertion_point(field_get:m.cheminot.data.Vertice.lng)
+  return lng_;
+}
+inline void Vertice::set_lng(double value) {
+  
+  lng_ = value;
+  // @@protoc_insertion_point(field_set:m.cheminot.data.Vertice.lng)
+}
+
+// repeated string edges = 5;
 inline int Vertice::edges_size() const {
   return edges_.size();
 }
@@ -1119,7 +1161,7 @@ Vertice::mutable_edges() {
   return &edges_;
 }
 
-// repeated .m.cheminot.data.StopTime stopTimes = 4;
+// repeated .m.cheminot.data.StopTime stopTimes = 6;
 inline int Vertice::stoptimes_size() const {
   return stoptimes_.size();
 }
