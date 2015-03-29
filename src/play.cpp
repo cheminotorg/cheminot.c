@@ -31,7 +31,7 @@ namespace cheminotc
 
         void push(Vertice vertice)
         {
-            vertices.push_front(vertice);
+            vertices.push_back(vertice);
         }
 
         void serializeToFile()

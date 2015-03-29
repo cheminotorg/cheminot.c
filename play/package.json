@@ -13,6 +13,7 @@
     "gulp-util": "latest",
     "browserify": "latest",
     "watchify": "latest",
-    "qajax": "latest"
+    "qajax": "latest",
+    "qstart": "latest"
   }
 }
