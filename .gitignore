@@ -15,6 +15,6 @@ CTestTestfile.cmake
 cheminotc_units
 play/node_modules
 play/www/app.js
-data.json
+*.json
 main
 android/

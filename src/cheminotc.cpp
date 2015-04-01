@@ -10,8 +10,8 @@
 #include <fstream>
 #include <memory>
 #include "cheminotc.h"
-#include "play.h"
 #include "fastmktime/fastmktime.h"
+//#include "play.h"
 
 namespace cheminotc
 {
@@ -116,17 +116,17 @@ namespace cheminotc
         return timestamp;
     }
 
-    tm addMinutes(tm datetime, int n)
-    {
-        datetime.tm_min += n;
-        fastmktime::mk(&datetime);
-        return datetime;
-    }
-
     tm addHours(tm datetime, int n)
     {
         datetime.tm_hour += n;
         fastmktime::mk(&datetime);
+        return datetime;
+    }
+
+    tm addSeconds(tm datetime, int n)
+    {
+        datetime.tm_sec += n;
+        mktime(&datetime);
         return datetime;
     }
 
@@ -858,25 +858,6 @@ namespace cheminotc
         return departures;
     }
 
-    struct QueueItem
-    {
-        std::string stopId;
-        std::string tripId;
-        tm ti;
-        tm gi;
-    };
-
-    class CompareQueueItem
-    {
-    public:
-        bool operator()(const std::shared_ptr<QueueItem> &itemA, const std::shared_ptr<QueueItem> &itemB)
-        {
-            return datetimeIsBeforeEq(itemB->gi, itemA->gi);
-        }
-    };
-
-    typedef std::priority_queue<std::shared_ptr<QueueItem>, std::vector<std::shared_ptr<QueueItem>>, CompareQueueItem> Queue;
-
     static tm INFINITE = {
         INT_MAX,
         INT_MAX,
@@ -889,7 +870,27 @@ namespace cheminotc
         INT_MAX
     };
 
-    std::unordered_map<std::string, std::shared_ptr<QueueItem>> initTimeRefinement(sqlite3 *handle, Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, CalendarDates *calendarDates, Queue *queue, const Vertice *vs, tm ts, std::list<tm> startingPeriod)
+    struct QueueItem
+    {
+        std::string stopId;
+        std::string tripId;
+        tm ti;
+        tm gi;
+        tm estimatedArrival;
+    };
+
+    class CompareQueueItem
+    {
+    public:
+        bool operator()(const std::shared_ptr<QueueItem> &itemA, const std::shared_ptr<QueueItem> &itemB)
+        {
+            return datetimeIsBeforeEq(itemB->estimatedArrival, itemA->estimatedArrival);
+        }
+    };
+
+    typedef std::priority_queue<std::shared_ptr<QueueItem>, std::vector<std::shared_ptr<QueueItem>>, CompareQueueItem> Queue;
+
+    std::unordered_map<std::string, std::shared_ptr<QueueItem>> initTimeRefinement(sqlite3 *handle, Graph *graph, ArrivalTimesFunc *arrivalTimesFunc, CalendarDates *calendarDates, Queue *queue, const Vertice *vs, Vertice *ve, tm ts, std::list<tm> startingPeriod)
     {
 
         std::unordered_map<std::string, std::shared_ptr<QueueItem>> items;
@@ -912,6 +913,7 @@ namespace cheminotc
         qs->gi = ts;
         qs->tripId = "<trip>";
         qs->ti = ts;
+        qs->estimatedArrival = ts;
         queue->push(qs);
         items[vs->id] = qs;
 
@@ -925,6 +927,7 @@ namespace cheminotc
                 qi->gi = INFINITE;
                 qi->tripId = "<trip>";
                 qi->ti = ts;
+                qi->estimatedArrival = INFINITE;
                 queue->push(qi);
                 items[stopId] = qi;
             }
@@ -1066,15 +1069,14 @@ namespace cheminotc
         return earliestArrivalTime;
     }
 
-    void updateArrivalTimeFunc(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, ArrivalTimesFunc *arrivalTimesFunc, const Vertice *vi, ArrivalTime *gi, std::string vjId, const tm &startingTime, std::function<void(StopTime)> done)
+    void updateArrivalTimeFunc(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, ArrivalTimesFunc *arrivalTimesFunc, const Vertice *vi, ArrivalTime *gi, Vertice *vj, const tm &startingTime, std::function<void(StopTime)> done)
     {
-        Vertice vj = getVerticeFromGraph(&gi->arrival, graph, cache, vjId);
-        StopTime vjStopTime = getEarliestArrivalTime(handle, cache, calendarDates, vi, &vj, gi);
+        StopTime vjStopTime = getEarliestArrivalTime(handle, cache, calendarDates, vi, vj, gi);
         if(!hasSameDateTime(vjStopTime.arrival, INFINITE))   // MAYBE TODAY, ONE EDGE ISN'T AVAILABLE
         {
             ArrivalTimeFunc gjFunc;
             time_t t = asTimestamp(startingTime);
-            auto it = arrivalTimesFunc->find(vjId);
+            auto it = arrivalTimesFunc->find(vj->id);
             if(it != arrivalTimesFunc->end())
             {
                 gjFunc = it->second;
@@ -1083,24 +1085,33 @@ namespace cheminotc
                 {
                     if(datetimeIsBeforeNotEq(vjStopTime.arrival, currentGj->second.arrival))   // UPDATING IF BETTER FOUND
                     {
-                        gjFunc[t] = stopTime2ArrivalTime(vjId, &vjStopTime);
+                        gjFunc[t] = stopTime2ArrivalTime(vj->id, &vjStopTime);
                         done(vjStopTime);
                     }
                 }
                 else
                 {
-                    gjFunc[t] = stopTime2ArrivalTime(vjId, &vjStopTime); // NEW VALUE
+                    gjFunc[t] = stopTime2ArrivalTime(vj->id, &vjStopTime); // NEW VALUE
                     done(vjStopTime);
                 }
             }
             else
             {
-                gjFunc[t] = stopTime2ArrivalTime(vjId, &vjStopTime); // NEW FUNC
-                (*arrivalTimesFunc)[vjId] = gjFunc;
+                gjFunc[t] = stopTime2ArrivalTime(vj->id, &vjStopTime); // NEW FUNC
+                (*arrivalTimesFunc)[vj->id] = gjFunc;
                 done(vjStopTime);
             }
-            (*arrivalTimesFunc)[vjId] = gjFunc;
+            (*arrivalTimesFunc)[vj->id] = gjFunc;
         }
+    }
+
+    tm computeEstimatedArrival(Vertice *vj, Vertice *vs, Vertice *ve, tm ts, tm gj)
+    {
+        double distanceVsVj = distance({vs->lat, vs->lng}, {vj->lat, vj->lng});
+        double durationVsVj = asTimestamp(gj) - asTimestamp(ts); //seconds
+        double distanceVjVe = distance({vj->lat, vj->lng}, {ve->lat, ve->lng});
+        double durationVjVe = (distanceVjVe * durationVsVj) / distanceVsVj;
+        return addSeconds(gj, durationVjVe);
     }
 
     std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max)
@@ -1118,14 +1129,15 @@ namespace cheminotc
         ts = *startingPeriod.begin();
         te = *(std::prev(startingPeriod.end()));
 
-        std::unordered_map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(handle, graph, &arrivalTimesFunc, calendarDates, &queue, &vs, ts, startingPeriod);
+        Vertice ve = getVerticeFromGraph(&ts, graph, cache, veId);
+        std::unordered_map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(handle, graph, &arrivalTimesFunc, calendarDates, &queue, &vs, &ve, ts, startingPeriod);
 
         bool locked = false;
         while(!isLocked(handle, &locked) && queue.size() >= 2)
         {
             std::shared_ptr<QueueItem> qi = queue.top();
             Vertice vi = getVerticeFromGraph(&qi->gi, graph, cache, qi->stopId);
-            cheminotc::play::push(vi);
+            //cheminotc::play::push(vi);
             queue.pop();
 
             if(!isQueueItemOutdated(&uptodate, qi))
@@ -1148,13 +1160,15 @@ namespace cheminotc
                             if(datetimeIsBeforeEq(qi->ti, startingTime) && datetimeIsBeforeEq(startingTime, enlargedStartingTime))
                             {
                                 ArrivalTime gi = giFunc[asTimestamp(startingTime)];
-                                updateArrivalTimeFunc(handle, graph, cache, calendarDates, &arrivalTimesFunc, &vi, &gi, vjId, startingTime, [&vjId, &queue, &uptodate, &items, &startingTime](StopTime vjStopTime)
+                                Vertice vj = getVerticeFromGraph(&gi.arrival, graph, cache, vjId);
+                                updateArrivalTimeFunc(handle, graph, cache, calendarDates, &arrivalTimesFunc, &vi, &gi, &vj, startingTime, [&](StopTime vjStopTime)
                                 {
                                     std::shared_ptr<QueueItem> updatedQj {new QueueItem};
                                     updatedQj->stopId = vjId;
                                     updatedQj->ti = items[vjId]->ti;
                                     updatedQj->gi = vjStopTime.arrival;
                                     updatedQj->tripId = vjStopTime.tripId;
+                                    updatedQj->estimatedArrival = computeEstimatedArrival(&vj, &vs, &ve, startingTime, vjStopTime.arrival);
                                     queue.push(updatedQj);
                                     uptodate[vjId] = vjStopTime.arrival;
                                 });
@@ -1386,7 +1400,7 @@ namespace cheminotc
         ArrivalTimesFunc arrivalTimes = std::get<1>(result);
         bool locked = std::get<0>(result);
         veId = std::get<2>(result);
-        cheminotc::play::serializeToFile();
+        //cheminotc::play::serializeToFile();
         if(locked)
         {
             return { locked, {} };
