@@ -2,12 +2,10 @@ CMakeCache.txt
 CMakeFiles/*
 cheminotc
 cmake_install.cmake
-lib/*
 Makefile
 Testing
 *.db
 runUnitTests
-*.a
 calendardates
 graph
 Makefile
@@ -18,3 +16,20 @@ play/www/app.js
 *.json
 main
 android/
+lib/gtest-1.7.0/CMakeFiles/*
+lib/protobuf
+
+# cpp
+*.slo
+*.lo
+*.o
+*.obj
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.lai
+*.la
+*.a
+*.lib

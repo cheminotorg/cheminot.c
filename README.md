@@ -1,27 +1,53 @@
 # cheminot.c
 
 `cheminot.c` is a C++ library that implement an answer to the TDSP problem (Time-Dependent Shortest Paths over Large Graphs).
+You can find a paper related to the algorythm in the `paper` directory of this repository.
+This project part of a more general project named `cheminot`.
 
-## Two-Step-LTT algorythm
+## Requirements
 
-Two-Step-LTT is a two step algorythm namely "timeRefinement" algorythm and "pathSelection" algorythm.
-In the first step, "timeRefinement" refines the earliest arrival time function gi(t), for all nodes vi, to reach ve from vs where t belongs to [ts, te].
-The optimal starting time which minimizes travel time from vs to ve is also determined.
-In the second step, based on the optimal starting time and arrival times, "pathSelection" recovers the optimal path from vs to ve.
+`cheminot.c` has the following dependencies:
+- [jsoncpp](https://github.com/open-source-parsers/jsoncpp)
+- [protobuf](https://github.com/google/protobuf)
+- [gtests](https://code.google.com/p/googletest/)
 
-### timeRefinement algorythm
+`protobuf` is the only one which is not ship with the code.
+You will have to build it on your own.
+If you are on Mac OS, `protobuf` needs you install `autoconf`:
 
-For each node in the graph, we push a pair (ti, gi(ti)).
-// ti is the last starting time computed.
-// gi(ti) is the last arrival time for vs to vi computed.
-Except for vs, we push ti = ts, and gi(ti) = INFINITE.
-For vs, we push the pair (ts, ts), because gs(ts) = ts for t = [ts, ts].
+```shell
+curl -OL http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz
+tar -xzf autoconf-2.69.tar.gz
+cd autoconf-2.69
+./configure && make && sudo make install
 
-The priority queue is sorted by gi(ti).
-We first dequeue (ti, gi(ti)), the earliest arrival time from vs to ve, followed by (tk, gk(tk)).
-The next earliest possible arrival time from vs to vi via any edge (vf, vi) is gk(tk) + min(wfi(gk(tk))).
-We try to determine the latest starting time ti' that satisfies gi(t) <= gk(t) + min(wfi(gk(tk))).
-We compute gi(t) for t = [ti, ti'], we can now compute gj(t) for t = [t, ti'].
-We update the queue (tj, gj(t)).
-If ti' >= te and vi = ve, the algorythm has done.
-Else, we enqueue (ti`, gi(t)).
+curl -OL http://ftpmirror.gnu.org/automake/automake-1.14.tar.gz
+tar -xzf automake-1.14.tar.gz
+cd automake-1.14
+./configure && make && sudo make install
+
+curl -OL http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz
+tar -xzf libtool-2.4.2.tar.gz
+cd libtool-2.4.2
+./configure && make && sudo make install
+```
+
+Once `protobuf` is built, include it in the project:
+
+```shell
+cd lib
+ln -s <path to protobuf directory> protobuf
+```
+
+## Build
+
+Using `make` and `cmake`:
+
+```shell
+cmake .
+make
+```
+
+## Tests
+
+TODO
