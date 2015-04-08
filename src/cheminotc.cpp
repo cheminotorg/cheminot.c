@@ -11,7 +11,7 @@
 #include <memory>
 #include "cheminotc.h"
 #include "fastmktime/fastmktime.h"
-//#include "play.h"
+#include "play.h"
 
 namespace cheminotc
 {
@@ -1394,13 +1394,15 @@ namespace cheminotc
         return { trips.size() > 0, orderArrivalTimesBy(arrivalTimes, ts) };
     }
 
-    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max)
+    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, std::string *output, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max)
     {
         auto result = refineArrivalTimes(handle, graph, cache, calendarDates, vsId, veId, ts, te, max);
         ArrivalTimesFunc arrivalTimes = std::get<1>(result);
         bool locked = std::get<0>(result);
         veId = std::get<2>(result);
-        //cheminotc::play::serializeToFile();
+        if(output != NULL) {
+          cheminotc::play::serializeToFile(*output);
+        }
         if(locked)
         {
             return { locked, {} };

@@ -111,7 +111,7 @@ TEST_F(GraphFixture, lookforbesttrip_chartre_parismont)
     ts.tm_min = 47;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::parisMont, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::parisMont, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -123,7 +123,7 @@ TEST_F(GraphFixture, lookforbesttrip_chartre_paris)
     ts.tm_min = 47;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::paris, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::paris, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -135,7 +135,7 @@ TEST_F(GraphFixture, lookforbesttrip_paris_chartres)
     ts.tm_min = 47;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::paris, stops::chartres, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::paris, stops::chartres, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -147,7 +147,7 @@ TEST_F(GraphFixture, lookforbesttrip_parismont_parisbercy)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::avallon, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::avallon, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -159,7 +159,7 @@ TEST_F(GraphFixture, lookforbesttrip_parismont_parisnord)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::creil, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::creil, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -171,7 +171,7 @@ TEST_F(GraphFixture, lookforbesttrip_parismont_parislyon)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::marseillestcharles, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::marseillestcharles, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -183,7 +183,7 @@ TEST_F(GraphFixture, lookforbesttrip_parismont_parisest)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::stdizier, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::stdizier, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -195,7 +195,7 @@ TEST_F(GraphFixture, lookforbesttrip_parismont_parislazare)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::lehavre, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::lehavre, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -207,7 +207,7 @@ TEST_F(GraphFixture, lookforbesttrip_parismont_parisorleans)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::orleans, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::orleans, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -219,7 +219,7 @@ TEST_F(GraphFixture, lookforbesttrip_parisbercy_parismont)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::chartres, stops::avallon, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::chartres, stops::avallon, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -231,7 +231,7 @@ TEST_F(GraphFixture, lookforbesttrip_parislazare_parismont)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::lehavre, stops::chartres, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::lehavre, stops::chartres, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -243,7 +243,7 @@ TEST_F(GraphFixture, lookforbesttrip_parisnord_parismont)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 24);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, stops::creil, stops::chartres, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(handle, NULL, &graph, &cache, &calendarDates, stops::creil, stops::chartres, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }

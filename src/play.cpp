@@ -34,12 +34,12 @@ namespace cheminotc
             vertices.push_back(vertice);
         }
 
-        void serializeToFile()
+        void serializeToFile(std::string path)
         {
             Json::Value json;
             json["vertices"] = serializeVertices();
             std::ofstream file;
-            file.open("play/www/data.json", std::ios::out);
+            file.open(path, std::ios::out);
             file << json.toStyledString() + "\n";
             file.close();
         }

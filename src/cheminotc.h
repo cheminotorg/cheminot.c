@@ -106,7 +106,7 @@ namespace cheminotc
 
     std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te);
 
-    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
+    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, std::string *output, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 
     bool hasSameDateTime(const tm &a, const tm &b);
 
