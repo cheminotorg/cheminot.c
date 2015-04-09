@@ -116,13 +116,6 @@ namespace cheminotc
         return timestamp;
     }
 
-    tm addHours(tm datetime, int n)
-    {
-        datetime.tm_hour += n;
-        fastmktime::mk(&datetime);
-        return datetime;
-    }
-
     tm addSeconds(tm datetime, int n)
     {
         datetime.tm_sec += n;
@@ -133,9 +126,17 @@ namespace cheminotc
     tm minusHours(tm datetime, int n)
     {
         datetime.tm_hour -= n;
-        fastmktime::mk(&datetime);
+        mktime(&datetime);
         return datetime;
     }
+
+    tm addHours(tm datetime, int n)
+    {
+        datetime.tm_hour += n;
+        mktime(&datetime);
+        return datetime;
+    }
+
 
     tm addDays(tm datetime, int n)
     {
@@ -585,6 +586,42 @@ namespace cheminotc
         {
             throw std::runtime_error("Unexpected error while reading: " + path);
         }
+    }
+
+    Json::Value getLastTrace(sqlite3 *handle)
+    {
+        std::string query = "SELECT * FROM TRACE ORDER BY id ASC";
+        auto results = executeQuery(handle, query);
+        Json::Value array = Json::Value(Json::arrayValue);
+        int id = -1;
+        for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator)
+        {
+            auto row = *iterator;
+            Json::Value json;
+            id = atoi((const char*) row["id"]);
+            std::string value = (const char*) row["value"];
+            array.append(value);
+        }
+        cleanTrace(handle, id);
+        return array;
+    }
+
+    void cleanTrace(sqlite3 *handle, int id)
+    {
+        std::string query = "DELETE FROM TRACE WHERE id <= '" + to_string(id) + "'";
+        executeUpdate(handle, query);
+    }
+
+    void resetTrace(sqlite3 *handle)
+    {
+        std::string query = "DELETE FROM TRACE";
+        executeUpdate(handle, query);
+    }
+
+    void traceVertice(sqlite3 *handle, const Vertice &vertice)
+    {
+        std::string query = "INSERT INTO TRACE (value) VALUES('" + vertice.name + "')";
+        executeUpdate(handle, query);
     }
 
     void lock(sqlite3 *handle)
@@ -1138,6 +1175,7 @@ namespace cheminotc
             std::shared_ptr<QueueItem> qi = queue.top();
             Vertice vi = getVerticeFromGraph(&qi->gi, graph, cache, qi->stopId);
             //cheminotc::play::push(vi);
+            traceVertice(handle, vi);
             queue.pop();
 
             if(!isQueueItemOutdated(&uptodate, qi))

@@ -16,13 +16,10 @@ int main(int argc, char **argv)
     std::string avallon = "StopPoint:OCETrain TER-87683789";
     std::string marseillestcharles = "StopPoint:OCETrain TER-87751008";
     struct tm ts = cheminotc::getNow();
-    ts.tm_hour = 0;
+    ts.tm_hour = 18;
     ts.tm_min = 0;
-    tm te = cheminotc::getNow();
-
-    te.tm_hour = 12;
-    te.tm_min = 0;
-
+    tm te = cheminotc::addHours(ts, 11);
+    printf("%s %s\n", cheminotc::formatDateTime(ts).c_str(), cheminotc::formatDateTime(te).c_str());
     sqlite3 *handle = cheminotc::openConnection("/Users/sre/data/Projects/me/cheminot.c/cheminot.db");
     cheminotc::Graph graph;
     cheminotc::CalendarDates calendarDates;
@@ -36,4 +33,3 @@ int main(int argc, char **argv)
         printf("%s - %s - %s\n", iterator->stopId.c_str() , cheminotc::formatDateTime(iterator->arrival).c_str(), iterator->tripId.c_str());
     }
 }
-//OCESN847903F0100445796
