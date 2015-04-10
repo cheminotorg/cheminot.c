@@ -1217,7 +1217,7 @@ namespace cheminotc
 
                 if(datetimeIsBeforeEq(te, enlargedStartingTime))
                 {
-                    if(vi.id == veId || (isParis(veId) && isParis(vi.id)))
+                    if(vi.id == veId || (veId == parisStopId && isParis(vi.id)))
                     {
                         return std::make_tuple(false, arrivalTimesFunc, vi.id);
                     }
