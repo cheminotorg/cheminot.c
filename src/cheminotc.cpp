@@ -65,7 +65,7 @@ namespace cheminotc
     {
         time_t rawtime;
         time(&rawtime);
-        tm *info = gmtime(&rawtime);
+        tm *info = localtime(&rawtime);
         return *info;
     }
 
