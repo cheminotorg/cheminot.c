@@ -4,9 +4,9 @@ INCLUDE(./protobuf.cmake)
 
 project(Cheminot)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -std=c++11")
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/jsoncpp ${CMAKE_CURRENT_BINARY_DIR}/lib/fastmktime)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/jsoncpp)
 add_library(jsoncpp "lib/jsoncpp/jsoncpp.cpp")
-add_library(cheminotc "src/cheminotc.cpp" "src/play.cpp" "src/protobuf/cheminotBuf.pb.cc" "src/fastmktime/fastmktime.cpp")
+add_library(cheminotc "src/cheminotc.cpp" "src/play.cpp" "src/protobuf/cheminotBuf.pb.cc")
 target_link_libraries(cheminotc sqlite3 jsoncpp protobuf)
 
 add_executable(main tests/main.cpp)

@@ -10,7 +10,6 @@
 #include <fstream>
 #include <memory>
 #include "cheminotc.h"
-#include "fastmktime/fastmktime.h"
 //#include "play.h"
 
 namespace cheminotc
@@ -112,7 +111,7 @@ namespace cheminotc
 
     time_t asTimestamp(tm a)
     {
-        time_t timestamp = fastmktime::mk(&a);
+        time_t timestamp = mktime(&a);
         return timestamp;
     }
 
@@ -141,7 +140,7 @@ namespace cheminotc
     tm addDays(tm datetime, int n)
     {
         datetime.tm_mday += n;
-        fastmktime::mk(&datetime);
+        mktime(&datetime);
         return datetime;
     }
 
