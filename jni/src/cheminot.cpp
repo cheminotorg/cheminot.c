@@ -1,0 +1,1 @@
+../../../m.cheminot.plugin/src/android/jni/cheminot/cheminot.cpp

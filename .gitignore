@@ -1,6 +1,5 @@
 CMakeCache.txt
-CMakeFiles/*
-cheminotc
+CMakeFiles
 cmake_install.cmake
 Makefile
 Testing
