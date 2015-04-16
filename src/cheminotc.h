@@ -4,6 +4,7 @@
 #include <memory>
 #include "protobuf/cheminotBuf.pb.h"
 #include <json/json.h>
+#include <unordered_map>
 
 namespace cheminotc
 {

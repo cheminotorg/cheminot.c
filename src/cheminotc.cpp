@@ -9,6 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
+#include <unordered_map>
 #include "cheminotc.h"
 //#include "play.h"
 
