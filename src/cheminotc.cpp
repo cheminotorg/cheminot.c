@@ -251,6 +251,16 @@ namespace cheminotc
         return datetimeIsBeforeEq(a, b) && !hasSameDateTime(a, b);
     }
 
+    Json::Value serializeVertice(const Vertice &vertice)
+    {
+        Json::Value json;
+        json["id"] = vertice.id;
+        json["name"] = vertice.name;
+        json["lat"] = vertice.lat;
+        json["lng"] = vertice.lng;
+        return json;
+    }
+
     Json::Value serializeArrivalTime(Graph *graph, Cache *cache, ArrivalTime arrivalTime)
     {
         Json::Value json;
@@ -597,10 +607,12 @@ namespace cheminotc
         for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator)
         {
             auto row = *iterator;
-            Json::Value json;
             id = atoi((const char*) row["id"]);
             std::string value = (const char*) row["value"];
-            array.append(value);
+            Json::Reader reader;
+            Json::Value json;
+            reader.parse(value, json, false);
+            array.append(json);
         }
         cleanTrace(handle, id);
         return array;
@@ -620,7 +632,9 @@ namespace cheminotc
 
     void traceVertice(sqlite3 *handle, const Vertice &vertice)
     {
-        std::string query = "INSERT INTO TRACE (value) VALUES('" + vertice.name + "')";
+        Json::Value serialized = serializeVertice(vertice);
+        Json::FastWriter* writer = new Json::FastWriter();
+        std::string query = "INSERT INTO TRACE (value) VALUES('" + writer->write(serialized) + "')";
         executeUpdate(handle, query);
     }
 
