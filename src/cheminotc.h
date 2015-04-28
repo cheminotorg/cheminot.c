@@ -12,6 +12,12 @@ namespace cheminotc
     typedef google::protobuf::Map< std::string,m::cheminot::data::Vertice> Graph;
     typedef google::protobuf::Map<std::string,m::cheminot::data::CalendarExceptions> CalendarDates;
 
+    struct CheminotDb
+    {
+      sqlite3* file;
+      sqlite3* inmemory;
+    };
+
     struct StopTime
     {
         std::string tripId;
@@ -89,33 +95,33 @@ namespace cheminotc
 
     tm getNow();
 
-    sqlite3* openConnection(std::string path);
+    CheminotDb openConnection(std::string path);
 
-    std::string getVersion(sqlite3 *handle);
+    std::string getVersion(const CheminotDb &connection);
 
-    Json::Value getLastTrace(sqlite3 *handle);
+    std::string getLastTrace(const CheminotDb &connection);
 
-    void cleanTrace(sqlite3 *handle, int id = 0);
+    void cleanTrace(const CheminotDb &connection, int id);
 
-    void resetTrace(sqlite3 *handle);
+    void resetTrace(const CheminotDb &connection);
 
-    void traceVertice(sqlite3 *handle, const Vertice &vertice);
+    void traceVertice(const CheminotDb &connection, const Vertice &vertice);
 
-    void lock(sqlite3 *handle);
+    void lock(const CheminotDb &connection);
 
-    void unlock(sqlite3 *handle);
+    void unlock(const CheminotDb &connection);
 
-    bool isLocked(sqlite3 *handle);
+    bool isLocked(const CheminotDb &connection, bool *locked);
 
     void parseGraph(std::string path, Graph *graph);
 
     void parseCalendarDates(std::string content, CalendarDates *calendarDates);
 
-    std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
+    std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 
-    std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te);
+    std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te);
 
-    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(sqlite3 *handle, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
+    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 
     bool hasSameDateTime(const tm &a, const tm &b);
 
@@ -145,7 +151,7 @@ namespace cheminotc
 
     Vertice getVerticeFromGraph(const tm *dateref, Graph *graph, Cache *cache, std::string id);
 
-    Json::Value getMeta(sqlite3 *handle);
+    Json::Value getMeta(const CheminotDb &connection);
 
 // -- PARIS
     static std::string parisStopId = "StopPoint:OCETrain TER-PARISXXX";

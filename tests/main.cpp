@@ -15,18 +15,20 @@ int main(int argc, char **argv)
     std::string lehavre = "StopPoint:OCETrain TER-87413013";
     std::string avallon = "StopPoint:OCETrain TER-87683789";
     std::string marseillestcharles = "StopPoint:OCETrain TER-87751008";
-    struct tm ts = cheminotc::getNow();
-    ts.tm_hour = 18;
-    ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 11);
+    // struct tm ts = cheminotc::getNow();
+    // ts.tm_hour = 18;
+    // ts.tm_min = 0;
+    // tm te = cheminotc::addHours(ts, 11);
+    tm ts = cheminotc::asDateTime(1429599051);
+    tm te = cheminotc::asDateTime(1429642251);
     printf("%s %s\n", cheminotc::formatDateTime(ts).c_str(), cheminotc::formatDateTime(te).c_str());
-    sqlite3 *handle = cheminotc::openConnection("/Users/sre/data/Projects/me/cheminot.c/cheminot.db");
+    cheminotc::CheminotDb connection = cheminotc::openConnection("/Users/sre/data/Projects/me/cheminot.c/cheminot.db");
     cheminotc::Graph graph;
     cheminotc::CalendarDates calendarDates;
     cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", &graph);
     cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendardates", &calendarDates);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(handle, &graph, &cache, &calendarDates, chartres, parisMont, ts, te, 1);
+    auto results = cheminotc::lookForBestDirectTrip(connection, &graph, &cache, &calendarDates, chartres, parisMont, ts, te);
 
     for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator)
     {
