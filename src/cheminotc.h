@@ -43,6 +43,8 @@ namespace cheminotc
         tm departure;
         std::string tripId;
         int pos;
+        double lat;
+        double lng;
     };
 
     struct CalendarDate

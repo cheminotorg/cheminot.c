@@ -273,6 +273,8 @@ namespace cheminotc
         json["departure"] = departure;
         json["tripId"] = arrivalTime.tripId;
         json["pos"] = arrivalTime.pos;
+        json["lat"] = arrivalTime.lat;
+        json["lng"] = arrivalTime.lng;
         return json;
     }
 
@@ -965,6 +967,8 @@ namespace cheminotc
             gs.stopId = vs->id;
             gs.departure = departureTime;
             gs.arrival = departureTime;
+            gs.lat = vs->lat;
+            gs.lng = vs->lng;
             gsFunc[asTimestamp(departureTime)] = gs;
         }
 
@@ -1056,14 +1060,16 @@ namespace cheminotc
         }
     }
 
-    ArrivalTime stopTime2ArrivalTime(std::string stopId, const StopTime *stopTime)
+    ArrivalTime stopTime2ArrivalTime(const Vertice *vertice, const StopTime *stopTime)
     {
         ArrivalTime arrivalTime;
-        arrivalTime.stopId = stopId;
+        arrivalTime.stopId = vertice->id;
         arrivalTime.arrival = stopTime->arrival;
         arrivalTime.departure = stopTime->departure;
         arrivalTime.tripId = stopTime->tripId;
         arrivalTime.pos = stopTime->pos;
+        arrivalTime.lat = vertice->lat;
+        arrivalTime.lng = vertice->lng;
         return arrivalTime;
     }
 
@@ -1147,19 +1153,19 @@ namespace cheminotc
                 {
                     if(datetimeIsBeforeNotEq(vjStopTime.arrival, currentGj->second.arrival))   // UPDATING IF BETTER FOUND
                     {
-                        gjFunc[t] = stopTime2ArrivalTime(vj->id, &vjStopTime);
+                        gjFunc[t] = stopTime2ArrivalTime(vj, &vjStopTime);
                         done(vjStopTime);
                     }
                 }
                 else
                 {
-                    gjFunc[t] = stopTime2ArrivalTime(vj->id, &vjStopTime); // NEW VALUE
+                    gjFunc[t] = stopTime2ArrivalTime(vj, &vjStopTime); // NEW VALUE
                     done(vjStopTime);
                 }
             }
             else
             {
-                gjFunc[t] = stopTime2ArrivalTime(vj->id, &vjStopTime); // NEW FUNC
+                gjFunc[t] = stopTime2ArrivalTime(vj, &vjStopTime); // NEW FUNC
                 (*arrivalTimesFunc)[vj->id] = gjFunc;
                 done(vjStopTime);
             }
@@ -1416,7 +1422,7 @@ namespace cheminotc
             if(it != vi.stopTimes.end())
             {
                 StopTime stopTime = *it;
-                *arrivalTime = stopTime2ArrivalTime(viId, &stopTime);
+                *arrivalTime = stopTime2ArrivalTime(&vi, &stopTime);
                 return true;
             }
             return false;
