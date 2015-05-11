@@ -1182,9 +1182,14 @@ namespace cheminotc
         return addSeconds(gj, durationVjVe);
     }
 
+    std::string tdspHash(std::string vsId, std::string veId, tm ts, tm te, int max)
+    {
+        return vsId + "|" + veId + "|" + to_string(asTimestamp(ts) * 1000) + "|" + to_string(asTimestamp(te) * 1000) + "|" + to_string(max);
+    }
+
     std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max)
     {
-        std::string tdsp = vsId + veId + to_string(asTimestamp(ts)) + to_string(asTimestamp(te)) + to_string(max);
+        std::string tdsp = tdspHash(vsId, veId, ts, te, max);
 
         Queue queue;
         ArrivalTimesFunc arrivalTimesFunc;
