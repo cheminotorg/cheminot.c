@@ -460,6 +460,20 @@ namespace cheminotc
         return stopTimesAt;
     }
 
+    bool verticeExists(Graph *graph, Cache *cache, std::string id)
+    {
+        auto cacheIt = cache->vertices.find(id);
+        if(cacheIt != cache->vertices.end())
+        {
+            return true;
+        }
+        else
+        {
+            auto it = graph->find(id);
+            return it != graph->end();
+        }
+    }
+
     Vertice getVerticeFromGraph(const tm *dateref, Graph *graph, Cache *cache, std::string id)
     {
         auto it = cache->vertices.find(id);
