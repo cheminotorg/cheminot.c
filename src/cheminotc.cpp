@@ -498,8 +498,9 @@ namespace cheminotc
             if(dateref != NULL)
             {
                 vertice->stopTimes = parseStopTimes(dateref, verticeBuf.stoptimes());
+                cache->vertices[id] = vertice;
             }
-            cache->vertices[id] = vertice;
+
             return *vertice;
         }
     }
@@ -1397,6 +1398,7 @@ namespace cheminotc
         std::list<std::shared_ptr<Trip>> trips = getDirectTrips(connection, cache, vsId, veId);
         std::pair<std::shared_ptr<Trip>, tm> bestTrip;
         bool hasBestTrip = false;
+
         for(auto iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator)
         {
             std::shared_ptr<Trip> trip = *iterator;
