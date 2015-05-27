@@ -55,6 +55,18 @@ protected:
     }
 };
 
+TEST_F(GraphFixture, lock_unlock)
+{
+    cheminotc::lock(connection);
+    bool locked = false;
+    cheminotc::isLocked(connection, &locked);
+    EXPECT_EQ(true, locked);
+
+    cheminotc::unlock(connection);
+    cheminotc::isLocked(connection, &locked);
+    EXPECT_EQ(false, locked);
+}
+
 TEST_F(GraphFixture, lookforbestdirecttrip_empty_notrip)
 {
     struct tm ts = cheminotc::getNow();

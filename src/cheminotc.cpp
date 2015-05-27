@@ -586,6 +586,8 @@ namespace cheminotc
 
         executeQuery(inmemory, "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)");
 
+        executeQuery(inmemory, "INSERT INTO meta (key, value) VALUES('aborted', '1')");
+
         executeQuery(inmemory, "CREATE TABLE trace (id INTEGER PRIMARY KEY, value TEXT)");
 
         return { file, inmemory };
@@ -668,13 +670,13 @@ namespace cheminotc
 
     void lock(const CheminotDb &connection)
     {
-        std::string query = "UPDATE META SET VALUE = 1 WHERE key = 'aborted'";
+        std::string query = "UPDATE META SET VALUE = '1' WHERE key = 'aborted'";
         executeUpdate(connection.inmemory, query);
     }
 
     void unlock(const CheminotDb &connection)
     {
-        std::string query = "UPDATE META SET VALUE = 0 WHERE key = 'aborted'";
+        std::string query = "UPDATE META SET VALUE = '0' WHERE key = 'aborted'";
         executeUpdate(connection.inmemory, query);
     }
 
