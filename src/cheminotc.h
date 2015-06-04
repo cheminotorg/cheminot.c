@@ -157,6 +157,8 @@ namespace cheminotc
 
     Json::Value getMeta(const CheminotDb &connection);
 
+    void fillCache(Cache *cache, CalendarDates *calendarDates, Graph *graph);
+
 // -- PARIS
     static std::string parisStopId = "StopPoint:OCETrain TER-PARISXXX";
 

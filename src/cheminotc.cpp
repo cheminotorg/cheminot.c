@@ -812,22 +812,30 @@ namespace cheminotc
 
     bool isTripRemovedOn(Cache *cache, std::shared_ptr<Trip> trip, CalendarDates *calendarDates, const tm &when)
     {
-        auto exceptions = getCalendarDatesByServiceId(cache, calendarDates, trip->calendar->serviceId);
-        auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](std::shared_ptr<CalendarDate> calendarDate)
-        {
-            return hasSameDate(calendarDate->date, when) && (calendarDate->exceptionType == 2);
-        });
-        return it != exceptions.end();
+        if(trip->calendar->serviceId != "") {
+            auto exceptions = getCalendarDatesByServiceId(cache, calendarDates, trip->calendar->serviceId);
+            auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](std::shared_ptr<CalendarDate> calendarDate)
+            {
+                return hasSameDate(calendarDate->date, when) && (calendarDate->exceptionType == 2);
+            });
+            return it != exceptions.end();
+        } else {
+            return false;
+        }
     }
 
     bool isTripAddedOn(Cache *cache, std::shared_ptr<Trip> trip, CalendarDates *calendarDates, const tm &when)
     {
-        auto exceptions = getCalendarDatesByServiceId(cache, calendarDates, trip->calendar->serviceId);
-        auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](std::shared_ptr<CalendarDate> exception)
-        {
-            return hasSameDate(exception->date, when) && (exception->exceptionType == 1);
-        });
-        return it != exceptions.end();
+        if(trip->calendar->serviceId != "") {
+            auto exceptions = getCalendarDatesByServiceId(cache, calendarDates, trip->calendar->serviceId);
+            auto it = std::find_if(exceptions.begin(), exceptions.end(), [&when](std::shared_ptr<CalendarDate> exception)
+            {
+                return hasSameDate(exception->date, when) && (exception->exceptionType == 1);
+            });
+            return it != exceptions.end();
+        } else {
+            return false;
+        }
     }
 
     static std::unordered_map<int, std::string> week { {1, "monday"}, {2, "tuesday"}, {3, "wednesday"}, {4, "thursday"}, {5, "friday"}, {6, "saturday"}, {0, "sunday"}};
@@ -1116,6 +1124,39 @@ namespace cheminotc
         }
 
         return startingPeriod;
+    }
+
+    void fillCache(Cache *cache, CalendarDates *calendarDates, Graph *graph)
+    {
+        tm dateref = getNow();
+        for(auto iterator = graph->begin(), end = graph->end(); iterator != end; ++iterator)
+        {
+            auto verticeBuf = iterator->second;
+            std::shared_ptr<Vertice> vertice {new Vertice};
+            std::string id = verticeBuf.id();
+            vertice->id = id;
+            vertice->name = verticeBuf.name();
+            vertice->lat = verticeBuf.lat();
+            vertice->lng = verticeBuf.lng();
+            vertice->edges = parseEdges(verticeBuf.edges());
+            vertice->stopTimes = parseStopTimes(&dateref, verticeBuf.stoptimes());
+            cache->vertices[id] = vertice;
+        }
+
+        for(auto iterator = calendarDates->begin(), end = calendarDates->end(); iterator != end; ++iterator) {
+            auto exceptions = iterator->second.calendardates();
+            std::list<std::shared_ptr<CalendarDate>> calendarDatesByServiceId;
+            for(auto iterator = exceptions.begin(), end = exceptions.end(); iterator != end; ++iterator)
+            {
+                auto calendarDateBuf = *iterator;
+                std::shared_ptr<CalendarDate> calendarDate {new CalendarDate};
+                calendarDate->serviceId = calendarDateBuf.serviceid();
+                calendarDate->date = parseDate(calendarDateBuf.date());
+                calendarDate->exceptionType = calendarDateBuf.exceptiontype();
+                calendarDatesByServiceId.push_back(calendarDate);
+            }
+            cache->calendarDates[iterator->first] = calendarDatesByServiceId;
+        }
     }
 
     bool isQueueItemOutdated(std::unordered_map<std::string, tm> *uptodate, std::shared_ptr<QueueItem> item)
