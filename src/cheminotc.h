@@ -153,7 +153,7 @@ namespace cheminotc
 
     bool verticeExists(Graph *graph, Cache *cache, std::string id);
 
-    Vertice getVerticeFromGraph(const tm *dateref, Graph *graph, Cache *cache, std::string id);
+    Vertice getVerticeFromGraph(Graph *graph, Cache *cache, std::string id, const tm *dateref, bool withStopTimes = true);
 
     Json::Value getMeta(const CheminotDb &connection);
 

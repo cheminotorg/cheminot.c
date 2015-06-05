@@ -266,7 +266,7 @@ namespace cheminotc
         Json::Value json;
         int arrival = asTimestamp(arrivalTime.arrival);
         int departure = asTimestamp(arrivalTime.departure);
-        Vertice vi = cheminotc::getVerticeFromGraph(NULL, graph, cache, arrivalTime.stopId);
+        Vertice vi = cheminotc::getVerticeFromGraph(graph, cache, arrivalTime.stopId, NULL, false);
         json["stopId"] = arrivalTime.stopId;
         json["stopName"] = vi.name;
         json["arrival"] = arrival;
@@ -474,15 +474,22 @@ namespace cheminotc
         }
     }
 
-    Vertice getVerticeFromGraph(const tm *dateref, Graph *graph, Cache *cache, std::string id)
+    Vertice getVerticeFromGraph(Graph *graph, Cache *cache, std::string id, const tm *dateref, bool withStopTimes)
     {
+        tm datetime;
+        if(dateref == NULL) {
+            datetime = getNow();
+        } else {
+            datetime = *dateref;
+        }
+
         auto it = cache->vertices.find(id);
         if(it != cache->vertices.end())
         {
             Vertice vertice = *it->second;
-            if(dateref != NULL)
+            if(withStopTimes)
             {
-                vertice.stopTimes = orderStopTimesBy(vertice.stopTimes, *dateref);
+                vertice.stopTimes = orderStopTimesBy(vertice.stopTimes, datetime);
             }
             return vertice;
         }
@@ -495,9 +502,9 @@ namespace cheminotc
             vertice->lat = verticeBuf.lat();
             vertice->lng = verticeBuf.lng();
             vertice->edges = parseEdges(verticeBuf.edges());
-            if(dateref != NULL)
+            if(withStopTimes)
             {
-                vertice->stopTimes = parseStopTimes(dateref, verticeBuf.stoptimes());
+                vertice->stopTimes = parseStopTimes(&datetime, verticeBuf.stoptimes());
                 cache->vertices[id] = vertice;
             }
 
@@ -1040,7 +1047,7 @@ namespace cheminotc
             for (auto iterator = vi->edges.begin(), end = vi->edges.end(); iterator != end; ++iterator)
             {
                 std::string edge = *iterator;
-                Vertice vf = getVerticeFromGraph(&ts, graph, cache, edge);
+                Vertice vf = getVerticeFromGraph(graph, cache, edge, &ts);
                 std::list<StopTime> vfDepartureTimes = getAvailableDepartures(connection, cache, calendarDates, t, &vf);
                 for (auto iterator = vfDepartureTimes.begin(), end = vfDepartureTimes.end(); iterator != end; ++iterator)
                 {
@@ -1252,7 +1259,7 @@ namespace cheminotc
         Queue queue;
         ArrivalTimesFunc arrivalTimesFunc;
         std::unordered_map<std::string, tm> uptodate;
-        Vertice vs = getVerticeFromGraph(&ts, graph, cache, vsId);
+        Vertice vs = getVerticeFromGraph(graph, cache, vsId, &ts);
         std::list<tm> startingPeriod = getStartingPeriod(connection, cache, calendarDates, &vs, ts, te, max);
         if(startingPeriod.empty())
         {
@@ -1262,14 +1269,14 @@ namespace cheminotc
         ts = *startingPeriod.begin();
         te = *(std::prev(startingPeriod.end()));
 
-        Vertice ve = getVerticeFromGraph(&ts, graph, cache, veId);
+        Vertice ve = getVerticeFromGraph(graph, cache, veId, &ts);
         std::unordered_map<std::string, std::shared_ptr<QueueItem>> items = initTimeRefinement(connection, graph, &arrivalTimesFunc, calendarDates, &queue, &vs, &ve, ts, startingPeriod);
 
         bool locked = false;
         while(!isLocked(connection, &locked) && queue.size() >= 2)
         {
             std::shared_ptr<QueueItem> qi = queue.top();
-            Vertice vi = getVerticeFromGraph(&qi->gi, graph, cache, qi->stopId);
+            Vertice vi = getVerticeFromGraph(graph, cache, qi->stopId, &qi->gi);
             //cheminotc::play::push(vi);
             traceVertice(connection, tdsp, vi);
             queue.pop();
@@ -1294,7 +1301,7 @@ namespace cheminotc
                             if(datetimeIsBeforeEq(qi->ti, startingTime) && datetimeIsBeforeEq(startingTime, enlargedStartingTime))
                             {
                                 ArrivalTime gi = giFunc[asTimestamp(startingTime)];
-                                Vertice vj = getVerticeFromGraph(&gi.arrival, graph, cache, vjId);
+                                Vertice vj = getVerticeFromGraph(graph, cache, vjId, &gi.arrival);
                                 updateArrivalTimeFunc(connection, graph, cache, calendarDates, &arrivalTimesFunc, &vi, &gi, &vj, startingTime, [&](StopTime vjStopTime)
                                 {
                                     std::shared_ptr<QueueItem> updatedQj {new QueueItem};
@@ -1354,7 +1361,7 @@ namespace cheminotc
 
         ArrivalTimeFunc geFunc = (*arrivalTimesFunc)[veId];
         time_t optimalStartingTime = getOptimalStartingTime(&geFunc, veId);
-        Vertice vj = getVerticeFromGraph(&ts, graph, cache, veId);
+        Vertice vj = getVerticeFromGraph(graph, cache, veId, &ts);
 
         std::function<bool (std::string, ArrivalTime*)> getArrivalTimeAt = [&arrivalTimesFunc, &optimalStartingTime](std::string viId, ArrivalTime *arrivalTime)
         {
@@ -1401,7 +1408,7 @@ namespace cheminotc
                     ArrivalTime gi;
                     if(getArrivalTimeAt(viId, &gi))
                     {
-                        Vertice vi = getVerticeFromGraph(&ts, graph, cache, viId);
+                        Vertice vi = getVerticeFromGraph(graph, cache, viId, &ts);
                         auto it = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&gj](const StopTime &viStopTime)
                         {
                             return (viStopTime.tripId == gj.tripId) && (viStopTime.pos == (gj.pos - 1));
@@ -1423,7 +1430,7 @@ namespace cheminotc
                                 }
                             }
                             path.push_front(gi);
-                            vj = getVerticeFromGraph(&ts, graph, cache, gi.stopId);
+                            vj = getVerticeFromGraph(graph, cache, gi.stopId, &ts);
                             break;
                         }
                     }
@@ -1436,8 +1443,8 @@ namespace cheminotc
 
     std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te)
     {
-        Vertice vs = getVerticeFromGraph(&ts, graph, cache, vsId);
-        Vertice ve = getVerticeFromGraph(&ts, graph, cache, veId);
+        Vertice vs = getVerticeFromGraph(graph, cache, vsId, &ts);
+        Vertice ve = getVerticeFromGraph(graph, cache, veId, &ts);
         std::list<std::shared_ptr<Trip>> trips = getDirectTrips(connection, cache, vsId, veId);
         std::pair<std::shared_ptr<Trip>, tm> bestTrip;
         bool hasBestTrip = false;
@@ -1478,7 +1485,7 @@ namespace cheminotc
 
         std::function<bool (std::string, std::shared_ptr<Trip>, ArrivalTime*)> getArrivalTime = [&ts, &graph, &cache](std::string viId, std::shared_ptr<Trip> trip, ArrivalTime *arrivalTime)
         {
-            Vertice vi = getVerticeFromGraph(&ts, graph, cache, viId);
+            Vertice vi = getVerticeFromGraph(graph, cache, viId, &ts);
             auto it = std::find_if(vi.stopTimes.begin(), vi.stopTimes.end(), [&trip](const StopTime &stopTime)
             {
                 return stopTime.tripId == trip->id;
