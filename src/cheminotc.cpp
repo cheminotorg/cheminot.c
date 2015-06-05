@@ -593,7 +593,7 @@ namespace cheminotc
 
         executeQuery(inmemory, "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)");
 
-        executeQuery(inmemory, "INSERT INTO meta (key, value) VALUES('aborted', '1')");
+        executeQuery(inmemory, "INSERT INTO meta (key, value) VALUES('aborted', '0')");
 
         executeQuery(inmemory, "CREATE TABLE trace (id INTEGER PRIMARY KEY, value TEXT)");
 
