@@ -82,6 +82,7 @@ namespace cheminotc
 
     struct Cache
     {
+        bool readonly;
         VerticesCache vertices;
         CalendarDatesCache calendarDates;
         TripsCache trips;

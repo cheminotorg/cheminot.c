@@ -347,7 +347,9 @@ namespace cheminotc
                 calendarDate->exceptionType = calendarDateBuf.exceptiontype();
                 results.push_back(calendarDate);
             }
-            cache->calendarDates[serviceId] = results;
+            if(!cache->readonly) {
+                cache->calendarDates[serviceId] = results;
+            }
             return results;
         }
     }
@@ -505,7 +507,9 @@ namespace cheminotc
             if(withStopTimes)
             {
                 vertice->stopTimes = parseStopTimes(&datetime, verticeBuf.stoptimes());
-                cache->vertices[id] = vertice;
+                if(!cache->readonly) {
+                    cache->vertices[id] = vertice;
+                }
             }
 
             return *vertice;
@@ -758,7 +762,7 @@ namespace cheminotc
         for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator)
         {
             std::shared_ptr<Trip> trip = parseTripRow(iterator);
-            if(cache->trips.find(trip->id) == cache->trips.end())
+            if(!cache->readonly && cache->trips.find(trip->id) == cache->trips.end())
             {
                 cache->trips[trip->id] = trip;
             }
@@ -800,7 +804,9 @@ namespace cheminotc
             for (auto iterator = fromSqlite.begin(), end = fromSqlite.end(); iterator != end; ++iterator)
             {
                 std::shared_ptr<Trip> trip = parseTripRow(iterator);
-                cache->trips[trip->id] = trip;
+                if(!cache->readonly) {
+                    cache->trips[trip->id] = trip;
+                }
                 results.push_back(trip);
             }
         }
@@ -1164,6 +1170,8 @@ namespace cheminotc
             }
             cache->calendarDates[iterator->first] = calendarDatesByServiceId;
         }
+
+        cache->readonly = true;
     }
 
     bool isQueueItemOutdated(std::unordered_map<std::string, tm> *uptodate, std::shared_ptr<QueueItem> item)
