@@ -346,7 +346,7 @@ const int Graph::kVerticesFieldNumber;
 #endif  // !_MSC_VER
 
 Graph::Graph()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.Graph)
 }
@@ -424,7 +424,8 @@ bool Graph::MergePartialFromCodedStream(
       // map<string, .m.cheminot.data.Vertice> vertices = 1;
       case 1: {
         if (tag == 10) {
-         parse_vertices:
+          DO_(input->IncrementRecursionDepth());
+         parse_loop_vertices:
           ::google::protobuf::scoped_ptr<Graph_VerticesEntry> entry(vertices_.NewEntry());
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
               input, entry.get()));
@@ -432,7 +433,8 @@ bool Graph::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(10)) goto parse_vertices;
+        if (input->ExpectTag(10)) goto parse_loop_vertices;
+        input->UnsafeDecrementRecursionDepth();
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -465,7 +467,8 @@ void Graph::SerializeWithCachedSizes(
   {
     ::google::protobuf::scoped_ptr<Graph_VerticesEntry> entry;
     for (::google::protobuf::Map< ::std::string, ::m::cheminot::data::Vertice >::const_iterator
-        it = vertices().begin(); it != vertices().end(); ++it) {
+        it = this->vertices().begin();
+        it != this->vertices().end(); ++it) {
       entry.reset(vertices_.NewEntryWrapper(it->first, it->second));
       ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
           1, *entry, output);
@@ -482,7 +485,8 @@ void Graph::SerializeWithCachedSizes(
   {
     ::google::protobuf::scoped_ptr<Graph_VerticesEntry> entry;
     for (::google::protobuf::Map< ::std::string, ::m::cheminot::data::Vertice >::const_iterator
-        it = vertices().begin(); it != vertices().end(); ++it) {
+        it = this->vertices().begin();
+        it != this->vertices().end(); ++it) {
       entry.reset(vertices_.NewEntryWrapper(it->first, it->second));
       target = ::google::protobuf::internal::WireFormatLite::
           WriteMessageNoVirtualToArray(
@@ -502,7 +506,8 @@ int Graph::ByteSize() const {
   {
     ::google::protobuf::scoped_ptr<Graph_VerticesEntry> entry;
     for (::google::protobuf::Map< ::std::string, ::m::cheminot::data::Vertice >::const_iterator
-        it = vertices().begin(); it != vertices().end(); ++it) {
+        it = this->vertices().begin();
+        it != this->vertices().end(); ++it) {
       entry.reset(vertices_.NewEntryWrapper(it->first, it->second));
       total_size += ::google::protobuf::internal::WireFormatLite::
           MessageSizeNoVirtual(*entry);
@@ -517,9 +522,9 @@ int Graph::ByteSize() const {
 
 void Graph::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const Graph* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Graph*>(
-      &from);
+  const Graph* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const Graph>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -571,10 +576,10 @@ void Graph::InternalSwap(Graph* other) {
 // Graph
 
 // map<string, .m.cheminot.data.Vertice> vertices = 1;
- int Graph::vertices_size() const {
+int Graph::vertices_size() const {
   return vertices_.size();
 }
- void Graph::clear_vertices() {
+void Graph::clear_vertices() {
   vertices_.Clear();
 }
  const ::google::protobuf::Map< ::std::string, ::m::cheminot::data::Vertice >&
@@ -602,7 +607,7 @@ const int Vertice::kStopTimesFieldNumber;
 #endif  // !_MSC_VER
 
 Vertice::Vertice()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.Vertice)
 }
@@ -782,12 +787,15 @@ bool Vertice::MergePartialFromCodedStream(
       case 6: {
         if (tag == 50) {
          parse_stopTimes:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+          DO_(input->IncrementRecursionDepth());
+         parse_loop_stopTimes:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
                 input, add_stoptimes()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(50)) goto parse_stopTimes;
+        if (input->ExpectTag(50)) goto parse_loop_stopTimes;
+        input->UnsafeDecrementRecursionDepth();
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -971,9 +979,9 @@ int Vertice::ByteSize() const {
 
 void Vertice::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const Vertice* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Vertice*>(
-      &from);
+  const Vertice* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const Vertice>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -1045,7 +1053,7 @@ void Vertice::InternalSwap(Vertice* other) {
 // Vertice
 
 // optional string id = 1;
- void Vertice::clear_id() {
+void Vertice::clear_id() {
   id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Vertice::id() const {
@@ -1088,7 +1096,7 @@ void Vertice::InternalSwap(Vertice* other) {
 }
 
 // optional string name = 2;
- void Vertice::clear_name() {
+void Vertice::clear_name() {
   name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Vertice::name() const {
@@ -1131,7 +1139,7 @@ void Vertice::InternalSwap(Vertice* other) {
 }
 
 // optional double lat = 3;
- void Vertice::clear_lat() {
+void Vertice::clear_lat() {
   lat_ = 0;
 }
  double Vertice::lat() const {
@@ -1145,7 +1153,7 @@ void Vertice::InternalSwap(Vertice* other) {
 }
 
 // optional double lng = 4;
- void Vertice::clear_lng() {
+void Vertice::clear_lng() {
   lng_ = 0;
 }
  double Vertice::lng() const {
@@ -1159,10 +1167,10 @@ void Vertice::InternalSwap(Vertice* other) {
 }
 
 // repeated string edges = 5;
- int Vertice::edges_size() const {
+int Vertice::edges_size() const {
   return edges_.size();
 }
- void Vertice::clear_edges() {
+void Vertice::clear_edges() {
   edges_.Clear();
 }
  const ::std::string& Vertice::edges(int index) const {
@@ -1213,10 +1221,10 @@ Vertice::mutable_edges() {
 }
 
 // repeated .m.cheminot.data.StopTime stopTimes = 6;
- int Vertice::stoptimes_size() const {
+int Vertice::stoptimes_size() const {
   return stoptimes_.size();
 }
- void Vertice::clear_stoptimes() {
+void Vertice::clear_stoptimes() {
   stoptimes_.Clear();
 }
  const ::m::cheminot::data::StopTime& Vertice::stoptimes(int index) const {
@@ -1255,7 +1263,7 @@ const int StopTime::kPosFieldNumber;
 #endif  // !_MSC_VER
 
 StopTime::StopTime()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.StopTime)
 }
@@ -1596,9 +1604,9 @@ int StopTime::ByteSize() const {
 
 void StopTime::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const StopTime* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const StopTime*>(
-      &from);
+  const StopTime* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const StopTime>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -1672,7 +1680,7 @@ void StopTime::InternalSwap(StopTime* other) {
 // StopTime
 
 // optional string tripId = 1;
- void StopTime::clear_tripid() {
+void StopTime::clear_tripid() {
   tripid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& StopTime::tripid() const {
@@ -1715,7 +1723,7 @@ void StopTime::InternalSwap(StopTime* other) {
 }
 
 // optional string arrival = 2;
- void StopTime::clear_arrival() {
+void StopTime::clear_arrival() {
   arrival_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& StopTime::arrival() const {
@@ -1758,7 +1766,7 @@ void StopTime::InternalSwap(StopTime* other) {
 }
 
 // optional string departure = 3;
- void StopTime::clear_departure() {
+void StopTime::clear_departure() {
   departure_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& StopTime::departure() const {
@@ -1801,7 +1809,7 @@ void StopTime::InternalSwap(StopTime* other) {
 }
 
 // optional string stopId = 4;
- void StopTime::clear_stopid() {
+void StopTime::clear_stopid() {
   stopid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& StopTime::stopid() const {
@@ -1844,7 +1852,7 @@ void StopTime::InternalSwap(StopTime* other) {
 }
 
 // optional int32 pos = 5;
- void StopTime::clear_pos() {
+void StopTime::clear_pos() {
   pos_ = 0;
 }
  ::google::protobuf::int32 StopTime::pos() const {
@@ -1866,7 +1874,7 @@ const int CalendarDates::kExceptionsByServiceIdFieldNumber;
 #endif  // !_MSC_VER
 
 CalendarDates::CalendarDates()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.CalendarDates)
 }
@@ -1944,7 +1952,8 @@ bool CalendarDates::MergePartialFromCodedStream(
       // map<string, .m.cheminot.data.CalendarExceptions> exceptionsByServiceId = 1;
       case 1: {
         if (tag == 10) {
-         parse_exceptionsByServiceId:
+          DO_(input->IncrementRecursionDepth());
+         parse_loop_exceptionsByServiceId:
           ::google::protobuf::scoped_ptr<CalendarDates_ExceptionsByServiceIdEntry> entry(exceptionsbyserviceid_.NewEntry());
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
               input, entry.get()));
@@ -1952,7 +1961,8 @@ bool CalendarDates::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(10)) goto parse_exceptionsByServiceId;
+        if (input->ExpectTag(10)) goto parse_loop_exceptionsByServiceId;
+        input->UnsafeDecrementRecursionDepth();
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1985,7 +1995,8 @@ void CalendarDates::SerializeWithCachedSizes(
   {
     ::google::protobuf::scoped_ptr<CalendarDates_ExceptionsByServiceIdEntry> entry;
     for (::google::protobuf::Map< ::std::string, ::m::cheminot::data::CalendarExceptions >::const_iterator
-        it = exceptionsbyserviceid().begin(); it != exceptionsbyserviceid().end(); ++it) {
+        it = this->exceptionsbyserviceid().begin();
+        it != this->exceptionsbyserviceid().end(); ++it) {
       entry.reset(exceptionsbyserviceid_.NewEntryWrapper(it->first, it->second));
       ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
           1, *entry, output);
@@ -2002,7 +2013,8 @@ void CalendarDates::SerializeWithCachedSizes(
   {
     ::google::protobuf::scoped_ptr<CalendarDates_ExceptionsByServiceIdEntry> entry;
     for (::google::protobuf::Map< ::std::string, ::m::cheminot::data::CalendarExceptions >::const_iterator
-        it = exceptionsbyserviceid().begin(); it != exceptionsbyserviceid().end(); ++it) {
+        it = this->exceptionsbyserviceid().begin();
+        it != this->exceptionsbyserviceid().end(); ++it) {
       entry.reset(exceptionsbyserviceid_.NewEntryWrapper(it->first, it->second));
       target = ::google::protobuf::internal::WireFormatLite::
           WriteMessageNoVirtualToArray(
@@ -2022,7 +2034,8 @@ int CalendarDates::ByteSize() const {
   {
     ::google::protobuf::scoped_ptr<CalendarDates_ExceptionsByServiceIdEntry> entry;
     for (::google::protobuf::Map< ::std::string, ::m::cheminot::data::CalendarExceptions >::const_iterator
-        it = exceptionsbyserviceid().begin(); it != exceptionsbyserviceid().end(); ++it) {
+        it = this->exceptionsbyserviceid().begin();
+        it != this->exceptionsbyserviceid().end(); ++it) {
       entry.reset(exceptionsbyserviceid_.NewEntryWrapper(it->first, it->second));
       total_size += ::google::protobuf::internal::WireFormatLite::
           MessageSizeNoVirtual(*entry);
@@ -2037,9 +2050,9 @@ int CalendarDates::ByteSize() const {
 
 void CalendarDates::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const CalendarDates* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const CalendarDates*>(
-      &from);
+  const CalendarDates* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const CalendarDates>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -2091,10 +2104,10 @@ void CalendarDates::InternalSwap(CalendarDates* other) {
 // CalendarDates
 
 // map<string, .m.cheminot.data.CalendarExceptions> exceptionsByServiceId = 1;
- int CalendarDates::exceptionsbyserviceid_size() const {
+int CalendarDates::exceptionsbyserviceid_size() const {
   return exceptionsbyserviceid_.size();
 }
- void CalendarDates::clear_exceptionsbyserviceid() {
+void CalendarDates::clear_exceptionsbyserviceid() {
   exceptionsbyserviceid_.Clear();
 }
  const ::google::protobuf::Map< ::std::string, ::m::cheminot::data::CalendarExceptions >&
@@ -2117,7 +2130,7 @@ const int CalendarExceptions::kCalendarDatesFieldNumber;
 #endif  // !_MSC_VER
 
 CalendarExceptions::CalendarExceptions()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.CalendarExceptions)
 }
@@ -2191,13 +2204,15 @@ bool CalendarExceptions::MergePartialFromCodedStream(
       // repeated .m.cheminot.data.CalendarDate calendarDates = 1;
       case 1: {
         if (tag == 10) {
-         parse_calendarDates:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+          DO_(input->IncrementRecursionDepth());
+         parse_loop_calendarDates:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
                 input, add_calendardates()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(10)) goto parse_calendarDates;
+        if (input->ExpectTag(10)) goto parse_loop_calendarDates;
+        input->UnsafeDecrementRecursionDepth();
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -2268,9 +2283,9 @@ int CalendarExceptions::ByteSize() const {
 
 void CalendarExceptions::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const CalendarExceptions* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const CalendarExceptions*>(
-      &from);
+  const CalendarExceptions* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const CalendarExceptions>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -2322,10 +2337,10 @@ void CalendarExceptions::InternalSwap(CalendarExceptions* other) {
 // CalendarExceptions
 
 // repeated .m.cheminot.data.CalendarDate calendarDates = 1;
- int CalendarExceptions::calendardates_size() const {
+int CalendarExceptions::calendardates_size() const {
   return calendardates_.size();
 }
- void CalendarExceptions::clear_calendardates() {
+void CalendarExceptions::clear_calendardates() {
   calendardates_.Clear();
 }
  const ::m::cheminot::data::CalendarDate& CalendarExceptions::calendardates(int index) const {
@@ -2362,7 +2377,7 @@ const int CalendarDate::kExceptionTypeFieldNumber;
 #endif  // !_MSC_VER
 
 CalendarDate::CalendarDate()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.CalendarDate)
 }
@@ -2607,9 +2622,9 @@ int CalendarDate::ByteSize() const {
 
 void CalendarDate::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const CalendarDate* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const CalendarDate*>(
-      &from);
+  const CalendarDate* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const CalendarDate>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -2673,7 +2688,7 @@ void CalendarDate::InternalSwap(CalendarDate* other) {
 // CalendarDate
 
 // optional string serviceId = 1;
- void CalendarDate::clear_serviceid() {
+void CalendarDate::clear_serviceid() {
   serviceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& CalendarDate::serviceid() const {
@@ -2716,7 +2731,7 @@ void CalendarDate::InternalSwap(CalendarDate* other) {
 }
 
 // optional string date = 2;
- void CalendarDate::clear_date() {
+void CalendarDate::clear_date() {
   date_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& CalendarDate::date() const {
@@ -2759,7 +2774,7 @@ void CalendarDate::InternalSwap(CalendarDate* other) {
 }
 
 // optional int32 exceptionType = 3;
- void CalendarDate::clear_exceptiontype() {
+void CalendarDate::clear_exceptiontype() {
   exceptiontype_ = 0;
 }
  ::google::protobuf::int32 CalendarDate::exceptiontype() const {
@@ -2790,7 +2805,7 @@ const int Calendar::kEndDateFieldNumber;
 #endif  // !_MSC_VER
 
 Calendar::Calendar()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.Calendar)
 }
@@ -3385,9 +3400,9 @@ int Calendar::ByteSize() const {
 
 void Calendar::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const Calendar* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const Calendar*>(
-      &from);
+  const Calendar* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const Calendar>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -3487,7 +3502,7 @@ void Calendar::InternalSwap(Calendar* other) {
 // Calendar
 
 // optional string serviceId = 1;
- void Calendar::clear_serviceid() {
+void Calendar::clear_serviceid() {
   serviceid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::serviceid() const {
@@ -3530,7 +3545,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string monday = 2;
- void Calendar::clear_monday() {
+void Calendar::clear_monday() {
   monday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::monday() const {
@@ -3573,7 +3588,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string tuesday = 3;
- void Calendar::clear_tuesday() {
+void Calendar::clear_tuesday() {
   tuesday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::tuesday() const {
@@ -3616,7 +3631,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string wednesday = 4;
- void Calendar::clear_wednesday() {
+void Calendar::clear_wednesday() {
   wednesday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::wednesday() const {
@@ -3659,7 +3674,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string thursday = 5;
- void Calendar::clear_thursday() {
+void Calendar::clear_thursday() {
   thursday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::thursday() const {
@@ -3702,7 +3717,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string friday = 6;
- void Calendar::clear_friday() {
+void Calendar::clear_friday() {
   friday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::friday() const {
@@ -3745,7 +3760,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string saturday = 7;
- void Calendar::clear_saturday() {
+void Calendar::clear_saturday() {
   saturday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::saturday() const {
@@ -3788,7 +3803,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string sunday = 8;
- void Calendar::clear_sunday() {
+void Calendar::clear_sunday() {
   sunday_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::sunday() const {
@@ -3831,7 +3846,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string startDate = 9;
- void Calendar::clear_startdate() {
+void Calendar::clear_startdate() {
   startdate_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::startdate() const {
@@ -3874,7 +3889,7 @@ void Calendar::InternalSwap(Calendar* other) {
 }
 
 // optional string endDate = 10;
- void Calendar::clear_enddate() {
+void Calendar::clear_enddate() {
   enddate_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
  const ::std::string& Calendar::enddate() const {
@@ -3925,7 +3940,7 @@ const int TripStopIds::kStopIdsFieldNumber;
 #endif  // !_MSC_VER
 
 TripStopIds::TripStopIds()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   SharedCtor();
   // @@protoc_insertion_point(constructor:m.cheminot.data.TripStopIds)
 }
@@ -4088,9 +4103,9 @@ int TripStopIds::ByteSize() const {
 
 void TripStopIds::MergeFrom(const ::google::protobuf::Message& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
-  const TripStopIds* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const TripStopIds*>(
-      &from);
+  const TripStopIds* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const TripStopIds>(
+          &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -4142,10 +4157,10 @@ void TripStopIds::InternalSwap(TripStopIds* other) {
 // TripStopIds
 
 // repeated string stopIds = 1;
- int TripStopIds::stopids_size() const {
+int TripStopIds::stopids_size() const {
   return stopids_.size();
 }
- void TripStopIds::clear_stopids() {
+void TripStopIds::clear_stopids() {
   stopids_.Clear();
 }
  const ::std::string& TripStopIds::stopids(int index) const {
