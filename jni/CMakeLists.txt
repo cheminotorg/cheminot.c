@@ -4,7 +4,7 @@ INCLUDE(../protobuf.cmake)
 
 project(cheminot)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -DHAVE_PTHREAD=1")
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/jsoncpp)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/src/cheminotc)
