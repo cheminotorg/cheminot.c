@@ -65,7 +65,7 @@ namespace cheminotc
     {
         time_t rawtime;
         time(&rawtime);
-        tm *info = localtime(&rawtime);
+        tm *info = gmtime(&rawtime);
         return *info;
     }
 
@@ -107,7 +107,7 @@ namespace cheminotc
     tm asDateTime(time_t t)
     {
         tm dateTime;
-        return *(localtime (&t));
+        return *(gmtime (&t));
     }
 
     time_t asTimestamp(tm a)
