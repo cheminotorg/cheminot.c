@@ -582,7 +582,7 @@ namespace cheminotc
             }
             else
             {
-                oops("Unexpected error while executing this SQL query: " + query);
+                oops("Unexpected error [" + to_string(retval) + "] while executing this SQL query: " + query);
             }
         }
     }
