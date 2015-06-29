@@ -2,6 +2,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 INCLUDE(../protobuf.cmake)
 
+set_source_files_properties(settings.h PROPERTIES GENERATED true)
+add_custom_command(OUTPUT settings.h
+    COMMAND sh ../settings.sh src/cheminotc
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 project(cheminot)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -DHAVE_PTHREAD=1")
@@ -14,6 +19,6 @@ include_directories(/usr/lib/jvm/java-7-openjdk-amd64/include/)
 
 add_library(jsoncpp "lib/jsoncpp/jsoncpp.cpp")
 add_library(cheminotc "src/cheminotc/cheminotc.cpp" "src/cheminotc/protobuf/cheminotBuf.pb.cc")
-add_library(cheminot MODULE "src/cheminot.cpp")
+add_library(cheminot MODULE settings.h "src/cheminot.cpp")
 
 target_link_libraries(cheminot cheminotc sqlite3 jsoncpp protobuf)

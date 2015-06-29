@@ -4,7 +4,7 @@ INCLUDE(./protobuf.cmake)
 
 set_source_files_properties(settings.h PROPERTIES GENERATED true)
 add_custom_command(OUTPUT settings.h
-    COMMAND sh settings.sh
+    COMMAND sh settings.sh src/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 project(Cheminot)

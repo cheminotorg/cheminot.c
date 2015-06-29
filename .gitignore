@@ -18,6 +18,7 @@ android/
 lib/gtest-1.7.0/CMakeFiles/*
 lib/protobuf
 .DS_Store
+settings.h
 
 # cpp
 *.slo
