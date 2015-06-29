@@ -65,7 +65,7 @@ namespace cheminotc
     {
         time_t rawtime;
         time(&rawtime);
-        tm *info = gmtime(&rawtime);
+        tm *info = localtime(&rawtime);
         return *info;
     }
 
@@ -107,33 +107,33 @@ namespace cheminotc
     tm asDateTime(time_t t)
     {
         tm dateTime;
-        return *(gmtime (&t));
+        return *(localtime (&t));
     }
 
     time_t asTimestamp(tm a)
     {
-        time_t timestamp = mktime(&a);
+        time_t timestamp = timelocal(&a);
         return timestamp;
     }
 
     tm addSeconds(tm datetime, int n)
     {
         datetime.tm_sec += n;
-        mktime(&datetime);
+        timelocal(&datetime);
         return datetime;
     }
 
     tm minusHours(tm datetime, int n)
     {
         datetime.tm_hour -= n;
-        mktime(&datetime);
+        timelocal(&datetime);
         return datetime;
     }
 
     tm addHours(tm datetime, int n)
     {
         datetime.tm_hour += n;
-        mktime(&datetime);
+        timelocal(&datetime);
         return datetime;
     }
 
@@ -141,7 +141,7 @@ namespace cheminotc
     tm addDays(tm datetime, int n)
     {
         datetime.tm_mday += n;
-        mktime(&datetime);
+        timelocal(&datetime);
         return datetime;
     }
 
