@@ -100,6 +100,8 @@ namespace cheminotc
 
     CheminotDb openConnection(std::string path);
 
+    void closeConnection(CheminotDb cheminotDb);
+
     std::string getVersion(const CheminotDb &connection);
 
     std::string getLastTrace(const CheminotDb &connection);

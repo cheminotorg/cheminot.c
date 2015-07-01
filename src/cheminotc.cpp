@@ -604,6 +604,12 @@ namespace cheminotc
         return { file, inmemory };
     }
 
+    void closeConnection(CheminotDb cheminotDb)
+    {
+        sqlite3_close(cheminotDb.inmemory);
+        sqlite3_close(cheminotDb.file);
+    }
+
     void parseGraph(std::string path, Graph *graph)
     {
         std::ifstream in(path);
