@@ -11,7 +11,7 @@ project(Cheminot)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DHAVE_PTHREAD=1")
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/jsoncpp)
 add_library(jsoncpp "lib/jsoncpp/jsoncpp.cpp")
-add_library(cheminotc settings.h "src/cheminotc.cpp" "src/play.cpp" "src/protobuf/cheminotBuf.pb.cc")
+add_library(cheminotc settings.h "src/cheminotc.cpp" "src/protobuf/cheminotBuf.pb.cc")
 target_link_libraries(cheminotc sqlite3 jsoncpp protobuf)
 
 add_executable(main tests/main.cpp)

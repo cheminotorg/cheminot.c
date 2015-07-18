@@ -13,6 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -DHAVE_PTHREAD=1")
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/jsoncpp)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/src/cheminotc)
+
 include_directories(/usr/lib/jvm/java-7-openjdk-amd64/include/)
 #include_directories(/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home/include)
 #include_directories(/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home/include/darwin)

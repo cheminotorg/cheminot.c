@@ -11,7 +11,6 @@
 #include <memory>
 #include <unordered_map>
 #include "cheminotc.h"
-//#include "play.h"
 
 namespace cheminotc
 {
@@ -1291,7 +1290,6 @@ namespace cheminotc
         {
             std::shared_ptr<QueueItem> qi = queue.top();
             Vertice vi = getVerticeFromGraph(graph, cache, qi->stopId, &qi->gi);
-            //cheminotc::play::push(vi);
             traceVertice(connection, tdsp, vi);
             queue.pop();
 
@@ -1556,7 +1554,7 @@ namespace cheminotc
         ArrivalTimesFunc arrivalTimes = std::get<1>(result);
         bool locked = std::get<0>(result);
         veId = std::get<2>(result);
-        //cheminotc::play::serializeToFile();
+
         if(locked)
         {
             return { locked, {} };
