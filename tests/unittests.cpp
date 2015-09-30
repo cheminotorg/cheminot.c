@@ -29,18 +29,18 @@ namespace utils
 {
     static std::function<void (std::list<cheminotc::ArrivalTime>)> print = [](std::list<cheminotc::ArrivalTime> arrivalTimes)
     {
-        for (auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator)
+        for (cheminotc::ArrivalTime arrivalTime : arrivalTimes)
         {
-            std::string arrival = cheminotc::formatDateTime(iterator->arrival).c_str();
-            std::string departure = cheminotc::formatDateTime(iterator->departure).c_str();
-            printf("%s - %s - %s || %s\n", iterator->stopId.c_str() , iterator->tripId.c_str(), arrival.c_str(), departure.c_str());
+            std::string arrival = cheminotc::formatDateTime(arrivalTime.arrival).c_str();
+            std::string departure = cheminotc::formatDateTime(arrivalTime.departure).c_str();
+            printf("%s - %s - %s || %s\n", arrivalTime.stopId.c_str() , arrivalTime.tripId.c_str(), arrival.c_str(), departure.c_str());
         }
     };
 }
 
 class GraphFixture : public testing::Test
 {
-protected:
+    protected:
 
     cheminotc::CheminotDb connection;
     cheminotc::Graph graph;
@@ -48,10 +48,9 @@ protected:
 
     virtual void SetUp()
     {
-        std::string path = "cheminot.db";
-        connection = cheminotc::openConnection(path);
-        cheminotc::parseGraph("graph", &graph);
-        cheminotc::parseCalendarDates("calendardates", &calendarDates);
+        connection = cheminotc::openConnection("cheminot.db");
+        cheminotc::parseGraphFiles("ter-graph", "trans-graph", &graph);
+        cheminotc::parseCalendarDatesFiles("ter-calendardates", "trans-calendardates", &calendarDates);
     }
 };
 
@@ -72,7 +71,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_empty_notrip)
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestDirectTrip(connection, &graph, &cache, &calendarDates, stops::laval, stops::paris, ts, te);
     utils::print(results.second);
@@ -85,7 +84,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_chartres_parismont)
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 7;
     ts.tm_min = 47;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestDirectTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::parisMont, ts, te);
     utils::print(results.second);
@@ -97,7 +96,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_chartres_paris)
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 7;
     ts.tm_min = 47;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestDirectTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::paris, ts, te);
     utils::print(results.second);
@@ -109,7 +108,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_paris_chartres)
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 7;
     ts.tm_min = 47;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestDirectTrip(connection, &graph, &cache, &calendarDates, stops::paris, stops::chartres, ts, te);
     utils::print(results.second);
@@ -121,7 +120,7 @@ TEST_F(GraphFixture, lookforbesttrip_chartre_parismont)
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 7;
     ts.tm_min = 47;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::parisMont, ts, te, 1);
     utils::print(results.second);
@@ -133,7 +132,7 @@ TEST_F(GraphFixture, lookforbesttrip_chartre_paris)
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 7;
     ts.tm_min = 47;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::paris, ts, te, 1);
     utils::print(results.second);
@@ -145,115 +144,103 @@ TEST_F(GraphFixture, lookforbesttrip_paris_chartres)
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 7;
     ts.tm_min = 47;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::paris, stops::chartres, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parismont_parisbercy)
+TEST_F(GraphFixture, lookforbesttrip_chartres_avallon)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::avallon, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parismont_parisnord)
+TEST_F(GraphFixture, lookforbesttrip_chartres_creil)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::creil, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parismont_parislyon)
+TEST_F(GraphFixture, lookforbesttrip_chartres_marseilles)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::marseillestcharles, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parismont_parisest)
+TEST_F(GraphFixture, lookforbesttrip_chartres_stdizier)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::stdizier, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parismont_parislazare)
+TEST_F(GraphFixture, lookforbesttrip_chartres_lehavre)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::lehavre, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parismont_parisorleans)
+TEST_F(GraphFixture, lookforbesttrip_chartres_orleans)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::orleans, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parisbercy_parismont)
+TEST_F(GraphFixture, lookforbesttrip_lehavre_chartres)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
-    cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::chartres, stops::avallon, ts, te, 1);
-    utils::print(results.second);
-    EXPECT_EQ(false, results.second.empty());
-}
-
-TEST_F(GraphFixture, lookforbesttrip_parislazare_parismont)
-{
-    struct tm ts = cheminotc::getNow();
-    ts.tm_hour = 0;
-    ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::lehavre, stops::chartres, ts, te, 1);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
 
-TEST_F(GraphFixture, lookforbesttrip_parisnord_parismont)
+TEST_F(GraphFixture, lookforbesttrip_creil_chartres)
 {
     struct tm ts = cheminotc::getNow();
     ts.tm_hour = 0;
     ts.tm_min = 0;
-    tm te = cheminotc::addHours(ts, 24);
+    tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, stops::creil, stops::chartres, ts, te, 1);
     utils::print(results.second);

@@ -5,12 +5,120 @@
 #include "protobuf/cheminotBuf.pb.h"
 #include <json/json.h>
 #include <unordered_map>
+#include <iterator>
 
 namespace cheminotc
 {
 
-    typedef google::protobuf::Map< std::string,m::cheminot::data::Vertice> Graph;
-    typedef google::protobuf::Map<std::string,m::cheminot::data::CalendarExceptions> CalendarDates;
+    typedef google::protobuf::Map<std::string,m::cheminot::data::Vertice> GraphBuf;
+    typedef google::protobuf::Map<std::string,m::cheminot::data::CalendarExceptions> CalendarDatesBuf;
+
+
+    struct Graph {
+        GraphBuf ter;
+        GraphBuf trans;
+
+        Graph() {
+        }
+
+        Graph(GraphBuf ter, GraphBuf trans) {
+            this->ter = ter;
+            this->trans = trans;
+        }
+
+        m::cheminot::data::Vertice& operator[](const std::string &key) {
+            auto itTer = this->ter.find(key);
+            if(itTer != this->ter.end()) {
+                return itTer->second;
+            } else {
+                return this->trans[key];
+            }
+        }
+
+        void foreach(std::function<void(const std::string&, const m::cheminot::data::Vertice&)> loop) {
+            for(auto vertice : this->ter) {
+                loop(vertice.first, vertice.second);
+            }
+
+            for(auto vertice : this->trans) {
+                loop(vertice.first, vertice.second);
+            }
+        }
+
+        GraphBuf::iterator end() {
+            return this->trans.end();
+        }
+
+        GraphBuf::iterator find(const std::string &key) {
+            auto itTer = this->ter.find(key);
+            if(itTer != this->ter.end()) {
+                return itTer;
+            } else {
+                return this->trans.find(key);
+            }
+        }
+
+        bool empty() const {
+            return ter.empty() && trans.empty();
+        }
+
+        size_t size() const {
+            return this->ter.size() + this->trans.size();
+        }
+    };
+
+    struct CalendarDates {
+        CalendarDatesBuf ter;
+        CalendarDatesBuf trans;
+
+        CalendarDates() {
+        }
+
+        CalendarDates(CalendarDatesBuf ter, CalendarDatesBuf trans) {
+            this->ter = ter;
+            this->trans = trans;
+        }
+
+        m::cheminot::data::CalendarExceptions& operator[](const std::string &key) {
+            auto itTer = this->ter.find(key);
+            if(itTer != this->ter.end()) {
+                return itTer->second;
+            } else {
+                return this->trans[key];
+            }
+        }
+
+        void foreach(std::function<void(const std::string&, const m::cheminot::data::CalendarExceptions&)> loop) {
+            for(auto exception : this->ter) {
+                loop(exception.first, exception.second);
+            }
+
+            for(auto exception : this->trans) {
+                loop(exception.first, exception.second);
+            }
+        }
+
+        CalendarDatesBuf::iterator end() {
+            return this->trans.end();
+        }
+
+        CalendarDatesBuf::iterator find(const std::string &key) {
+            auto itTer = this->ter.find(key);
+            if(itTer != this->ter.end()) {
+                return itTer;
+            } else {
+                return this->trans.find(key);
+            }
+        }
+
+        bool empty() const {
+            return ter.empty() && trans.empty();
+        }
+
+        size_t size() const {
+            return this->ter.size() + this->trans.size();
+        }
+    };
 
     struct CheminotDb
     {
@@ -118,9 +226,9 @@ namespace cheminotc
 
     bool isLocked(const CheminotDb &connection, bool *locked);
 
-    void parseGraph(std::string path, Graph *graph);
+    void parseGraphFiles(std::string terPath, std::string transPath, Graph *graph);
 
-    void parseCalendarDates(std::string content, CalendarDates *calendarDates);
+    void parseCalendarDatesFiles(std::string terPath, std::string transPath, CalendarDates *calendarDates);
 
     std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 

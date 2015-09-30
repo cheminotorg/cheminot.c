@@ -280,9 +280,8 @@ namespace cheminotc
     Json::Value serializeArrivalTimes(Graph *graph, Cache *cache, std::list<ArrivalTime> arrivalTimes)
     {
         Json::Value array = Json::Value(Json::arrayValue);
-        for(auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator)
+        for(ArrivalTime arrivalTime : arrivalTimes)
         {
-            ArrivalTime arrivalTime = *iterator;
             array.append(serializeArrivalTime(graph, cache, arrivalTime));
         }
         return array;
@@ -303,9 +302,9 @@ namespace cheminotc
     Json::Value serializeStopTimes(std::list<StopTime> stopTimes)
     {
         Json::Value array;
-        for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator)
+        for (StopTime stopTime : stopTimes)
         {
-            array.append(serializeStopTime(&*iterator));
+            array.append(serializeStopTime(&stopTime));
         }
         return array;
     }
@@ -337,9 +336,8 @@ namespace cheminotc
         {
             std::list<std::shared_ptr<CalendarDate>> results;
             auto exceptions = (*calendarDates)[serviceId].calendardates();
-            for (auto iterator = exceptions.begin(), end = exceptions.end(); iterator != end; ++iterator)
+            for (auto calendarDateBuf : exceptions)
             {
-                m::cheminot::data::CalendarDate calendarDateBuf = *iterator;
                 std::shared_ptr<CalendarDate> calendarDate {new CalendarDate};
                 calendarDate->serviceId = calendarDateBuf.serviceid();
                 calendarDate->date = parseDate(calendarDateBuf.date());
@@ -376,9 +374,9 @@ namespace cheminotc
     std::list<StopTime> parseStopTimes(const tm *dateref, google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime> stopTimesBuf)
     {
         std::list<StopTime> stopTimes;
-        for(auto iterator = stopTimesBuf.begin(), end = stopTimesBuf.end(); iterator != end; ++iterator)
+        for(auto stopTimeBuf : stopTimesBuf)
         {
-            StopTime stopTime = parseStopTime(dateref, *iterator);
+            StopTime stopTime = parseStopTime(dateref, stopTimeBuf);
             stopTimes.push_back(stopTime);
         }
         return stopTimes;
@@ -386,21 +384,21 @@ namespace cheminotc
 
     std::list<std::string> parseTripStopIds(m::cheminot::data::TripStopIds tripStopIdsBuf)
     {
-        std::list<std::string> stopIds;
-        auto stopids = tripStopIdsBuf.stopids();
-        for(auto iterator = stopids.begin(), end = stopids.end(); iterator != end; ++iterator)
+        std::list<std::string> result;
+        auto stopIds = tripStopIdsBuf.stopids();
+        for(std::string stopId : stopIds)
         {
-            stopIds.push_back(*iterator);
+            result.push_back(stopId);
         }
-        return stopIds;
+        return result;
     }
 
     std::list<std::string> parseEdges(google::protobuf::RepeatedPtrField< std::string > edgesBuf)
     {
         std::list<std::string> edges;
-        for(auto iterator = edgesBuf.begin(), end = edgesBuf.end(); iterator != end; ++iterator)
+        for(std::string edge : edgesBuf)
         {
-            edges.push_back(*iterator);
+            edges.push_back(edge);
         }
         return edges;
     }
@@ -427,9 +425,8 @@ namespace cheminotc
     std::list<StopTime> orderStopTimesBy(const std::list<StopTime> &stopTimes, const tm &t)
     {
         std::list<StopTime> stopTimesAt;
-        for (auto iterator = stopTimes.begin(), end = stopTimes.end(); iterator != end; ++iterator)
+        for (StopTime stopTime : stopTimes)
         {
-            StopTime stopTime = *iterator;
             stopTime.departure.tm_mday = t.tm_mday;
             stopTime.departure.tm_wday = t.tm_wday;
             stopTime.departure.tm_yday = t.tm_yday;
@@ -609,14 +606,14 @@ namespace cheminotc
         sqlite3_close(cheminotDb.file);
     }
 
-    void parseGraph(std::string path, Graph *graph)
+    void parseGraphFile(std::string path, GraphBuf *graphBuf)
     {
         std::ifstream in(path);
         if(in.is_open())
         {
-            m::cheminot::data::Graph graphBuf;
-            graphBuf.ParseFromIstream(&in);
-            *graph = *graphBuf.mutable_vertices();
+            m::cheminot::data::Graph g;
+            g.ParseFromIstream(&in);
+            *graphBuf = *g.mutable_vertices();
             in.close();
         }
         else
@@ -625,20 +622,44 @@ namespace cheminotc
         }
     }
 
-    void parseCalendarDates(std::string path, CalendarDates *calendarDates)
+    void parseGraphFiles(std::string terPath, std::string transPath, Graph *graph)
+    {
+        GraphBuf ter;
+        parseGraphFile(terPath, &ter);
+
+        GraphBuf trans;
+        parseGraphFile(transPath, &trans);
+
+        graph->ter = ter;
+        graph->trans = trans;
+    }
+
+    void parseCalendarDatesFile(std::string path, CalendarDatesBuf *calendarDatesBuf)
     {
         std::ifstream in(path);
         if(in.is_open())
         {
-            m::cheminot::data::CalendarDates calendarDatesBuf;
-            calendarDatesBuf.ParseFromIstream(&in);
-            *calendarDates = calendarDatesBuf.exceptionsbyserviceid();
+            m::cheminot::data::CalendarDates c;
+            c.ParseFromIstream(&in);
+            *calendarDatesBuf = c.exceptionsbyserviceid();
             in.close();
         }
         else
         {
             throw std::runtime_error("Unexpected error while reading: " + path);
         }
+    }
+
+    void parseCalendarDatesFiles(std::string terPath, std::string transPath, CalendarDates *calendarDates)
+    {
+        CalendarDatesBuf ter;
+        parseCalendarDatesFile(terPath, &ter);
+
+        CalendarDatesBuf trans;
+        parseCalendarDatesFile(transPath, &trans);
+
+        calendarDates->ter = ter;
+        calendarDates->trans = trans;
     }
 
     std::string getLastTrace(const CheminotDb &connection)
@@ -740,9 +761,8 @@ namespace cheminotc
     std::string parisStopIdsQuery()
     {
         std::string subQueryParisIds = "";
-        for (auto iterator = parisStopIds.begin(), end = parisStopIds.end(); iterator != end; ++iterator)
+        for (std::string stopId : parisStopIds)
         {
-            std::string stopId = *iterator;
             if(subQueryParisIds == "")
             {
                 subQueryParisIds += " b.stopId = '" + stopId + "'";
@@ -757,11 +777,13 @@ namespace cheminotc
 
     std::list<std::shared_ptr<Trip>> getDirectTrips(const CheminotDb &connection, Cache *cache, std::string vsId, std::string veId)
     {
-        std::string vsIdQuery = isParis(vsId) ? parisStopIdsQuery() : "b.stopId = '" + vsId + "'";
-        std::string veIdQuery = isParis(veId) ? parisStopIdsQuery() : "b.stopId = '" + veId + "'";
+        std::string clause = "b.stopId = '" + vsId + "' OR b.stopId ='" + veId + "'";
+        std::string vsIdQuery = (vsId == parisStopId) ? parisStopIdsQuery() : "b.stopId = '" + vsId + "'";
+        std::string veIdQuery = (veId == parisStopId) ? parisStopIdsQuery() : "b.stopId = '" + veId + "'";
         std::string query = "SELECT a.* FROM TRIPS "
                             "a INNER JOIN TRIPS_STOPS b ON a.id = b.tripId "
                             "WHERE " + vsIdQuery + " OR " + veIdQuery + " GROUP BY b.tripId HAVING COUNT(*) = 2";
+
         std::list<std::shared_ptr<Trip>> trips;
         auto results = executeQuery(connection.file, query);
         for (auto iterator = results.begin(), end = results.end(); iterator != end; ++iterator)
@@ -771,7 +793,15 @@ namespace cheminotc
             {
                 cache->trips[trip->id] = trip;
             }
-            trips.push_back(trip);
+            if(vsId == parisStopId || veId == parisStopId) {
+                bool vsIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&vsId](std::string &stopId) { return vsId == stopId; }) != trip->stopIds.end();
+                bool veIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&veId](std::string &stopId) { return veId == stopId; }) != trip->stopIds.end();
+                if(vsIdExists && veIdExists) {
+                    trips.push_back(trip);
+                }
+            } else {
+                trips.push_back(trip);
+            }
         }
         return trips;
     }
@@ -780,9 +810,8 @@ namespace cheminotc
     {
         std::list<std::shared_ptr<Trip>> results;
         std::list<std::string> toCache;
-        for (auto iterator = ids.begin(), end = ids.end(); iterator != end; ++iterator)
+        for (std::string id : ids)
         {
-            std::string id = *iterator;
             auto it = cache->trips.find(id);
             if(it != cache->trips.end())
             {
@@ -797,9 +826,8 @@ namespace cheminotc
         if(!toCache.empty())
         {
             std::string values = "";
-            for (auto iterator = toCache.begin(), end = toCache.end(); iterator != end; ++iterator)
+            for (std::string id : toCache)
             {
-                std::string id = *iterator;
                 std::string quoted = "'" + id + "'";
                 values = (values == "") ? quoted : (values + ", " + quoted);
             }
@@ -893,9 +921,8 @@ namespace cheminotc
     {
         std::unordered_map<std::string, bool> availablities;
         std::list<std::shared_ptr<Trip>> trips = getTripsByIds(connection, cache, ids);
-        for (auto iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator)
+        for (std::shared_ptr<Trip> trip : trips)
         {
-            std::shared_ptr<Trip> trip = *iterator;
             availablities[trip->id] = isTripValidOn(cache, trip, calendarDates, when);
         }
         return availablities;
@@ -904,9 +931,8 @@ namespace cheminotc
     std::list<ArrivalTime> orderArrivalTimesBy(std::list<ArrivalTime> arrivalTimes, const tm &t)
     {
         std::list<ArrivalTime> arrivalTimesAt;
-        for (auto iterator = arrivalTimes.begin(), end = arrivalTimes.end(); iterator != end; ++iterator)
+        for (ArrivalTime arrivalTime : arrivalTimes)
         {
-            ArrivalTime arrivalTime = *iterator;
             arrivalTime.departure.tm_mday = t.tm_mday;
             arrivalTime.departure.tm_wday = t.tm_wday;
             arrivalTime.departure.tm_yday = t.tm_yday;
@@ -1003,9 +1029,8 @@ namespace cheminotc
         std::unordered_map<std::string, std::shared_ptr<QueueItem>> items;
 
         ArrivalTimeFunc gsFunc;
-        for (auto iterator = startingPeriod.begin(), end = startingPeriod.end(); iterator != end; ++iterator)
+        for (tm departureTime : startingPeriod)
         {
-            tm departureTime = *iterator;
             ArrivalTime gs;
             gs.stopId = vs->id;
             gs.departure = departureTime;
@@ -1026,9 +1051,7 @@ namespace cheminotc
         queue->push(qs);
         items[vs->id] = qs;
 
-        for(auto iterator = graph->begin(), end = graph->end(); iterator != end; ++iterator)
-        {
-            std::string stopId = iterator->first;
+        graph->foreach([&vs, &ts, &queue, &items](const std::string &stopId, const m::cheminot::data::Vertice &verticeBuf) {
             if(stopId != vs->id)
             {
                 std::shared_ptr<QueueItem> qi {new QueueItem};
@@ -1040,7 +1063,8 @@ namespace cheminotc
                 queue->push(qi);
                 items[stopId] = qi;
             }
-        }
+        });
+
         return items;
     }
 
@@ -1055,17 +1079,14 @@ namespace cheminotc
         {
             std::list<StopTime> viArrivalTimes(orderStopTimesBy(vi->stopTimes, t));
             time_t wfi = LONG_MAX;
-            for (auto iterator = vi->edges.begin(), end = vi->edges.end(); iterator != end; ++iterator)
+            for (std::string edge : vi->edges)
             {
-                std::string edge = *iterator;
                 Vertice vf = getVerticeFromGraph(graph, cache, edge, &ts);
                 std::list<StopTime> vfDepartureTimes = getAvailableDepartures(connection, cache, calendarDates, t, &vf);
-                for (auto iterator = vfDepartureTimes.begin(), end = vfDepartureTimes.end(); iterator != end; ++iterator)
+                for (StopTime vfDepartureTime : vfDepartureTimes)
                 {
-                    StopTime vfDepartureTime = *iterator;
-                    for (auto iterator = viArrivalTimes.begin(), end = viArrivalTimes.end(); iterator != end; ++iterator)
+                    for (StopTime viArrivalTime : viArrivalTimes)
                     {
-                        StopTime viArrivalTime = *iterator;
                         if((vfDepartureTime.tripId == viArrivalTime.tripId) && (vfDepartureTime.pos == (viArrivalTime.pos - 1)) && datetimeIsBeforeNotEq(vfDepartureTime.departure, viArrivalTime.arrival))
                         {
                             time_t travelTime = difftime(asTimestamp(viArrivalTime.arrival), asTimestamp(vfDepartureTime.departure));
@@ -1083,10 +1104,10 @@ namespace cheminotc
             tm nextEarliestArrivalTime = asDateTime(asTimestamp(qk->gi) + wfi);
 
             std::pair<tm, tm> enlarged = { qi->ti, qi->gi };
-            for (auto iterator = giFunc.begin(), end = giFunc.end(); iterator != end; ++iterator)
+            for (auto f : giFunc)
             {
-                time_t ti = iterator->first;
-                tm gi = iterator->second.arrival;
+                time_t ti = f.first;
+                tm gi = f.second.arrival;
                 if(datetimeIsBeforeEq(gi, nextEarliestArrivalTime) && datetimeIsBeforeEq(enlarged.second, gi))
                 {
                     enlarged = { asDateTime(ti), gi };
@@ -1125,9 +1146,8 @@ namespace cheminotc
         });
 
         std::list<tm> startingPeriod;
-        for (auto iterator = departures.begin(), end = departures.end(); iterator != end; ++iterator)
+        for (StopTime departureTime : departures)
         {
-            StopTime departureTime = *iterator;
             if(datetimeIsBeforeEq(departureTime.departure, te))
             {
                 if(startingPeriod.size() < max)
@@ -1147,9 +1167,7 @@ namespace cheminotc
     void fillCache(Cache *cache, CalendarDates *calendarDates, Graph *graph)
     {
         tm dateref = getNow();
-        for(auto iterator = graph->begin(), end = graph->end(); iterator != end; ++iterator)
-        {
-            auto verticeBuf = iterator->second;
+        graph->foreach([&dateref, &cache](const std::string &stopId, const m::cheminot::data::Vertice &verticeBuf) {
             std::shared_ptr<Vertice> vertice {new Vertice};
             std::string id = verticeBuf.id();
             vertice->id = id;
@@ -1159,22 +1177,20 @@ namespace cheminotc
             vertice->edges = parseEdges(verticeBuf.edges());
             vertice->stopTimes = parseStopTimes(&dateref, verticeBuf.stoptimes());
             cache->vertices[id] = vertice;
-        }
+        });
 
-        for(auto iterator = calendarDates->begin(), end = calendarDates->end(); iterator != end; ++iterator) {
-            auto exceptions = iterator->second.calendardates();
+        calendarDates->foreach([&cache](const std::string &serviceId, const m::cheminot::data::CalendarExceptions &exceptionsBuf) {
             std::list<std::shared_ptr<CalendarDate>> calendarDatesByServiceId;
-            for(auto iterator = exceptions.begin(), end = exceptions.end(); iterator != end; ++iterator)
+            for(auto calendarDateBuf : exceptionsBuf.calendardates())
             {
-                auto calendarDateBuf = *iterator;
                 std::shared_ptr<CalendarDate> calendarDate {new CalendarDate};
                 calendarDate->serviceId = calendarDateBuf.serviceid();
                 calendarDate->date = parseDate(calendarDateBuf.date());
                 calendarDate->exceptionType = calendarDateBuf.exceptiontype();
                 calendarDatesByServiceId.push_back(calendarDate);
             }
-            cache->calendarDates[iterator->first] = calendarDatesByServiceId;
-        }
+            cache->calendarDates[serviceId] = calendarDatesByServiceId;
+        });
 
         cache->readonly = true;
     }
@@ -1197,12 +1213,10 @@ namespace cheminotc
         std::list<StopTime> viDepartures = getAvailableDepartures(connection, cache, calendarDates, gi->arrival, vi);
         StopTime earliestArrivalTime;
         earliestArrivalTime.arrival = INFINITE;
-        for(auto iterator = viDepartures.begin(), end = viDepartures.end(); iterator != end; ++iterator)
+        for(StopTime viDepartureTime : viDepartures)
         {
-            StopTime viDepartureTime = *iterator;
-            for(auto iterator = vj->stopTimes.begin(), end = vj->stopTimes.end(); iterator != end; ++iterator)
+            for(StopTime vjStopTime : vj->stopTimes)
             {
-                StopTime vjStopTime = *iterator;
                 if(viDepartureTime.tripId == vjStopTime.tripId && datetimeIsBeforeEq(viDepartureTime.departure, vjStopTime.arrival) && datetimeIsBeforeEq(gi->arrival, viDepartureTime.departure) && (viDepartureTime.pos == vjStopTime.pos - 1))
                 {
                     if(datetimeIsBeforeNotEq(vjStopTime.arrival, earliestArrivalTime.arrival))
@@ -1302,14 +1316,12 @@ namespace cheminotc
                 {
                     enlargedStartingTime = enlargeStartingTime(connection, cache, calendarDates, graph, giFunc, qi, qk, &vi, vsId, ts, te);
                 }
-                for (auto iterator = vi.edges.begin(), end = vi.edges.end(); iterator != end; ++iterator)
+                for (std::string vjId : vi.edges)
                 {
-                    std::string vjId = *iterator;
                     if(vjId != vsId)
                     {
-                        for (auto iterator = startingPeriod.begin(), end = startingPeriod.end(); iterator != end; ++iterator)
+                        for (tm startingTime : startingPeriod)
                         {
-                            tm startingTime = *iterator;
                             if(datetimeIsBeforeEq(qi->ti, startingTime) && datetimeIsBeforeEq(startingTime, enlargedStartingTime))
                             {
                                 ArrivalTime gi = giFunc[asTimestamp(startingTime)];
@@ -1414,9 +1426,8 @@ namespace cheminotc
             ArrivalTime gj;
             if(getArrivalTimeAt(vj.id, &gj))
             {
-                for (auto iterator = vj.edges.begin(), end = vj.edges.end(); iterator != end; ++iterator)
+                for (std::string viId :vj.edges)
                 {
-                    std::string viId = *iterator;
                     ArrivalTime gi;
                     if(getArrivalTimeAt(viId, &gi))
                     {
@@ -1460,11 +1471,8 @@ namespace cheminotc
         std::list<std::shared_ptr<Trip>> trips = getDirectTrips(connection, cache, vsId, veId);
         std::pair<std::shared_ptr<Trip>, tm> bestTrip;
         bool hasBestTrip = false;
-
-        for(auto iterator = trips.begin(), end = trips.end(); iterator != end; ++iterator)
+        for(std::shared_ptr<Trip> trip : trips)
         {
-            std::shared_ptr<Trip> trip = *iterator;
-
             auto veIt = std::find_if(ve.stopTimes.begin(), ve.stopTimes.end(), [&trip](const StopTime &stopTime)
             {
                 return stopTime.tripId == trip->id;
@@ -1516,9 +1524,8 @@ namespace cheminotc
         if(hasBestTrip)
         {
             std::shared_ptr<Trip> trip = bestTrip.first;
-            for(auto iterator = trip->stopIds.begin(), end = trip->stopIds.end(); iterator != end; ++iterator)
+            for(std::string stopId : trip->stopIds)
             {
-                std::string stopId = *iterator;
                 if(arrivalTimes.empty())
                 {
                     if(stopId == vsId || (vsId == parisStopId && isParis(stopId)))
@@ -1544,7 +1551,6 @@ namespace cheminotc
                 }
             }
         }
-
         return { trips.size() > 0, orderArrivalTimesBy(arrivalTimes, ts) };
     }
 

@@ -15,23 +15,32 @@ int main(int argc, char **argv)
     std::string lehavre = "StopPoint:OCETrain TER-87413013";
     std::string avallon = "StopPoint:OCETrain TER-87683789";
     std::string marseillestcharles = "StopPoint:OCETrain TER-87751008";
-    // struct tm ts = cheminotc::getNow();
-    // ts.tm_hour = 18;
-    // ts.tm_min = 0;
-    // tm te = cheminotc::addHours(ts, 11);
-    tm ts = cheminotc::asDateTime(1429599051);
-    tm te = cheminotc::asDateTime(1429642251);
-    printf("%s %s\n", cheminotc::formatDateTime(ts).c_str(), cheminotc::formatDateTime(te).c_str());
-    cheminotc::CheminotDb connection = cheminotc::openConnection("/Users/sre/data/Projects/me/cheminot.c/cheminot.db");
-    cheminotc::Graph graph;
-    cheminotc::CalendarDates calendarDates;
-    cheminotc::parseGraph("/Users/sre/data/Projects/me/cheminot.c/graph", &graph);
-    cheminotc::parseCalendarDates("/Users/sre/data/Projects/me/cheminot.c/calendardates", &calendarDates);
-    cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestDirectTrip(connection, &graph, &cache, &calendarDates, chartres, parisMont, ts, te);
+    std::string vernon = "StopPoint:OCETrain TER-87415604";
+    std::string parisLazard = "StopPoint:OCETrain TER-87384008";
 
-    for (auto iterator = results.second.begin(), end = results.second.end(); iterator != end; ++iterator)
+    struct tm ts = cheminotc::getNow();
+    ts.tm_hour = 7;
+    ts.tm_min = 47;
+    tm te = cheminotc::addHours(ts, 12);
+
+    // tm ts = cheminotc::asDateTime(1429599051);
+    // tm te = cheminotc::asDateTime(1429642251);
+
+    printf("%s %s\n", cheminotc::formatDateTime(ts).c_str(), cheminotc::formatDateTime(te).c_str());
+
+    cheminotc::CheminotDb connection = cheminotc::openConnection("cheminot.db");
+
+    cheminotc::Graph graph;
+    cheminotc::parseGraphFiles("ter-graph", "trans-graph", &graph);
+
+    cheminotc::CalendarDates calendarDates;
+    cheminotc::parseCalendarDatesFiles("ter-calendardates", "trans-calendardates", &calendarDates);
+
+    cheminotc::Cache cache;
+    auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, chartres, parisMont, ts, te, 1);
+
+    for (auto result : results.second)
     {
-        printf("%s - %s - %s\n", iterator->stopId.c_str() , cheminotc::formatDateTime(iterator->arrival).c_str(), iterator->tripId.c_str());
+        printf("%s - %s - %s\n", result.stopId.c_str() , cheminotc::formatDateTime(result.arrival).c_str(), result.tripId.c_str());
     }
 }
