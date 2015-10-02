@@ -31,10 +31,10 @@ int main(int argc, char **argv)
     cheminotc::CheminotDb connection = cheminotc::openConnection("cheminot.db");
 
     cheminotc::Graph graph;
-    cheminotc::parseGraphFiles("ter-graph", "trans-graph", &graph);
+    cheminotc::parseGraphFiles({"ter-graph", "trans-graph"}, &graph);
 
     cheminotc::CalendarDates calendarDates;
-    cheminotc::parseCalendarDatesFiles("ter-calendardates", "trans-calendardates", &calendarDates);
+    cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates"}, &calendarDates);
 
     cheminotc::Cache cache;
     auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, chartres, parisMont, ts, te, 1);

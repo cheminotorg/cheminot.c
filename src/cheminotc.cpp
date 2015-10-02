@@ -606,7 +606,7 @@ namespace cheminotc
         sqlite3_close(cheminotDb.file);
     }
 
-    void parseGraphFile(std::string path, GraphBuf *graphBuf)
+    void parseGraphFile(std::string &path, std::shared_ptr<GraphBuf> graphBuf)
     {
         std::ifstream in(path);
         if(in.is_open())
@@ -622,19 +622,18 @@ namespace cheminotc
         }
     }
 
-    void parseGraphFiles(std::string terPath, std::string transPath, Graph *graph)
+    void parseGraphFiles(std::list<std::string> paths, Graph *graph)
     {
-        GraphBuf ter;
-        parseGraphFile(terPath, &ter);
-
-        GraphBuf trans;
-        parseGraphFile(transPath, &trans);
-
-        graph->ter = ter;
-        graph->trans = trans;
+        std::list<std::shared_ptr<GraphBuf>> data;
+        for(std::string &path : paths) {
+            std::shared_ptr<GraphBuf> graphBuf(new GraphBuf());
+            parseGraphFile(path, graphBuf);
+            data.push_back(graphBuf);
+        }
+        graph->data = data;
     }
 
-    void parseCalendarDatesFile(std::string path, CalendarDatesBuf *calendarDatesBuf)
+    void parseCalendarDatesFile(std::string path, std::shared_ptr<CalendarDatesBuf> calendarDatesBuf)
     {
         std::ifstream in(path);
         if(in.is_open())
@@ -650,16 +649,15 @@ namespace cheminotc
         }
     }
 
-    void parseCalendarDatesFiles(std::string terPath, std::string transPath, CalendarDates *calendarDates)
+    void parseCalendarDatesFiles(std::list<std::string> paths, CalendarDates *calendarDates)
     {
-        CalendarDatesBuf ter;
-        parseCalendarDatesFile(terPath, &ter);
-
-        CalendarDatesBuf trans;
-        parseCalendarDatesFile(transPath, &trans);
-
-        calendarDates->ter = ter;
-        calendarDates->trans = trans;
+        std::list<std::shared_ptr<CalendarDatesBuf>> data;
+        for(std::string &path : paths) {
+            std::shared_ptr<CalendarDatesBuf> calendarDatesBuf(new CalendarDatesBuf());
+            parseCalendarDatesFile(path, calendarDatesBuf);
+            data.push_back(calendarDatesBuf);
+        }
+        calendarDates->data = data;
     }
 
     std::string getLastTrace(const CheminotDb &connection)
