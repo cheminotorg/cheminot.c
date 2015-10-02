@@ -280,36 +280,36 @@ namespace cheminotc
     Json::Value serializeArrivalTimes(Graph *graph, Cache *cache, std::list<ArrivalTime> arrivalTimes)
     {
         Json::Value array = Json::Value(Json::arrayValue);
-        for(ArrivalTime arrivalTime : arrivalTimes)
+        for(const ArrivalTime &arrivalTime : arrivalTimes)
         {
             array.append(serializeArrivalTime(graph, cache, arrivalTime));
         }
         return array;
     }
 
-    Json::Value serializeStopTime(StopTime *stopTime)
+    Json::Value serializeStopTime(const StopTime &stopTime)
     {
         Json::Value json;
-        int arrival = asTimestamp(stopTime->arrival);
-        int departure = asTimestamp(stopTime->departure);
-        json["tripId"] = stopTime->tripId;
+        int arrival = asTimestamp(stopTime.arrival);
+        int departure = asTimestamp(stopTime.departure);
+        json["tripId"] = stopTime.tripId;
         json["arrival"] = arrival;
         json["departure"] = departure;
-        json["pos"] = stopTime->pos;
+        json["pos"] = stopTime.pos;
         return json;
     }
 
     Json::Value serializeStopTimes(std::list<StopTime> stopTimes)
     {
         Json::Value array;
-        for (StopTime stopTime : stopTimes)
+        for (const StopTime &stopTime : stopTimes)
         {
-            array.append(serializeStopTime(&stopTime));
+            array.append(serializeStopTime(stopTime));
         }
         return array;
     }
 
-    std::string formatStopTime(StopTime *stopTime)
+    std::string formatStopTime(const StopTime &stopTime)
     {
         Json::Value serialized = serializeStopTime(stopTime);
         return serialized.toStyledString();
@@ -336,7 +336,7 @@ namespace cheminotc
         {
             std::list<std::shared_ptr<CalendarDate>> results;
             auto exceptions = (*calendarDates)[serviceId].calendardates();
-            for (auto calendarDateBuf : exceptions)
+            for (const auto &calendarDateBuf : exceptions)
             {
                 std::shared_ptr<CalendarDate> calendarDate {new CalendarDate};
                 calendarDate->serviceId = calendarDateBuf.serviceid();
@@ -374,7 +374,7 @@ namespace cheminotc
     std::list<StopTime> parseStopTimes(const tm *dateref, google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime> stopTimesBuf)
     {
         std::list<StopTime> stopTimes;
-        for(auto stopTimeBuf : stopTimesBuf)
+        for(const auto &stopTimeBuf : stopTimesBuf)
         {
             StopTime stopTime = parseStopTime(dateref, stopTimeBuf);
             stopTimes.push_back(stopTime);
@@ -386,17 +386,17 @@ namespace cheminotc
     {
         std::list<std::string> result;
         auto stopIds = tripStopIdsBuf.stopids();
-        for(std::string stopId : stopIds)
+        for(const std::string &stopId : stopIds)
         {
             result.push_back(stopId);
         }
         return result;
     }
 
-    std::list<std::string> parseEdges(google::protobuf::RepeatedPtrField< std::string > edgesBuf)
+    std::list<std::string> parseEdges(google::protobuf::RepeatedPtrField< std::string> edgesBuf)
     {
         std::list<std::string> edges;
-        for(std::string edge : edgesBuf)
+        for(const std::string &edge : edgesBuf)
         {
             edges.push_back(edge);
         }
@@ -437,6 +437,7 @@ namespace cheminotc
             stopTime.arrival.tm_yday = t.tm_yday;
             stopTime.arrival.tm_mon = t.tm_mon;
             stopTime.arrival.tm_year = t.tm_year;
+
             if(isSubwayTrip(stopTime.tripId))
             {
                 stopTime.departure = t;
@@ -606,7 +607,7 @@ namespace cheminotc
         sqlite3_close(cheminotDb.file);
     }
 
-    void parseGraphFile(std::string &path, std::shared_ptr<GraphBuf> graphBuf)
+    void parseGraphFile(const std::string &path, std::shared_ptr<GraphBuf> graphBuf)
     {
         std::ifstream in(path);
         if(in.is_open())
@@ -625,7 +626,7 @@ namespace cheminotc
     void parseGraphFiles(std::list<std::string> paths, Graph *graph)
     {
         std::list<std::shared_ptr<GraphBuf>> data;
-        for(std::string &path : paths) {
+        for(const std::string &path : paths) {
             std::shared_ptr<GraphBuf> graphBuf(new GraphBuf());
             parseGraphFile(path, graphBuf);
             data.push_back(graphBuf);
@@ -652,7 +653,7 @@ namespace cheminotc
     void parseCalendarDatesFiles(std::list<std::string> paths, CalendarDates *calendarDates)
     {
         std::list<std::shared_ptr<CalendarDatesBuf>> data;
-        for(std::string &path : paths) {
+        for(const std::string &path : paths) {
             std::shared_ptr<CalendarDatesBuf> calendarDatesBuf(new CalendarDatesBuf());
             parseCalendarDatesFile(path, calendarDatesBuf);
             data.push_back(calendarDatesBuf);
@@ -759,7 +760,7 @@ namespace cheminotc
     std::string parisStopIdsQuery()
     {
         std::string subQueryParisIds = "";
-        for (std::string stopId : parisStopIds)
+        for (const std::string &stopId : parisStopIds)
         {
             if(subQueryParisIds == "")
             {
@@ -808,7 +809,7 @@ namespace cheminotc
     {
         std::list<std::shared_ptr<Trip>> results;
         std::list<std::string> toCache;
-        for (std::string id : ids)
+        for (const std::string &id : ids)
         {
             auto it = cache->trips.find(id);
             if(it != cache->trips.end())
@@ -824,7 +825,7 @@ namespace cheminotc
         if(!toCache.empty())
         {
             std::string values = "";
-            for (std::string id : toCache)
+            for (const std::string &id : toCache)
             {
                 std::string quoted = "'" + id + "'";
                 values = (values == "") ? quoted : (values + ", " + quoted);
@@ -919,7 +920,7 @@ namespace cheminotc
     {
         std::unordered_map<std::string, bool> availablities;
         std::list<std::shared_ptr<Trip>> trips = getTripsByIds(connection, cache, ids);
-        for (std::shared_ptr<Trip> trip : trips)
+        for (const std::shared_ptr<Trip> trip : trips)
         {
             availablities[trip->id] = isTripValidOn(cache, trip, calendarDates, when);
         }
@@ -1027,7 +1028,7 @@ namespace cheminotc
         std::unordered_map<std::string, std::shared_ptr<QueueItem>> items;
 
         ArrivalTimeFunc gsFunc;
-        for (tm departureTime : startingPeriod)
+        for (const tm &departureTime : startingPeriod)
         {
             ArrivalTime gs;
             gs.stopId = vs->id;
@@ -1075,15 +1076,15 @@ namespace cheminotc
         }
         else
         {
-            std::list<StopTime> viArrivalTimes(orderStopTimesBy(vi->stopTimes, t));
+            std::list<StopTime> viArrivalTimes = orderStopTimesBy(vi->stopTimes, t);
             time_t wfi = LONG_MAX;
-            for (std::string edge : vi->edges)
+            for (const std::string &edge : vi->edges)
             {
                 Vertice vf = getVerticeFromGraph(graph, cache, edge, &ts);
                 std::list<StopTime> vfDepartureTimes = getAvailableDepartures(connection, cache, calendarDates, t, &vf);
-                for (StopTime vfDepartureTime : vfDepartureTimes)
+                for (const StopTime &vfDepartureTime : vfDepartureTimes)
                 {
-                    for (StopTime viArrivalTime : viArrivalTimes)
+                    for (const StopTime &viArrivalTime : viArrivalTimes)
                     {
                         if((vfDepartureTime.tripId == viArrivalTime.tripId) && (vfDepartureTime.pos == (viArrivalTime.pos - 1)) && datetimeIsBeforeNotEq(vfDepartureTime.departure, viArrivalTime.arrival))
                         {
@@ -1102,7 +1103,7 @@ namespace cheminotc
             tm nextEarliestArrivalTime = asDateTime(asTimestamp(qk->gi) + wfi);
 
             std::pair<tm, tm> enlarged = { qi->ti, qi->gi };
-            for (auto f : giFunc)
+            for (const auto &f : giFunc)
             {
                 time_t ti = f.first;
                 tm gi = f.second.arrival;
@@ -1144,7 +1145,7 @@ namespace cheminotc
         });
 
         std::list<tm> startingPeriod;
-        for (StopTime departureTime : departures)
+        for (const StopTime &departureTime : departures)
         {
             if(datetimeIsBeforeEq(departureTime.departure, te))
             {
@@ -1179,7 +1180,7 @@ namespace cheminotc
 
         calendarDates->foreach([&cache](const std::string &serviceId, const m::cheminot::data::CalendarExceptions &exceptionsBuf) {
             std::list<std::shared_ptr<CalendarDate>> calendarDatesByServiceId;
-            for(auto calendarDateBuf : exceptionsBuf.calendardates())
+            for(const auto &calendarDateBuf : exceptionsBuf.calendardates())
             {
                 std::shared_ptr<CalendarDate> calendarDate {new CalendarDate};
                 calendarDate->serviceId = calendarDateBuf.serviceid();
@@ -1211,9 +1212,9 @@ namespace cheminotc
         std::list<StopTime> viDepartures = getAvailableDepartures(connection, cache, calendarDates, gi->arrival, vi);
         StopTime earliestArrivalTime;
         earliestArrivalTime.arrival = INFINITE;
-        for(StopTime viDepartureTime : viDepartures)
+        for(const StopTime &viDepartureTime : viDepartures)
         {
-            for(StopTime vjStopTime : vj->stopTimes)
+            for(const StopTime &vjStopTime : vj->stopTimes)
             {
                 if(viDepartureTime.tripId == vjStopTime.tripId && datetimeIsBeforeEq(viDepartureTime.departure, vjStopTime.arrival) && datetimeIsBeforeEq(gi->arrival, viDepartureTime.departure) && (viDepartureTime.pos == vjStopTime.pos - 1))
                 {
@@ -1314,11 +1315,11 @@ namespace cheminotc
                 {
                     enlargedStartingTime = enlargeStartingTime(connection, cache, calendarDates, graph, giFunc, qi, qk, &vi, vsId, ts, te);
                 }
-                for (std::string vjId : vi.edges)
+                for (const std::string &vjId : vi.edges)
                 {
                     if(vjId != vsId)
                     {
-                        for (tm startingTime : startingPeriod)
+                        for (const tm &startingTime : startingPeriod)
                         {
                             if(datetimeIsBeforeEq(qi->ti, startingTime) && datetimeIsBeforeEq(startingTime, enlargedStartingTime))
                             {
@@ -1424,7 +1425,7 @@ namespace cheminotc
             ArrivalTime gj;
             if(getArrivalTimeAt(vj.id, &gj))
             {
-                for (std::string viId :vj.edges)
+                for (const std::string &viId :vj.edges)
                 {
                     ArrivalTime gi;
                     if(getArrivalTimeAt(viId, &gi))
@@ -1522,7 +1523,7 @@ namespace cheminotc
         if(hasBestTrip)
         {
             std::shared_ptr<Trip> trip = bestTrip.first;
-            for(std::string stopId : trip->stopIds)
+            for(const std::string &stopId : trip->stopIds)
             {
                 if(arrivalTimes.empty())
                 {
