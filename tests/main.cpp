@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates"}, &calendarDates);
 
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(connection, &graph, &cache, &calendarDates, chartres, parisMont, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(connection, graph, cache, calendarDates, chartres, parisMont, ts, te, 1);
 
     for (auto result : results.second)
     {
