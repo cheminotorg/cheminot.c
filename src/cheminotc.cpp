@@ -265,7 +265,7 @@ namespace cheminotc
         Json::Value json;
         int arrival = asTimestamp(arrivalTime.arrival);
         int departure = asTimestamp(arrivalTime.departure);
-        Vertice vi = cheminotc::getVerticeFromGraph(graph, cache, arrivalTime.stopId, NULL, false);
+        Vertice vi = cheminotc::getVerticeFromGraph(graph, cache, arrivalTime.stopId, nullptr, false);
         json["stopId"] = arrivalTime.stopId;
         json["stopName"] = vi.name;
         json["arrival"] = arrival;
@@ -476,7 +476,7 @@ namespace cheminotc
     Vertice getVerticeFromGraph(Graph &graph, Cache &cache, std::string id, const tm *dateref, bool withStopTimes)
     {
         tm datetime;
-        if(dateref == NULL) {
+        if(dateref == nullptr) {
             datetime = getNow();
         } else {
             datetime = *dateref;
@@ -521,7 +521,7 @@ namespace cheminotc
         trip->direction = (const char*)row["direction"];
 
         const char* stopIds = (const char*)row["stopIds"];
-        if(stopIds != NULL)
+        if(stopIds != nullptr)
         {
             m::cheminot::data::TripStopIds tripStopIdsBuf;
             tripStopIdsBuf.ParseFromString(stopIds);
@@ -529,7 +529,7 @@ namespace cheminotc
         }
 
         const char *calendar = (const char*)row["calendar"];
-        if(calendar != NULL)
+        if(calendar != nullptr)
         {
             m::cheminot::data::Calendar calendarBuf;
             calendarBuf.ParseFromString(calendar);
@@ -546,7 +546,7 @@ namespace cheminotc
         {
             std::string name(sqlite3_column_name(stmt, col));
             const char *value = (const char *)sqlite3_column_text(stmt, col);
-            if(value != NULL)
+            if(value != nullptr)
             {
                 row[name] = strdup(value);
             }
@@ -557,7 +557,7 @@ namespace cheminotc
     void executeUpdate(sqlite3 *handle, std::string query)
     {
         sqlite3_stmt *stmt;
-        sqlite3_exec(handle, query.c_str(), NULL, NULL, NULL);
+        sqlite3_exec(handle, query.c_str(), nullptr, nullptr, nullptr);
     }
 
     std::list< std::unordered_map<std::string, const void*> > executeQuery(sqlite3 *handle, std::string query)
@@ -587,10 +587,10 @@ namespace cheminotc
     CheminotDb openConnection(std::string path)
     {
         sqlite3 *file;
-        sqlite3_open_v2(path.c_str(), &file, SQLITE_OPEN_READWRITE, NULL);
+        sqlite3_open_v2(path.c_str(), &file, SQLITE_OPEN_READWRITE, nullptr);
 
         sqlite3 *inmemory;
-        sqlite3_open_v2(":memory:", &inmemory, SQLITE_OPEN_READWRITE, NULL);
+        sqlite3_open_v2(":memory:", &inmemory, SQLITE_OPEN_READWRITE, nullptr);
 
         executeQuery(inmemory, "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)");
 
@@ -725,7 +725,7 @@ namespace cheminotc
         {
             x = strncmp((char *)results.front()["value"], "1", 1) == 0;
         }
-        if(locked != NULL)
+        if(locked != nullptr)
         {
             *locked = x;
         }
@@ -901,7 +901,7 @@ namespace cheminotc
 
     bool isTripValidOn(Cache &cache, std::shared_ptr<Trip> trip, CalendarDates &calendarDates, const tm &when)
     {
-        if(trip->calendar != NULL)
+        if(trip->calendar != nullptr)
         {
             bool removed = isTripRemovedOn(cache, trip, calendarDates, when);
             bool added = isTripAddedOn(cache, trip, calendarDates, when);

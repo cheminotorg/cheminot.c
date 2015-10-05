@@ -270,6 +270,8 @@ namespace cheminotc
 
     tm addHours(tm datetime, int n);
 
+    Json::Value serializeArrivalTimes(Graph &graph, Cache &cache, const std::list<ArrivalTime> &arrivalTimes);
+
     Json::Value serializeArrivalTime(Graph &graph, Cache &cache, const ArrivalTime &arrivalTime);
 
     bool verticeExists(Graph *graph, Cache *cache, std::string id);
