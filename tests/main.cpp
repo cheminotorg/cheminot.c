@@ -19,8 +19,8 @@ int main(int argc, char **argv)
     std::string parisLazard = "StopPoint:OCETrain TER-87384008";
 
     struct tm ts = cheminotc::getNow();
-    ts.tm_hour = 7;
-    ts.tm_min = 47;
+    // ts.tm_hour = 7;
+    // ts.tm_min = 47;
     tm te = cheminotc::addHours(ts, 12);
 
     // tm ts = cheminotc::asDateTime(1429599051);
@@ -31,13 +31,13 @@ int main(int argc, char **argv)
     cheminotc::CheminotDb connection = cheminotc::openConnection("cheminot.db");
 
     cheminotc::Graph graph;
-    cheminotc::parseGraphFiles({"ter-graph", "trans-graph"}, &graph);
+    cheminotc::parseGraphFiles({"ter-graph", "trans-graph"}, graph);
 
     cheminotc::CalendarDates calendarDates;
-    cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates"}, &calendarDates);
+    cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates"}, calendarDates);
 
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestTrip(connection, graph, cache, calendarDates, chartres, parisMont, ts, te, 1);
+    auto results = cheminotc::lookForBestTrip(connection, graph, cache, calendarDates, chartres, paris, ts, te, 1);
 
     for (auto result : results.second)
     {

@@ -49,8 +49,8 @@ class GraphFixture : public testing::Test
     virtual void SetUp()
     {
         connection = cheminotc::openConnection("cheminot.db");
-        cheminotc::parseGraphFiles({"ter-graph", "trans-graph"}, &graph);
-        cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates"}, &calendarDates);
+        cheminotc::parseGraphFiles({"ter-graph", "trans-graph"}, graph);
+        cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates"}, calendarDates);
     }
 };
 

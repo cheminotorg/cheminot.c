@@ -299,7 +299,7 @@ namespace cheminotc
         return json;
     }
 
-    Json::Value serializeStopTimes(std::list<StopTime> stopTimes)
+    Json::Value serializeStopTimes(std::list<StopTime> &stopTimes)
     {
         Json::Value array;
         for (const StopTime &stopTime : stopTimes)
@@ -351,7 +351,7 @@ namespace cheminotc
         }
     }
 
-    StopTime parseStopTime(const tm *dateref, m::cheminot::data::StopTime stopTimeBuf)
+    StopTime parseStopTime(const tm *dateref, const m::cheminot::data::StopTime &stopTimeBuf)
     {
         StopTime stopTime;
         stopTime.tripId = stopTimeBuf.tripid();
@@ -371,7 +371,7 @@ namespace cheminotc
         return stopTime;
     }
 
-    std::list<StopTime> parseStopTimes(const tm *dateref, google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime> stopTimesBuf)
+    std::list<StopTime> parseStopTimes(const tm *dateref, const google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime> &stopTimesBuf)
     {
         std::list<StopTime> stopTimes;
         for(const auto &stopTimeBuf : stopTimesBuf)
@@ -382,7 +382,7 @@ namespace cheminotc
         return stopTimes;
     }
 
-    std::list<std::string> parseTripStopIds(m::cheminot::data::TripStopIds tripStopIdsBuf)
+    std::list<std::string> parseTripStopIds(const m::cheminot::data::TripStopIds &tripStopIdsBuf)
     {
         std::list<std::string> result;
         auto stopIds = tripStopIdsBuf.stopids();
@@ -393,7 +393,7 @@ namespace cheminotc
         return result;
     }
 
-    std::list<std::string> parseEdges(google::protobuf::RepeatedPtrField< std::string> edgesBuf)
+    std::list<std::string> parseEdges(const google::protobuf::RepeatedPtrField< std::string> &edgesBuf)
     {
         std::list<std::string> edges;
         for(const std::string &edge : edgesBuf)
@@ -403,7 +403,7 @@ namespace cheminotc
         return edges;
     }
 
-    std::unique_ptr<Calendar> parseCalendar(m::cheminot::data::Calendar calendarBuf)
+    std::unique_ptr<Calendar> parseCalendar(const m::cheminot::data::Calendar &calendarBuf)
     {
         std::unique_ptr<Calendar> calendar(new Calendar());
         std::unordered_map<std::string, bool> week;
@@ -623,7 +623,7 @@ namespace cheminotc
         }
     }
 
-    void parseGraphFiles(std::list<std::string> paths, Graph *graph)
+    void parseGraphFiles(std::list<std::string> paths, Graph &graph)
     {
         std::list<std::shared_ptr<GraphBuf>> data;
         for(const std::string &path : paths) {
@@ -631,7 +631,7 @@ namespace cheminotc
             parseGraphFile(path, graphBuf);
             data.push_back(graphBuf);
         }
-        graph->data = data;
+        graph.data = data;
     }
 
     void parseCalendarDatesFile(std::string path, std::shared_ptr<CalendarDatesBuf> calendarDatesBuf)
@@ -650,7 +650,7 @@ namespace cheminotc
         }
     }
 
-    void parseCalendarDatesFiles(std::list<std::string> paths, CalendarDates *calendarDates)
+    void parseCalendarDatesFiles(std::list<std::string> paths, CalendarDates &calendarDates)
     {
         std::list<std::shared_ptr<CalendarDatesBuf>> data;
         for(const std::string &path : paths) {
@@ -658,7 +658,7 @@ namespace cheminotc
             parseCalendarDatesFile(path, calendarDatesBuf);
             data.push_back(calendarDatesBuf);
         }
-        calendarDates->data = data;
+        calendarDates.data = data;
     }
 
     std::string getLastTrace(const CheminotDb &connection)
@@ -1163,10 +1163,10 @@ namespace cheminotc
         return startingPeriod;
     }
 
-    void fillCache(Cache *cache, CalendarDates *calendarDates, Graph *graph)
+    void fillCache(Cache &cache, CalendarDates &calendarDates, Graph &graph)
     {
         tm dateref = getNow();
-        graph->foreach([&dateref, &cache](const std::string &stopId, const m::cheminot::data::Vertice &verticeBuf) {
+        graph.foreach([&dateref, &cache](const std::string &stopId, const m::cheminot::data::Vertice &verticeBuf) {
             std::shared_ptr<Vertice> vertice {new Vertice};
             std::string id = verticeBuf.id();
             vertice->id = id;
@@ -1175,10 +1175,10 @@ namespace cheminotc
             vertice->lng = verticeBuf.lng();
             vertice->edges = parseEdges(verticeBuf.edges());
             vertice->stopTimes = parseStopTimes(&dateref, verticeBuf.stoptimes());
-            cache->vertices[id] = vertice;
+            cache.vertices[id] = vertice;
         });
 
-        calendarDates->foreach([&cache](const std::string &serviceId, const m::cheminot::data::CalendarExceptions &exceptionsBuf) {
+        calendarDates.foreach([&cache](const std::string &serviceId, const m::cheminot::data::CalendarExceptions &exceptionsBuf) {
             std::list<std::shared_ptr<CalendarDate>> calendarDatesByServiceId;
             for(const auto &calendarDateBuf : exceptionsBuf.calendardates())
             {
@@ -1188,10 +1188,10 @@ namespace cheminotc
                 calendarDate->exceptionType = calendarDateBuf.exceptiontype();
                 calendarDatesByServiceId.push_back(calendarDate);
             }
-            cache->calendarDates[serviceId] = calendarDatesByServiceId;
+            cache.calendarDates[serviceId] = calendarDatesByServiceId;
         });
 
-        cache->readonly = true;
+        cache.readonly = true;
     }
 
     bool isQueueItemOutdated(std::unordered_map<std::string, tm> *uptodate, std::shared_ptr<QueueItem> item)

@@ -236,9 +236,9 @@ namespace cheminotc
 
     bool isLocked(const CheminotDb &connection, bool *locked);
 
-    void parseGraphFiles(std::list<std::string> paths, Graph *graph);
+    void parseGraphFiles(std::list<std::string> paths, Graph &graph);
 
-    void parseCalendarDatesFiles(std::list<std::string> paths, CalendarDates *calendarDates);
+    void parseCalendarDatesFiles(std::list<std::string> paths, CalendarDates &calendarDates);
 
     std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 
@@ -280,7 +280,7 @@ namespace cheminotc
 
     Json::Value getMeta(const CheminotDb &connection);
 
-    void fillCache(Cache *cache, CalendarDates *calendarDates, Graph *graph);
+    void fillCache(Cache &cache, CalendarDates &calendarDates, Graph &graph);
 
 // -- PARIS
     static std::string parisStopId = "StopPoint:OCETrain TER-PARISXXX";
