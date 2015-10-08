@@ -764,7 +764,7 @@ namespace cheminotc
         {
             if(subQueryParisIds == "")
             {
-                subQueryParisIds += " b.stopId = '" + stopId + "'";
+                subQueryParisIds += "b.stopId = '" + stopId + "'";
             }
             else
             {
@@ -774,14 +774,22 @@ namespace cheminotc
         return subQueryParisIds;
     }
 
-    std::list<std::shared_ptr<Trip>> getDirectTrips(const CheminotDb &connection, Cache &cache, std::string vsId, std::string veId)
+    std::list<std::shared_ptr<Trip>> getDirectTrips(const CheminotDb &connection, const std::list<std::string> &subsets, Cache &cache, std::string vsId, std::string veId)
     {
         std::string clause = "b.stopId = '" + vsId + "' OR b.stopId ='" + veId + "'";
         std::string vsIdQuery = (vsId == parisStopId) ? parisStopIdsQuery() : "b.stopId = '" + vsId + "'";
         std::string veIdQuery = (veId == parisStopId) ? parisStopIdsQuery() : "b.stopId = '" + veId + "'";
+        std::string subsetsQuery = std::accumulate(subsets.begin(), subsets.end(), to_string(""), [](std::string acc, std::string subset) {
+          if(acc == "") {
+            acc += "a.type = '" + subset + "'";
+          } else {
+            acc += " OR a.type = '" + subset + "'";
+          }
+          return acc;
+        });
         std::string query = "SELECT a.* FROM TRIPS "
                             "a INNER JOIN TRIPS_STOPS b ON a.id = b.tripId "
-                            "WHERE " + vsIdQuery + " OR " + veIdQuery + " GROUP BY b.tripId HAVING COUNT(*) = 2";
+                            "WHERE (" + subsetsQuery + ") AND (" + vsIdQuery + " OR " + veIdQuery + ") GROUP BY b.tripId HAVING COUNT(*) = 2";
 
         std::list<std::shared_ptr<Trip>> trips;
         auto results = executeQuery(connection.file, query);
@@ -793,8 +801,20 @@ namespace cheminotc
                 cache.trips[trip->id] = trip;
             }
             if(vsId == parisStopId || veId == parisStopId) {
-                bool vsIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&vsId](std::string &stopId) { return vsId == stopId; }) != trip->stopIds.end();
-                bool veIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&veId](std::string &stopId) { return veId == stopId; }) != trip->stopIds.end();
+                bool vsIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&vsId](std::string &stopId) {
+                  if(vsId == parisStopId) {
+                    return isParis(stopId);
+                  } else {
+                    return vsId == stopId;
+                  }
+                }) != trip->stopIds.end();
+                bool veIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&veId](std::string &stopId) {
+                  if(veId == parisStopId) {
+                    return isParis(stopId);
+                  } else {
+                    return veId == stopId;
+                  }
+                }) != trip->stopIds.end();
                 if(vsIdExists && veIdExists) {
                     trips.push_back(trip);
                 }
@@ -1463,11 +1483,11 @@ namespace cheminotc
         return path;
     }
 
-    std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(const CheminotDb &connection, Graph &graph, Cache &cache, CalendarDates &calendarDates, const std::string &vsId, const std::string &veId, const tm &ts, const tm &te)
+    std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(const CheminotDb &connection, const std::list<std::string> &subsets, Graph &graph, Cache &cache, CalendarDates &calendarDates, const std::string &vsId, const std::string &veId, const tm &ts, const tm &te)
     {
         Vertice vs = getVerticeFromGraph(graph, cache, vsId, &ts);
         Vertice ve = getVerticeFromGraph(graph, cache, veId, &ts);
-        std::list<std::shared_ptr<Trip>> trips = getDirectTrips(connection, cache, vsId, veId);
+        std::list<std::shared_ptr<Trip>> trips = getDirectTrips(connection, subsets, cache, vsId, veId);
         std::pair<std::shared_ptr<Trip>, tm> bestTrip;
         bool hasBestTrip = false;
         for(std::shared_ptr<Trip> trip : trips)
