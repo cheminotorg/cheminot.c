@@ -283,11 +283,11 @@ namespace cheminotc
     void fillCache(Cache &cache, CalendarDates &calendarDates, Graph &graph);
 
 // -- PARIS
-    static std::string parisStopId = "StopPoint:OCETrain TER-PARISXXX";
+    static std::string PARIS_STOP_ID = "StopPoint:OCETrain TER-PARISXXX";
 
-    static std::list<std::string> parisStopIds =
+    static std::list<std::string> PARIS_STOP_IDS =
     {
-        parisStopId,
+        PARIS_STOP_ID,
         "StopPoint:OCETrain TER-87391102",
         "StopPoint:OCETrain TER-87391003",
         "StopPoint:OCETrain TER-87686667",

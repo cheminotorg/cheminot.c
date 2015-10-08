@@ -53,11 +53,11 @@ namespace cheminotc
 
     bool isParis(std::string id)
     {
-        auto it = std::find_if(parisStopIds.begin(), parisStopIds.end(), [&id](std:: string vid)
+        auto it = std::find_if(PARIS_STOP_IDS.begin(), PARIS_STOP_IDS.end(), [&id](std:: string vid)
         {
             return id == vid;
         });
-        return it != parisStopIds.end();
+        return it != PARIS_STOP_IDS.end();
     };
 
     tm getNow()
@@ -760,7 +760,7 @@ namespace cheminotc
     std::string parisStopIdsQuery()
     {
         std::string subQueryParisIds = "";
-        for (const std::string &stopId : parisStopIds)
+        for (const std::string &stopId : PARIS_STOP_IDS)
         {
             if(subQueryParisIds == "")
             {
@@ -776,20 +776,27 @@ namespace cheminotc
 
     std::list<std::shared_ptr<Trip>> getDirectTrips(const CheminotDb &connection, const std::list<std::string> &subsets, Cache &cache, std::string vsId, std::string veId)
     {
-        std::string clause = "b.stopId = '" + vsId + "' OR b.stopId ='" + veId + "'";
-        std::string vsIdQuery = (vsId == parisStopId) ? parisStopIdsQuery() : "b.stopId = '" + vsId + "'";
-        std::string veIdQuery = (veId == parisStopId) ? parisStopIdsQuery() : "b.stopId = '" + veId + "'";
-        std::string subsetsQuery = std::accumulate(subsets.begin(), subsets.end(), to_string(""), [](std::string acc, std::string subset) {
-          if(acc == "") {
-            acc += "a.type = '" + subset + "'";
-          } else {
-            acc += " OR a.type = '" + subset + "'";
-          }
-          return acc;
+
+        std::string subsetsFilter = std::accumulate(subsets.begin(), subsets.end(), to_string(""), [](std::string acc, std::string subset) {
+            if(acc == "") {
+                acc += "a.type = '" + subset + "'";
+            } else {
+                acc += " OR a.type = '" + subset + "'";
+            }
+            return acc;
         });
-        std::string query = "SELECT a.* FROM TRIPS "
-                            "a INNER JOIN TRIPS_STOPS b ON a.id = b.tripId "
-                            "WHERE (" + subsetsQuery + ") AND (" + vsIdQuery + " OR " + veIdQuery + ") GROUP BY b.tripId HAVING COUNT(*) = 2";
+
+        std::function<std::string (std::string, std::string)> subQuery = [&subsetsFilter](std::string vsId, std::string veId) {
+            std::string clause = "b.stopId = '" + vsId + "' OR b.stopId ='" + veId + "'";
+            std::string vsIdQuery = "b.stopId = '" + vsId + "'";
+            std::string veIdQuery = "b.stopId = '" + veId + "'";
+            std::string query = "SELECT a.* FROM TRIPS "
+                                "a INNER JOIN TRIPS_STOPS b ON a.id = b.tripId "
+                                "WHERE (" + subsetsFilter + ") AND (" + vsIdQuery + " OR " + veIdQuery + ") GROUP BY b.tripId HAVING COUNT(*) = 2";
+            return query;
+        };
+
+        std::string query = subQuery(vsId, veId);
 
         std::list<std::shared_ptr<Trip>> trips;
         auto results = executeQuery(connection.file, query);
@@ -800,27 +807,7 @@ namespace cheminotc
             {
                 cache.trips[trip->id] = trip;
             }
-            if(vsId == parisStopId || veId == parisStopId) {
-                bool vsIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&vsId](std::string &stopId) {
-                  if(vsId == parisStopId) {
-                    return isParis(stopId);
-                  } else {
-                    return vsId == stopId;
-                  }
-                }) != trip->stopIds.end();
-                bool veIdExists = std::find_if(trip->stopIds.begin(), trip->stopIds.end(), [&veId](std::string &stopId) {
-                  if(veId == parisStopId) {
-                    return isParis(stopId);
-                  } else {
-                    return veId == stopId;
-                  }
-                }) != trip->stopIds.end();
-                if(vsIdExists && veIdExists) {
-                    trips.push_back(trip);
-                }
-            } else {
-                trips.push_back(trip);
-            }
+            trips.push_back(trip);
         }
         return trips;
     }
@@ -1363,7 +1350,7 @@ namespace cheminotc
 
                 if(datetimeIsBeforeEq(te, enlargedStartingTime))
                 {
-                    if(vi.id == veId || (veId == parisStopId && isParis(vi.id)))
+                    if(vi.id == veId || (veId == PARIS_STOP_ID && isParis(vi.id)))
                     {
                         return std::make_tuple(false, arrivalTimesFunc, vi.id);
                     }
@@ -1437,7 +1424,7 @@ namespace cheminotc
 
         std::function<bool (std::string, std::string)> running = [](std::string vjId, std::string vsId)
         {
-            return !(vjId == vsId || (vsId == parisStopId && isParis(vjId)));
+            return !(vjId == vsId || (vsId == PARIS_STOP_ID && isParis(vjId)));
         };
 
         while(running(vj.id, vsId))
@@ -1457,7 +1444,7 @@ namespace cheminotc
                         });
                         if(it != vi.stopTimes.end())
                         {
-                            if(viId == vsId || (vsId == parisStopId && isParis(viId)))   // RECOVER DEPARTURE
+                            if(viId == vsId || (vsId == PARIS_STOP_ID && isParis(viId)))   // RECOVER DEPARTURE
                             {
                                 gi.tripId = gj.tripId;
                                 gi.departure = it->departure;
@@ -1547,7 +1534,7 @@ namespace cheminotc
             {
                 if(arrivalTimes.empty())
                 {
-                    if(stopId == vsId || (vsId == parisStopId && isParis(stopId)))
+                    if(stopId == vsId || (vsId == PARIS_STOP_ID && isParis(stopId)))
                     {
                         ArrivalTime arrivalTime;
                         if(getArrivalTime(stopId, trip, &arrivalTime))
@@ -1563,7 +1550,7 @@ namespace cheminotc
                     {
                         arrivalTimes.push_back(arrivalTime);
                     }
-                    if(stopId == veId || (veId == parisStopId && isParis(stopId)))
+                    if(stopId == veId || (veId == PARIS_STOP_ID && isParis(stopId)))
                     {
                         break;
                     }
