@@ -73,7 +73,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_empty_notrip)
     ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestDirectTrip(connection, { "ter", "trans" }, graph, cache, calendarDates, stops::laval, stops::paris, ts, te);
+    auto results = cheminotc::lookForBestDirectTrip(connection, { "TER", "TRANS" }, graph, cache, calendarDates, stops::laval, stops::paris, ts, te);
     utils::print(results.second);
     EXPECT_EQ(0, results.second.size());
     EXPECT_EQ(false, results.first);
@@ -86,7 +86,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_chartres_parismont)
     ts.tm_min = 47;
     tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestDirectTrip(connection, { "ter", "trans" }, graph, cache, calendarDates, stops::chartres, stops::parisMont, ts, te);
+    auto results = cheminotc::lookForBestDirectTrip(connection, { "TER", "TRANS" }, graph, cache, calendarDates, stops::chartres, stops::parisMont, ts, te);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -98,7 +98,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_chartres_paris)
     ts.tm_min = 47;
     tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestDirectTrip(connection, { "ter", "trans" }, graph, cache, calendarDates, stops::chartres, stops::paris, ts, te);
+    auto results = cheminotc::lookForBestDirectTrip(connection, { "TER", "TRANS" }, graph, cache, calendarDates, stops::chartres, stops::paris, ts, te);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }
@@ -110,7 +110,7 @@ TEST_F(GraphFixture, lookforbestdirecttrip_paris_chartres)
     ts.tm_min = 47;
     tm te = cheminotc::addHours(ts, 12);
     cheminotc::Cache cache;
-    auto results = cheminotc::lookForBestDirectTrip(connection, { "ter", "trans" }, graph, cache, calendarDates, stops::paris, stops::chartres, ts, te);
+    auto results = cheminotc::lookForBestDirectTrip(connection, { "TER", "TRANS" }, graph, cache, calendarDates, stops::paris, stops::chartres, ts, te);
     utils::print(results.second);
     EXPECT_EQ(false, results.second.empty());
 }

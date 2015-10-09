@@ -757,23 +757,6 @@ namespace cheminotc
         return json;
     }
 
-    std::string parisStopIdsQuery()
-    {
-        std::string subQueryParisIds = "";
-        for (const std::string &stopId : PARIS_STOP_IDS)
-        {
-            if(subQueryParisIds == "")
-            {
-                subQueryParisIds += "b.stopId = '" + stopId + "'";
-            }
-            else
-            {
-                subQueryParisIds += " OR b.stopId = '" + stopId + "'";
-            }
-        }
-        return subQueryParisIds;
-    }
-
     std::list<std::shared_ptr<Trip>> getDirectTrips(const CheminotDb &connection, const std::list<std::string> &subsets, Cache &cache, std::string vsId, std::string veId)
     {
 
