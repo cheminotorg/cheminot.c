@@ -5,12 +5,130 @@
 #include "protobuf/cheminotBuf.pb.h"
 #include <json/json.h>
 #include <unordered_map>
+#include <iterator>
+#include <numeric>
 
 namespace cheminotc
 {
 
-    typedef google::protobuf::Map< std::string,m::cheminot::data::Vertice> Graph;
-    typedef google::protobuf::Map<std::string,m::cheminot::data::CalendarExceptions> CalendarDates;
+    typedef google::protobuf::Map<std::string,m::cheminot::data::Vertice> GraphBuf;
+    typedef google::protobuf::Map<std::string,m::cheminot::data::CalendarExceptions> CalendarDatesBuf;
+
+    struct Graph {
+        std::list<std::shared_ptr<GraphBuf>> data;
+
+        Graph() {
+        }
+
+        Graph(std::list<std::shared_ptr<GraphBuf>> data) {
+            this->data = data;
+        }
+
+        m::cheminot::data::Vertice& operator[](const std::string &key) {
+            for(auto &graphBuf : this->data) {
+                auto it = graphBuf->find(key);
+                if(it != graphBuf->end()) {
+                    return it->second;
+                }
+            }
+            throw std::runtime_error("Unable to find vertice for " + key);
+        }
+
+        void foreach(std::function<void(const std::string&, const m::cheminot::data::Vertice&)> loop) {
+            for(auto &graphBuf : this->data) {
+                for(auto &vertice : *graphBuf) {
+                    loop(vertice.first, vertice.second);
+                }
+            }
+        }
+
+        GraphBuf::iterator end() {
+            return this->data.back()->end();
+        }
+
+        GraphBuf::iterator find(const std::string &key) {
+            for(auto &graphBuf : this->data) {
+                auto it = graphBuf->find(key);
+                if(it != graphBuf->end()) {
+                    return it;
+                }
+            }
+            return this->end();
+        }
+
+        bool empty() const {
+            for(auto &graphBuf : this->data) {
+                if(graphBuf->empty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        size_t size() const {
+            return std::accumulate(this->data.begin(), this->data.end(), 0, [](int acc, std::shared_ptr<GraphBuf> graphBuf) {
+                return acc + graphBuf->size();
+            });
+        }
+    };
+
+    struct CalendarDates {
+        std::list<std::shared_ptr<CalendarDatesBuf>> data;
+
+        CalendarDates() {
+        }
+
+        CalendarDates(std::list<std::shared_ptr<CalendarDatesBuf>> data) {
+            this->data = data;
+        }
+
+        m::cheminot::data::CalendarExceptions& operator[](const std::string &key) {
+            for(auto &calendarDatesBuf : this->data) {
+                auto it = calendarDatesBuf->find(key);
+                if(it != calendarDatesBuf->end()) {
+                    return it->second;
+                }
+            }
+            throw std::runtime_error("Unable to find calendar exceptions for " + key);
+        }
+
+        void foreach(std::function<void(const std::string&, const m::cheminot::data::CalendarExceptions&)> loop) {
+            for(auto &calendarDatesBuf : this->data) {
+                for(auto &exceptions : *calendarDatesBuf) {
+                    loop(exceptions.first, exceptions.second);
+                }
+            }
+        }
+
+        CalendarDatesBuf::iterator end() {
+            return this->data.back()->end();
+        }
+
+        CalendarDatesBuf::iterator find(const std::string &key) {
+            for(auto &calendarDatesBuf : this->data) {
+                auto it = calendarDatesBuf->find(key);
+                if(it != calendarDatesBuf->end()) {
+                    return it;
+                }
+            }
+            return this->end();
+        }
+
+        bool empty() const {
+            for(auto &calendarDatesBuf : this->data) {
+                if(calendarDatesBuf->empty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        size_t size() const {
+            return std::accumulate(this->data.begin(), this->data.end(), 0, [](int acc, std::shared_ptr<CalendarDatesBuf> calendarDatesBuf) {
+                return acc + calendarDatesBuf->size();
+            });
+        }
+    };
 
     struct CheminotDb
     {
@@ -118,15 +236,15 @@ namespace cheminotc
 
     bool isLocked(const CheminotDb &connection, bool *locked);
 
-    void parseGraph(std::string path, Graph *graph);
+    void parseGraphFiles(std::list<std::string> paths, Graph &graph);
 
-    void parseCalendarDates(std::string content, CalendarDates *calendarDates);
+    void parseCalendarDatesFiles(std::list<std::string> paths, CalendarDates &calendarDates);
 
     std::tuple<bool, ArrivalTimesFunc, std::string> refineArrivalTimes(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
 
-    std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te);
+    std::pair<bool, std::list<ArrivalTime>> lookForBestDirectTrip(const CheminotDb &connection, const std::list<std::string> &subsets, Graph &graph, Cache &cache, CalendarDates &calendarDates, const std::string &vsId, const std::string &veId, const tm &ts, const tm &te);
 
-    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(const CheminotDb &connection, Graph *graph, Cache *cache, CalendarDates *calendarDates, std::string vsId, std::string veId, tm ts, tm te, int max);
+    std::pair<bool, std::list<ArrivalTime>> lookForBestTrip(const CheminotDb &connection, Graph &graph, Cache &cache, CalendarDates &calendarDates, const std::string &vsId, const std::string &veId, const tm &ts, const tm &te, int max);
 
     bool hasSameDateTime(const tm &a, const tm &b);
 
@@ -152,22 +270,24 @@ namespace cheminotc
 
     tm addHours(tm datetime, int n);
 
-    Json::Value serializeArrivalTimes(Graph *graph, Cache *cache, std::list<ArrivalTime> arrivalTimes);
+    Json::Value serializeArrivalTimes(Graph &graph, Cache &cache, const std::list<ArrivalTime> &arrivalTimes);
+
+    Json::Value serializeArrivalTime(Graph &graph, Cache &cache, const ArrivalTime &arrivalTime);
 
     bool verticeExists(Graph *graph, Cache *cache, std::string id);
 
-    Vertice getVerticeFromGraph(Graph *graph, Cache *cache, std::string id, const tm *dateref, bool withStopTimes = true);
+    Vertice getVerticeFromGraph(Graph &graph, Cache &cache, std::string id, const tm *dateref, bool withStopTimes = true);
 
     Json::Value getMeta(const CheminotDb &connection);
 
-    void fillCache(Cache *cache, CalendarDates *calendarDates, Graph *graph);
+    void fillCache(Cache &cache, CalendarDates &calendarDates, Graph &graph);
 
 // -- PARIS
-    static std::string parisStopId = "StopPoint:OCETrain TER-PARISXXX";
+    static std::string PARIS_STOP_ID = "StopPoint:OCETrain TER-PARISXXX";
 
-    static std::list<std::string> parisStopIds =
+    static std::list<std::string> PARIS_STOP_IDS =
     {
-        parisStopId,
+        PARIS_STOP_ID,
         "StopPoint:OCETrain TER-87391102",
         "StopPoint:OCETrain TER-87391003",
         "StopPoint:OCETrain TER-87686667",
