@@ -19,6 +19,12 @@ lib/gtest-1.7.0/CMakeFiles/*
 lib/protobuf
 .DS_Store
 settings.h
+ter-calendardates
+trans-calendardates
+inter-calendardates
+ter-graph
+trans-graph
+inter-graph
 
 # cpp
 *.slo
