@@ -16,6 +16,7 @@ namespace cheminotc
 
     struct Graph {
         std::list<std::shared_ptr<GraphBuf>> data;
+        std::map<std::string, m::cheminot::data::Vertice> _data;
 
         Graph() {
         }
@@ -24,20 +25,45 @@ namespace cheminotc
             this->data = data;
         }
 
-        m::cheminot::data::Vertice& operator[](const std::string &key) {
-            for(auto &graphBuf : this->data) {
-                auto it = graphBuf->find(key);
-                if(it != graphBuf->end()) {
-                    return it->second;
+        m::cheminot::data::Vertice& get(std::string key) {
+            auto _it = this->_data.find(key);
+            if(_it != this->_data.end()) {
+                return _it->second;
+            } else {
+                m::cheminot::data::Vertice *h = nullptr;
+                for(auto &graphBuf : this->data) {
+                    auto it = graphBuf->find(key);
+                    if(it != graphBuf->end()) {
+                        if(h == nullptr) {
+                            h = &it->second;
+                        } else {
+                            h->MergeFrom(it->second);
+                        }
+                    }
+                }
+
+                if(h == nullptr) {
+                    throw std::runtime_error("Unable to find vertice for " + key);
+                } else {
+                    this->_data[key] = *h;
+                    return *h;
                 }
             }
-            throw std::runtime_error("Unable to find vertice for " + key);
+        }
+
+        m::cheminot::data::Vertice& operator[](const std::string &key) {
+            return this->get(key);
         }
 
         void foreach(std::function<void(const std::string&, const m::cheminot::data::Vertice&)> loop) {
+            std::map<std::string, bool> xxx;
             for(auto &graphBuf : this->data) {
                 for(auto &vertice : *graphBuf) {
-                    loop(vertice.first, vertice.second);
+                    auto it = xxx.find(vertice.first);
+                    if(it == xxx.end()) {
+                        loop(vertice.first, this->get(vertice.first));
+                        xxx[vertice.first] = true;
+                    }
                 }
             }
         }
@@ -283,18 +309,18 @@ namespace cheminotc
     void fillCache(Cache &cache, CalendarDates &calendarDates, Graph &graph);
 
 // -- PARIS
-    static std::string PARIS_STOP_ID = "StopPoint:OCETrain TER-PARISXXX";
+    static std::string PARIS_STOP_ID = "PARISXX";
 
     static std::list<std::string> PARIS_STOP_IDS =
     {
         PARIS_STOP_ID,
-        "StopPoint:OCETrain TER-87391102",
-        "StopPoint:OCETrain TER-87391003",
-        "StopPoint:OCETrain TER-87686667",
-        "StopPoint:OCETrain TER-87686006",
-        "StopPoint:OCETrain TER-87113001",
-        "StopPoint:OCETrain TER-87271007",
-        "StopPoint:OCETrain TER-87384008",
-        "StopPoint:OCETrain TER-87547000"
+        "8739110",
+        "8739100",
+        "8768666",
+        "8768600",
+        "8711300",
+        "8727100",
+        "8738400",
+        "8754700"
     };
 }
