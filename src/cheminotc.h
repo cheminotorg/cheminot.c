@@ -16,7 +16,7 @@ namespace cheminotc
 
     struct Graph {
         std::list<std::shared_ptr<GraphBuf>> data;
-        std::map<std::string, m::cheminot::data::Vertice> _data;
+        std::map<std::string, std::shared_ptr<m::cheminot::data::Vertice>> _data;
 
         Graph() {
         }
@@ -28,7 +28,7 @@ namespace cheminotc
         m::cheminot::data::Vertice& get(std::string key) {
             auto _it = this->_data.find(key);
             if(_it != this->_data.end()) {
-                return _it->second;
+                return *_it->second;
             } else {
                 m::cheminot::data::Vertice *h = nullptr;
                 for(auto &graphBuf : this->data) {
@@ -45,7 +45,7 @@ namespace cheminotc
                 if(h == nullptr) {
                     throw std::runtime_error("Unable to find vertice for " + key);
                 } else {
-                    this->_data[key] = *h;
+                    this->_data[key] = std::make_shared<m::cheminot::data::Vertice>(*h);
                     return *h;
                 }
             }
