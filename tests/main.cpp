@@ -4,23 +4,23 @@
 
 int main(int argc, char **argv)
 {
-    std::string stmalo = "StopPoint:OCETrain TER-87478107";
-    std::string laval = "StopPoint:OCETrain TER-87478404";
-    std::string parisMont = "StopPoint:OCETrain TER-87391003";
-    std::string parisNord = "StopPoint:OCETrain TER-87271007";
-    std::string paris = "StopPoint:OCETrain TER-PARISXXX";
-    std::string chartres = "StopPoint:OCETrain TER-87394007";
-    std::string creil = "StopPoint:OCETrain TER-87276006";
-    std::string versailles = "StopPoint:OCETrain TER-87393009";
-    std::string lehavre = "StopPoint:OCETrain TER-87413013";
-    std::string avallon = "StopPoint:OCETrain TER-87683789";
-    std::string marseillestcharles = "StopPoint:OCETrain TER-87751008";
-    std::string vernon = "StopPoint:OCETrain TER-87415604";
-    std::string parisLazard = "StopPoint:OCETrain TER-87384008";
+    std::string stmalo = "8747810";
+    std::string laval = "8747840";
+    std::string parisMont = "8739100";
+    std::string parisNord = "8727100";
+    std::string paris = "PARISXX";
+    std::string chartres = "8739400";
+    std::string creil = "8727600";
+    std::string versailles = "8739300";
+    std::string lehavre = "8741301";
+    std::string avallon = "8768378";
+    std::string marseillestcharles = "8775100";
+    std::string vernon = "8741560";
+    std::string parisLazard = "8738400";
 
     struct tm ts = cheminotc::getNow();
-    // ts.tm_hour = 7;
-    // ts.tm_min = 47;
+    ts.tm_hour = 7;
+    ts.tm_min = 0;
     tm te = cheminotc::addHours(ts, 12);
 
     // tm ts = cheminotc::asDateTime(1429599051);
@@ -31,14 +31,14 @@ int main(int argc, char **argv)
     cheminotc::CheminotDb connection = cheminotc::openConnection("cheminot.db");
 
     cheminotc::Graph graph;
-    cheminotc::parseGraphFiles({"ter-graph", "trans-graph"}, graph);
+    cheminotc::parseGraphFiles({"ter-graph", "trans-graph", "inter-graph"}, graph);
 
     cheminotc::CalendarDates calendarDates;
-    cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates"}, calendarDates);
+    cheminotc::parseCalendarDatesFiles({"ter-calendardates", "trans-calendardates", "inter-calendardates"}, calendarDates);
 
     cheminotc::Cache cache;
     //auto results = cheminotc::lookForBestTrip(connection, graph, cache, calendarDates, chartres, paris, ts, te, 1);
-    auto results = cheminotc::lookForBestDirectTrip(connection, { "TER", "TRANS" }, graph, cache, calendarDates, paris, chartres, ts, te);
+    auto results = cheminotc::lookForBestDirectTrip(connection, { "TER", "TRANS", "INTER" }, graph, cache, calendarDates, paris, vernon, ts, te);
 
     for (auto result : results.second)
     {
