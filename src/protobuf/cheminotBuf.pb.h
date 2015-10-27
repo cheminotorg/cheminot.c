@@ -40,14 +40,14 @@ void protobuf_AddDesc_cheminotBuf_2eproto();
 void protobuf_AssignDesc_cheminotBuf_2eproto();
 void protobuf_ShutdownFile_cheminotBuf_2eproto();
 
-class Graph;
-class Vertice;
-class StopTime;
+class Calendar;
+class CalendarDate;
 class CalendarDates;
 class CalendarExceptions;
-class CalendarDate;
-class Calendar;
+class Graph;
+class StopTime;
 class TripStopIds;
+class Vertice;
 
 // ===================================================================
 
@@ -256,10 +256,10 @@ class Vertice : public ::google::protobuf::Message {
   const ::m::cheminot::data::StopTime& stoptimes(int index) const;
   ::m::cheminot::data::StopTime* mutable_stoptimes(int index);
   ::m::cheminot::data::StopTime* add_stoptimes();
-  const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >&
-      stoptimes() const;
   ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >*
       mutable_stoptimes();
+  const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >&
+      stoptimes() const;
 
   // @@protoc_insertion_point(class_scope:m.cheminot.data.Vertice)
  private:
@@ -563,10 +563,10 @@ class CalendarExceptions : public ::google::protobuf::Message {
   const ::m::cheminot::data::CalendarDate& calendardates(int index) const;
   ::m::cheminot::data::CalendarDate* mutable_calendardates(int index);
   ::m::cheminot::data::CalendarDate* add_calendardates();
-  const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >&
-      calendardates() const;
   ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >*
       mutable_calendardates();
+  const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >&
+      calendardates() const;
 
   // @@protoc_insertion_point(class_scope:m.cheminot.data.CalendarExceptions)
  private:
@@ -1180,15 +1180,15 @@ inline ::m::cheminot::data::StopTime* Vertice::add_stoptimes() {
   // @@protoc_insertion_point(field_add:m.cheminot.data.Vertice.stopTimes)
   return stoptimes_.Add();
 }
-inline const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >&
-Vertice::stoptimes() const {
-  // @@protoc_insertion_point(field_list:m.cheminot.data.Vertice.stopTimes)
-  return stoptimes_;
-}
 inline ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >*
 Vertice::mutable_stoptimes() {
   // @@protoc_insertion_point(field_mutable_list:m.cheminot.data.Vertice.stopTimes)
   return &stoptimes_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >&
+Vertice::stoptimes() const {
+  // @@protoc_insertion_point(field_list:m.cheminot.data.Vertice.stopTimes)
+  return stoptimes_;
 }
 
 // -------------------------------------------------------------------
@@ -1426,15 +1426,15 @@ inline ::m::cheminot::data::CalendarDate* CalendarExceptions::add_calendardates(
   // @@protoc_insertion_point(field_add:m.cheminot.data.CalendarExceptions.calendarDates)
   return calendardates_.Add();
 }
-inline const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >&
-CalendarExceptions::calendardates() const {
-  // @@protoc_insertion_point(field_list:m.cheminot.data.CalendarExceptions.calendarDates)
-  return calendardates_;
-}
 inline ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >*
 CalendarExceptions::mutable_calendardates() {
   // @@protoc_insertion_point(field_mutable_list:m.cheminot.data.CalendarExceptions.calendarDates)
   return &calendardates_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >&
+CalendarExceptions::calendardates() const {
+  // @@protoc_insertion_point(field_list:m.cheminot.data.CalendarExceptions.calendarDates)
+  return calendardates_;
 }
 
 // -------------------------------------------------------------------

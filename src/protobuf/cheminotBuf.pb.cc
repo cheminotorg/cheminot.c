@@ -430,6 +430,10 @@ bool Graph::MergePartialFromCodedStream(
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
               input, entry.get()));
           (*mutable_vertices())[entry->key()].Swap(entry->mutable_value());
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            entry->key().data(), entry->key().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Graph.VerticesEntry.key"));
         } else {
           goto handle_unusual;
         }
@@ -472,6 +476,10 @@ void Graph::SerializeWithCachedSizes(
       entry.reset(vertices_.NewEntryWrapper(it->first, it->second));
       ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
           1, *entry, output);
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        it->first.data(), it->first.length(),
+        ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+        "m.cheminot.data.Graph.VerticesEntry.key");
     }
   }
 
@@ -491,6 +499,10 @@ void Graph::SerializeWithCachedSizes(
       target = ::google::protobuf::internal::WireFormatLite::
           WriteMessageNoVirtualToArray(
               1, *entry, target);
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        it->first.data(), it->first.length(),
+        ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+        "m.cheminot.data.Graph.VerticesEntry.key");
     }
   }
 
@@ -706,10 +718,10 @@ bool Vertice::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->id().data(), this->id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Vertice.id");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Vertice.id"));
         } else {
           goto handle_unusual;
         }
@@ -723,10 +735,10 @@ bool Vertice::MergePartialFromCodedStream(
          parse_name:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_name()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->name().data(), this->name().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Vertice.name");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Vertice.name"));
         } else {
           goto handle_unusual;
         }
@@ -770,11 +782,11 @@ bool Vertice::MergePartialFromCodedStream(
          parse_edges:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->add_edges()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->edges(this->edges_size() - 1).data(),
             this->edges(this->edges_size() - 1).length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Vertice.edges");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Vertice.edges"));
         } else {
           goto handle_unusual;
         }
@@ -826,9 +838,9 @@ void Vertice::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.Vertice)
   // optional string id = 1;
   if (this->id().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->id().data(), this->id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Vertice.id");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->id(), output);
@@ -836,9 +848,9 @@ void Vertice::SerializeWithCachedSizes(
 
   // optional string name = 2;
   if (this->name().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Vertice.name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->name(), output);
@@ -856,10 +868,10 @@ void Vertice::SerializeWithCachedSizes(
 
   // repeated string edges = 5;
   for (int i = 0; i < this->edges_size(); i++) {
-  ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-    this->edges(i).data(), this->edges(i).length(),
-    ::google::protobuf::internal::WireFormat::SERIALIZE,
-    "m.cheminot.data.Vertice.edges");
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->edges(i).data(), this->edges(i).length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "m.cheminot.data.Vertice.edges");
     ::google::protobuf::internal::WireFormatLite::WriteString(
       5, this->edges(i), output);
   }
@@ -878,9 +890,9 @@ void Vertice::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.Vertice)
   // optional string id = 1;
   if (this->id().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->id().data(), this->id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Vertice.id");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -889,9 +901,9 @@ void Vertice::SerializeWithCachedSizes(
 
   // optional string name = 2;
   if (this->name().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Vertice.name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -910,9 +922,9 @@ void Vertice::SerializeWithCachedSizes(
 
   // repeated string edges = 5;
   for (int i = 0; i < this->edges_size(); i++) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->edges(i).data(), this->edges(i).length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Vertice.edges");
     target = ::google::protobuf::internal::WireFormatLite::
       WriteStringToArray(5, this->edges(i), target);
@@ -1227,27 +1239,27 @@ int Vertice::stoptimes_size() const {
 void Vertice::clear_stoptimes() {
   stoptimes_.Clear();
 }
- const ::m::cheminot::data::StopTime& Vertice::stoptimes(int index) const {
+const ::m::cheminot::data::StopTime& Vertice::stoptimes(int index) const {
   // @@protoc_insertion_point(field_get:m.cheminot.data.Vertice.stopTimes)
   return stoptimes_.Get(index);
 }
- ::m::cheminot::data::StopTime* Vertice::mutable_stoptimes(int index) {
+::m::cheminot::data::StopTime* Vertice::mutable_stoptimes(int index) {
   // @@protoc_insertion_point(field_mutable:m.cheminot.data.Vertice.stopTimes)
   return stoptimes_.Mutable(index);
 }
- ::m::cheminot::data::StopTime* Vertice::add_stoptimes() {
+::m::cheminot::data::StopTime* Vertice::add_stoptimes() {
   // @@protoc_insertion_point(field_add:m.cheminot.data.Vertice.stopTimes)
   return stoptimes_.Add();
 }
- const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >&
-Vertice::stoptimes() const {
-  // @@protoc_insertion_point(field_list:m.cheminot.data.Vertice.stopTimes)
-  return stoptimes_;
-}
- ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >*
+::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >*
 Vertice::mutable_stoptimes() {
   // @@protoc_insertion_point(field_mutable_list:m.cheminot.data.Vertice.stopTimes)
   return &stoptimes_;
+}
+const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::StopTime >&
+Vertice::stoptimes() const {
+  // @@protoc_insertion_point(field_list:m.cheminot.data.Vertice.stopTimes)
+  return stoptimes_;
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -1353,10 +1365,10 @@ bool StopTime::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_tripid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->tripid().data(), this->tripid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.StopTime.tripId");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.StopTime.tripId"));
         } else {
           goto handle_unusual;
         }
@@ -1370,10 +1382,10 @@ bool StopTime::MergePartialFromCodedStream(
          parse_arrival:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_arrival()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->arrival().data(), this->arrival().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.StopTime.arrival");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.StopTime.arrival"));
         } else {
           goto handle_unusual;
         }
@@ -1387,10 +1399,10 @@ bool StopTime::MergePartialFromCodedStream(
          parse_departure:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_departure()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->departure().data(), this->departure().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.StopTime.departure");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.StopTime.departure"));
         } else {
           goto handle_unusual;
         }
@@ -1404,10 +1416,10 @@ bool StopTime::MergePartialFromCodedStream(
          parse_stopId:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_stopid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->stopid().data(), this->stopid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.StopTime.stopId");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.StopTime.stopId"));
         } else {
           goto handle_unusual;
         }
@@ -1456,9 +1468,9 @@ void StopTime::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.StopTime)
   // optional string tripId = 1;
   if (this->tripid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->tripid().data(), this->tripid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.tripId");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->tripid(), output);
@@ -1466,9 +1478,9 @@ void StopTime::SerializeWithCachedSizes(
 
   // optional string arrival = 2;
   if (this->arrival().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->arrival().data(), this->arrival().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.arrival");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->arrival(), output);
@@ -1476,9 +1488,9 @@ void StopTime::SerializeWithCachedSizes(
 
   // optional string departure = 3;
   if (this->departure().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->departure().data(), this->departure().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.departure");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->departure(), output);
@@ -1486,9 +1498,9 @@ void StopTime::SerializeWithCachedSizes(
 
   // optional string stopId = 4;
   if (this->stopid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->stopid().data(), this->stopid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.stopId");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->stopid(), output);
@@ -1507,9 +1519,9 @@ void StopTime::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.StopTime)
   // optional string tripId = 1;
   if (this->tripid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->tripid().data(), this->tripid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.tripId");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -1518,9 +1530,9 @@ void StopTime::SerializeWithCachedSizes(
 
   // optional string arrival = 2;
   if (this->arrival().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->arrival().data(), this->arrival().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.arrival");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -1529,9 +1541,9 @@ void StopTime::SerializeWithCachedSizes(
 
   // optional string departure = 3;
   if (this->departure().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->departure().data(), this->departure().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.departure");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -1540,9 +1552,9 @@ void StopTime::SerializeWithCachedSizes(
 
   // optional string stopId = 4;
   if (this->stopid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->stopid().data(), this->stopid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.StopTime.stopId");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -1958,6 +1970,10 @@ bool CalendarDates::MergePartialFromCodedStream(
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
               input, entry.get()));
           (*mutable_exceptionsbyserviceid())[entry->key()].Swap(entry->mutable_value());
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            entry->key().data(), entry->key().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.CalendarDates.ExceptionsByServiceIdEntry.key"));
         } else {
           goto handle_unusual;
         }
@@ -2000,6 +2016,10 @@ void CalendarDates::SerializeWithCachedSizes(
       entry.reset(exceptionsbyserviceid_.NewEntryWrapper(it->first, it->second));
       ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
           1, *entry, output);
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        it->first.data(), it->first.length(),
+        ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+        "m.cheminot.data.CalendarDates.ExceptionsByServiceIdEntry.key");
     }
   }
 
@@ -2019,6 +2039,10 @@ void CalendarDates::SerializeWithCachedSizes(
       target = ::google::protobuf::internal::WireFormatLite::
           WriteMessageNoVirtualToArray(
               1, *entry, target);
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        it->first.data(), it->first.length(),
+        ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+        "m.cheminot.data.CalendarDates.ExceptionsByServiceIdEntry.key");
     }
   }
 
@@ -2343,27 +2367,27 @@ int CalendarExceptions::calendardates_size() const {
 void CalendarExceptions::clear_calendardates() {
   calendardates_.Clear();
 }
- const ::m::cheminot::data::CalendarDate& CalendarExceptions::calendardates(int index) const {
+const ::m::cheminot::data::CalendarDate& CalendarExceptions::calendardates(int index) const {
   // @@protoc_insertion_point(field_get:m.cheminot.data.CalendarExceptions.calendarDates)
   return calendardates_.Get(index);
 }
- ::m::cheminot::data::CalendarDate* CalendarExceptions::mutable_calendardates(int index) {
+::m::cheminot::data::CalendarDate* CalendarExceptions::mutable_calendardates(int index) {
   // @@protoc_insertion_point(field_mutable:m.cheminot.data.CalendarExceptions.calendarDates)
   return calendardates_.Mutable(index);
 }
- ::m::cheminot::data::CalendarDate* CalendarExceptions::add_calendardates() {
+::m::cheminot::data::CalendarDate* CalendarExceptions::add_calendardates() {
   // @@protoc_insertion_point(field_add:m.cheminot.data.CalendarExceptions.calendarDates)
   return calendardates_.Add();
 }
- const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >&
-CalendarExceptions::calendardates() const {
-  // @@protoc_insertion_point(field_list:m.cheminot.data.CalendarExceptions.calendarDates)
-  return calendardates_;
-}
- ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >*
+::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >*
 CalendarExceptions::mutable_calendardates() {
   // @@protoc_insertion_point(field_mutable_list:m.cheminot.data.CalendarExceptions.calendarDates)
   return &calendardates_;
+}
+const ::google::protobuf::RepeatedPtrField< ::m::cheminot::data::CalendarDate >&
+CalendarExceptions::calendardates() const {
+  // @@protoc_insertion_point(field_list:m.cheminot.data.CalendarExceptions.calendarDates)
+  return calendardates_;
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -2461,10 +2485,10 @@ bool CalendarDate::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_serviceid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->serviceid().data(), this->serviceid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.CalendarDate.serviceId");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.CalendarDate.serviceId"));
         } else {
           goto handle_unusual;
         }
@@ -2478,10 +2502,10 @@ bool CalendarDate::MergePartialFromCodedStream(
          parse_date:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_date()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->date().data(), this->date().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.CalendarDate.date");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.CalendarDate.date"));
         } else {
           goto handle_unusual;
         }
@@ -2530,9 +2554,9 @@ void CalendarDate::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.CalendarDate)
   // optional string serviceId = 1;
   if (this->serviceid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->serviceid().data(), this->serviceid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.CalendarDate.serviceId");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->serviceid(), output);
@@ -2540,9 +2564,9 @@ void CalendarDate::SerializeWithCachedSizes(
 
   // optional string date = 2;
   if (this->date().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->date().data(), this->date().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.CalendarDate.date");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->date(), output);
@@ -2561,9 +2585,9 @@ void CalendarDate::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.CalendarDate)
   // optional string serviceId = 1;
   if (this->serviceid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->serviceid().data(), this->serviceid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.CalendarDate.serviceId");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -2572,9 +2596,9 @@ void CalendarDate::SerializeWithCachedSizes(
 
   // optional string date = 2;
   if (this->date().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->date().data(), this->date().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.CalendarDate.date");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -2911,10 +2935,10 @@ bool Calendar::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_serviceid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->serviceid().data(), this->serviceid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.serviceId");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.serviceId"));
         } else {
           goto handle_unusual;
         }
@@ -2928,10 +2952,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_monday:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_monday()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->monday().data(), this->monday().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.monday");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.monday"));
         } else {
           goto handle_unusual;
         }
@@ -2945,10 +2969,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_tuesday:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_tuesday()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->tuesday().data(), this->tuesday().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.tuesday");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.tuesday"));
         } else {
           goto handle_unusual;
         }
@@ -2962,10 +2986,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_wednesday:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_wednesday()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->wednesday().data(), this->wednesday().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.wednesday");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.wednesday"));
         } else {
           goto handle_unusual;
         }
@@ -2979,10 +3003,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_thursday:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_thursday()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->thursday().data(), this->thursday().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.thursday");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.thursday"));
         } else {
           goto handle_unusual;
         }
@@ -2996,10 +3020,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_friday:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_friday()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->friday().data(), this->friday().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.friday");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.friday"));
         } else {
           goto handle_unusual;
         }
@@ -3013,10 +3037,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_saturday:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_saturday()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->saturday().data(), this->saturday().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.saturday");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.saturday"));
         } else {
           goto handle_unusual;
         }
@@ -3030,10 +3054,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_sunday:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_sunday()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->sunday().data(), this->sunday().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.sunday");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.sunday"));
         } else {
           goto handle_unusual;
         }
@@ -3047,10 +3071,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_startDate:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_startdate()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->startdate().data(), this->startdate().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.startDate");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.startDate"));
         } else {
           goto handle_unusual;
         }
@@ -3064,10 +3088,10 @@ bool Calendar::MergePartialFromCodedStream(
          parse_endDate:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_enddate()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->enddate().data(), this->enddate().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.Calendar.endDate");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.Calendar.endDate"));
         } else {
           goto handle_unusual;
         }
@@ -3101,9 +3125,9 @@ void Calendar::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.Calendar)
   // optional string serviceId = 1;
   if (this->serviceid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->serviceid().data(), this->serviceid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.serviceId");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->serviceid(), output);
@@ -3111,9 +3135,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string monday = 2;
   if (this->monday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->monday().data(), this->monday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.monday");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->monday(), output);
@@ -3121,9 +3145,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string tuesday = 3;
   if (this->tuesday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->tuesday().data(), this->tuesday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.tuesday");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->tuesday(), output);
@@ -3131,9 +3155,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string wednesday = 4;
   if (this->wednesday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->wednesday().data(), this->wednesday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.wednesday");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->wednesday(), output);
@@ -3141,9 +3165,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string thursday = 5;
   if (this->thursday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->thursday().data(), this->thursday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.thursday");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       5, this->thursday(), output);
@@ -3151,9 +3175,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string friday = 6;
   if (this->friday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->friday().data(), this->friday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.friday");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       6, this->friday(), output);
@@ -3161,9 +3185,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string saturday = 7;
   if (this->saturday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->saturday().data(), this->saturday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.saturday");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       7, this->saturday(), output);
@@ -3171,9 +3195,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string sunday = 8;
   if (this->sunday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->sunday().data(), this->sunday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.sunday");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       8, this->sunday(), output);
@@ -3181,9 +3205,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string startDate = 9;
   if (this->startdate().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->startdate().data(), this->startdate().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.startDate");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       9, this->startdate(), output);
@@ -3191,9 +3215,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string endDate = 10;
   if (this->enddate().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->enddate().data(), this->enddate().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.endDate");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       10, this->enddate(), output);
@@ -3207,9 +3231,9 @@ void Calendar::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.Calendar)
   // optional string serviceId = 1;
   if (this->serviceid().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->serviceid().data(), this->serviceid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.serviceId");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3218,9 +3242,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string monday = 2;
   if (this->monday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->monday().data(), this->monday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.monday");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3229,9 +3253,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string tuesday = 3;
   if (this->tuesday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->tuesday().data(), this->tuesday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.tuesday");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3240,9 +3264,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string wednesday = 4;
   if (this->wednesday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->wednesday().data(), this->wednesday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.wednesday");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3251,9 +3275,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string thursday = 5;
   if (this->thursday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->thursday().data(), this->thursday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.thursday");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3262,9 +3286,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string friday = 6;
   if (this->friday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->friday().data(), this->friday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.friday");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3273,9 +3297,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string saturday = 7;
   if (this->saturday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->saturday().data(), this->saturday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.saturday");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3284,9 +3308,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string sunday = 8;
   if (this->sunday().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->sunday().data(), this->sunday().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.sunday");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3295,9 +3319,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string startDate = 9;
   if (this->startdate().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->startdate().data(), this->startdate().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.startDate");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -3306,9 +3330,9 @@ void Calendar::SerializeWithCachedSizes(
 
   // optional string endDate = 10;
   if (this->enddate().size() > 0) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->enddate().data(), this->enddate().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.Calendar.endDate");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
@@ -4018,11 +4042,11 @@ bool TripStopIds::MergePartialFromCodedStream(
          parse_stopIds:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->add_stopids()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->stopids(this->stopids_size() - 1).data(),
             this->stopids(this->stopids_size() - 1).length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "m.cheminot.data.TripStopIds.stopIds");
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "m.cheminot.data.TripStopIds.stopIds"));
         } else {
           goto handle_unusual;
         }
@@ -4057,10 +4081,10 @@ void TripStopIds::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_start:m.cheminot.data.TripStopIds)
   // repeated string stopIds = 1;
   for (int i = 0; i < this->stopids_size(); i++) {
-  ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-    this->stopids(i).data(), this->stopids(i).length(),
-    ::google::protobuf::internal::WireFormat::SERIALIZE,
-    "m.cheminot.data.TripStopIds.stopIds");
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->stopids(i).data(), this->stopids(i).length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "m.cheminot.data.TripStopIds.stopIds");
     ::google::protobuf::internal::WireFormatLite::WriteString(
       1, this->stopids(i), output);
   }
@@ -4073,9 +4097,9 @@ void TripStopIds::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_to_array_start:m.cheminot.data.TripStopIds)
   // repeated string stopIds = 1;
   for (int i = 0; i < this->stopids_size(); i++) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->stopids(i).data(), this->stopids(i).length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "m.cheminot.data.TripStopIds.stopIds");
     target = ::google::protobuf::internal::WireFormatLite::
       WriteStringToArray(1, this->stopids(i), target);
